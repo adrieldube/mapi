@@ -263,6 +263,18 @@ function updateLabels() {
 }
 
 // === MAP FUNCTIONS ===
+function updateRoadVisibility() {
+    const zoom = map.getZoom();
+    const visibility = zoom <= 9 ? 'none' : 'visible';
+    const roadLayers = ['highway_major', 'highway_minor', 'highway_other', 'railway'];
+
+    roadLayers.forEach(layerId => {
+        if (map.getLayer(layerId)) {
+            map.setLayoutProperty(layerId, 'visibility', visibility);
+        }
+    });
+}
+
 function initMap(center, zoom, style) {
     return new maplibregl.Map({
         container: "mapContainer",
@@ -282,6 +294,7 @@ function setupMapEvents() {
         elements.zoomValue.textContent = zoom;
         updateFooter(INITIAL_CENTER[1], INITIAL_CENTER[0]);
         updatePosterColors(PALETTES[currentStyle]);
+        updateRoadVisibility();
     });
 
     map.on("moveend", () => {
@@ -290,6 +303,7 @@ function setupMapEvents() {
         elements.zoomValue.textContent = zoom;
         const center = map.getCenter();
         updateFooter(center.lat, center.lng);
+        updateRoadVisibility();
     });
 }
 
@@ -306,12 +320,14 @@ function changeMapStyle(styleKey) {
         const c = map.getCenter();
         updateFooter(c.lat, c.lng);
         updatePosterColors(PALETTES[styleKey]);
+        updateRoadVisibility();
     });
 
     map.on("moveend", () => {
         elements.zoomInput.value = map.getZoom().toFixed(1);
         const c = map.getCenter();
         updateFooter(c.lat, c.lng);
+        updateRoadVisibility();
     });
 }
 
