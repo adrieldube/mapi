@@ -7,7 +7,7 @@ A beautiful, minimalist **single-file web application** that generates custom ci
 
 ## ✨ Features
 
-- **🎨 50 Dual-Tone Color Palettes** — From jade-black to sage-terracotta, carefully curated minimal color schemes
+- **🎨 Dual-Tone Color Palettes** — From jade-black to sage-terracotta, carefully curated minimal color schemes
 - **🗺️ Interactive Map Preview** — Real-time zoom and pan powered by MapLibre GL JS
 - **📍 Smart Geocoding** — Search any city worldwide using MapTiler's geocoding API
 - **📏 Live Coordinates** — Dynamic latitude/longitude display that updates as you navigate
@@ -43,7 +43,7 @@ Examples: `jade-black`, `coral-navy`, `sage-terracotta`, `forest-cream`, `ocean-
 Open `index.html` in any text editor and replace the placeholder:
 
 ```javascript
-const MAPTILER_KEY = "YOUR_MAPTILER_KEY";  // Line 385
+const MAPTILER_KEY = "YOUR_MAPTILER_KEY";  // Line 808
 ```
 
 With your actual key:
@@ -114,10 +114,10 @@ Since it's a single HTML file, deploy anywhere that hosts static sites:
 This is a **single-file application**. Everything lives in `index.html`:
 
 ```
-index.html (681 lines)
-├── <style>      (lines 16-234)   — All CSS styling
-├── <body>       (lines 236-381)  — HTML structure
-└── <script>     (lines 382-681)  — All JavaScript logic
+index.html (1354 lines)
+├── <style>      (lines 20-610)   — All CSS styling
+├── <body>       (lines 613-803)  — HTML structure
+└── <script>     (lines 804-1354) — All JavaScript logic
     ├── MapTiler API integration
     ├── 50 color palette definitions
     ├── Custom dual-tone style builder
@@ -159,7 +159,7 @@ The map is initialized with `preserveDrawingBuffer: true` (required for WebGL ca
 ```javascript
 map = new maplibregl.Map({
   container: 'mapContainer',
-  preserveDrawingBuffer: true,  // Critical for PNG export
+  preserveDrawingBuffer: true,  // Critical for PNG export (line 1027)
   // ...
 });
 ```
@@ -173,7 +173,7 @@ With export quality multipliers:
 - 2× = 1200×1800px
 - 3× = 1800×2700px
 
-To change dimensions, edit the CSS (lines 184-185):
+To change dimensions, edit the CSS in the `<style>` block:
 
 ```css
 #poster {
@@ -189,7 +189,7 @@ Recommended ratios for printing:
 
 ## 🎨 Adding Custom Color Palettes
 
-Add new palettes by editing the `DUAL_TONE_PALETTES` object (lines 391-448):
+Add new palettes by editing the `DUAL_TONE_PALETTES` object (starting at line 814):
 
 ```javascript
 const DUAL_TONE_PALETTES = {
@@ -202,7 +202,7 @@ const DUAL_TONE_PALETTES = {
 };
 ```
 
-Then add to the dropdown (lines 263-312):
+Then add to the style selector dropdown in the HTML:
 
 ```html
 <option value="your-palette-name">Your Palette Name</option>
@@ -248,7 +248,7 @@ This line appears in the footer and **must remain visible** on exported posters 
 - Ensure you're running via HTTP server, not `file://`
 
 **Blank PNG export:**
-- Confirm `preserveDrawingBuffer: true` is set (line 508)
+- Confirm `preserveDrawingBuffer: true` is set (line 1027)
 - Try lower export quality (browser memory limits)
 - Check browser console for canvas errors
 

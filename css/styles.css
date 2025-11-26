@@ -1,0 +1,535 @@
+/* Theme Preview Styles */
+.theme-swatch-large {
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+}
+
+.theme-swatch-large::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--swatch-bg);
+}
+
+.theme-swatch-large::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 12px;
+    background: var(--swatch-water);
+}
+
+.theme-swatch-large .roads {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    right: 6px;
+    bottom: 16px;
+    pointer-events: none;
+}
+
+/* Vertical line */
+.theme-swatch-large .roads::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: 2px;
+    height: 100%;
+    background: var(--swatch-roads);
+    transform: translateX(-50%);
+}
+
+/* Horizontal line */
+.theme-swatch-large .roads::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--swatch-roads);
+    transform: translateY(-50%);
+}
+
+.color-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+}
+
+.themes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(30px, 1fr));
+    gap: 4px;
+    max-height: 250px;
+    overflow-y: auto;
+    padding: 2px;
+    transition: max-height 0.3s ease;
+}
+
+.themes-grid.collapsed {
+    max-height: 72px;
+    overflow: hidden;
+}
+
+.theme-swatch {
+    width: 30px;
+    height: 30px;
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    border: 2px solid transparent;
+}
+
+.theme-swatch:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    z-index: 1;
+}
+
+.theme-swatch.selected {
+    border-color: #440edf;
+    box-shadow: 0 0 0 2px rgba(68, 14, 223, 0.3);
+}
+
+.theme-swatch::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--swatch-bg);
+}
+
+.theme-swatch::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 8px;
+    background: var(--swatch-water);
+}
+
+.theme-swatch .roads {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    right: 5px;
+    bottom: 11px;
+    pointer-events: none;
+}
+
+/* Vertical line */
+.theme-swatch .roads::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: 1.5px;
+    height: 100%;
+    background: var(--swatch-roads);
+    transform: translateX(-50%);
+}
+
+/* Horizontal line */
+.theme-swatch .roads::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 1.5px;
+    background: var(--swatch-roads);
+    transform: translateY(-50%);
+}
+
+/* Poster Styles */
+#poster {
+    width: 100%;
+    max-width: 1200px;
+    max-height: calc(100vh - 150px);
+    aspect-ratio: 5 / 8;
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    transition: all 0.3s ease-out;
+    margin-bottom: 48px;
+    overflow: hidden;
+}
+
+#poster.landscape {
+    aspect-ratio: 8 / 5;
+    max-width: 1500px;
+}
+
+@media (max-width: 768px) {
+    #poster {
+        max-width: 95%;
+        aspect-ratio: 5 / 7;
+    }
+}
+
+/* Print Size Variations */
+#poster.size-24x36 {
+    aspect-ratio: 24 / 36;
+    max-width: 1200px;
+}
+
+#poster.size-24x36.landscape {
+    aspect-ratio: 36 / 24;
+    max-width: 1800px;
+}
+
+#poster.size-a1 {
+    aspect-ratio: 594 / 841;
+    max-width: 1200px;
+}
+
+#poster.size-a1.landscape {
+    aspect-ratio: 841 / 594;
+    max-width: 1700px;
+}
+
+#poster.size-18x24 {
+    aspect-ratio: 18 / 24;
+    max-width: 1000px;
+}
+
+#poster.size-18x24.landscape {
+    aspect-ratio: 24 / 18;
+    max-width: 1300px;
+}
+
+#poster.size-16x20 {
+    aspect-ratio: 16 / 20;
+    max-width: 950px;
+}
+
+#poster.size-16x20.landscape {
+    aspect-ratio: 20 / 16;
+    max-width: 1200px;
+}
+
+#poster.size-a2 {
+    aspect-ratio: 420 / 594;
+    max-width: 1000px;
+}
+
+#poster.size-a2.landscape {
+    aspect-ratio: 594 / 420;
+    max-width: 1400px;
+}
+
+#poster.size-a3 {
+    aspect-ratio: 297 / 420;
+    max-width: 850px;
+}
+
+#poster.size-a3.landscape {
+    aspect-ratio: 420 / 297;
+    max-width: 1200px;
+}
+
+#poster.size-11x14 {
+    aspect-ratio: 11 / 14;
+    max-width: 850px;
+}
+
+#poster.size-11x14.landscape {
+    aspect-ratio: 14 / 11;
+    max-width: 1100px;
+}
+
+/* Map Container */
+#mapContainer {
+    width: 100%;
+    height: 100%;
+    flex: 1;
+    min-height: 0;
+    position: relative;
+}
+
+#mapContainer .maplibregl-canvas {
+    position: absolute;
+}
+
+/* Poster Footer Base */
+#posterFooter {
+    text-align: center;
+    padding: 16px 18px 20px;
+    background-color: inherit;
+    color: inherit;
+    flex-shrink: 0;
+}
+
+#cityTitle {
+    font-size: 1.5rem;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+#citySubtitle {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    margin-bottom: 2px;
+    font-weight: 400;
+    font-style: italic;
+    opacity: 0.7;
+    line-height: 1.3;
+}
+
+#coordinates {
+    font-size: 9px;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    opacity: 0.5;
+    font-weight: 400;
+    margin-top: 6px;
+    line-height: 1.2;
+}
+
+/* Poster Layout Styles - Minimal Luxury */
+.poster-style-minimal #posterFooter {
+    padding: clamp(14px, 2.5vw, 20px) clamp(18px, 2.8vw, 24px) clamp(16px, 3vw, 22px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.poster-style-minimal #cityTitle {
+    font-size: clamp(24px, 4.5vw, 38px);
+    letter-spacing: clamp(8px, 2vw, 14px);
+    text-transform: uppercase;
+    font-weight: 100;
+    margin-bottom: 10px;
+    line-height: 1.1;
+}
+
+.poster-style-minimal #citySubtitle {
+    font-size: clamp(8px, 1.2vw, 10px);
+    letter-spacing: clamp(2px, 0.5vw, 3px);
+    text-transform: uppercase;
+    font-weight: 400;
+    opacity: 0.45;
+    margin-bottom: 0;
+}
+
+.poster-style-minimal #coordinates {
+    font-size: clamp(7px, 1vw, 8px);
+    letter-spacing: 2px;
+    opacity: 0.28;
+    margin-top: 8px;
+}
+
+/* Vertical Edge */
+.poster-style-vertical {
+    display: block;
+}
+
+.poster-style-vertical #mapContainer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.poster-style-vertical #posterFooter {
+    position: absolute;
+    inset: 0;
+    padding: 0;
+    text-align: left;
+    background-color: transparent;
+    pointer-events: none;
+    display: block;
+}
+
+.poster-style-vertical #cityTitle {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    font-size: clamp(28px, 4.5vw, 38px);
+    letter-spacing: clamp(8px, 2vw, 12px);
+    padding: clamp(24px, 4vw, 36px);
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    text-transform: uppercase;
+    font-weight: 900;
+    margin: 0;
+    transform: rotate(180deg);
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+}
+
+.poster-style-vertical #citySubtitle {
+    bottom: clamp(20px, 3vw, 28px);
+    left: clamp(70px, 10vw, 110px);
+    font-size: clamp(10px, 1.5vw, 12px);
+    position: absolute;
+    letter-spacing: 2px;
+    opacity: 0.65;
+    margin: 0;
+    text-transform: uppercase;
+    font-weight: 500;
+    max-width: 60%;
+    pointer-events: auto;
+}
+
+.poster-style-vertical #coordinates {
+    top: clamp(24px, 4vw, 36px);
+    right: clamp(24px, 4vw, 36px);
+    font-size: clamp(8px, 1.2vw, 9px);
+    position: absolute;
+    letter-spacing: 1.5px;
+    opacity: 0.5;
+    margin: 0;
+    pointer-events: auto;
+}
+
+/* Corner Grid */
+.poster-style-corner {
+    display: block;
+}
+
+.poster-style-corner #mapContainer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.poster-style-corner #posterFooter {
+    position: absolute;
+    inset: 0;
+    padding: 0;
+    background-color: transparent;
+    pointer-events: none;
+}
+
+.poster-style-corner #cityTitle {
+    top: clamp(20px, 3vw, 28px);
+    left: clamp(24px, 4vw, 36px);
+    font-size: clamp(20px, 3.5vw, 28px);
+    letter-spacing: clamp(3px, 0.8vw, 5px);
+    position: absolute;
+    text-transform: uppercase;
+    font-weight: 800;
+    margin: 0;
+    text-align: left;
+    pointer-events: auto;
+    line-height: 1;
+}
+
+.poster-style-corner #citySubtitle {
+    bottom: clamp(20px, 3vw, 28px);
+    left: clamp(24px, 4vw, 36px);
+    font-size: clamp(9px, 1.4vw, 11px);
+    position: absolute;
+    letter-spacing: 2px;
+    opacity: 0.6;
+    margin: 0;
+    text-align: left;
+    text-transform: uppercase;
+    pointer-events: auto;
+}
+
+.poster-style-corner #coordinates {
+    top: clamp(20px, 3vw, 28px);
+    right: clamp(24px, 4vw, 36px);
+    font-size: clamp(8px, 1.2vw, 9px);
+    position: absolute;
+    letter-spacing: 1.5px;
+    opacity: 0.5;
+    margin: 0;
+    text-align: right;
+    pointer-events: auto;
+    line-height: 1;
+}
+
+/* Oversized Drama */
+.poster-style-oversized #posterFooter {
+    padding: clamp(14px, 2.2vw, 18px) clamp(18px, 2.5vw, 22px) clamp(16px, 2.3vw, 20px);
+}
+
+.poster-style-oversized #cityTitle {
+    font-size: clamp(28px, 6.5vw, 52px);
+    letter-spacing: clamp(0.5px, 0.2vw, 1.5px);
+    text-transform: uppercase;
+    font-weight: 900;
+    margin-bottom: 6px;
+    line-height: 0.92;
+}
+
+.poster-style-oversized #citySubtitle {
+    font-size: clamp(10px, 1.5vw, 12px);
+    letter-spacing: clamp(2px, 0.5vw, 4px);
+    font-weight: 400;
+    opacity: 0.5;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+}
+
+.poster-style-oversized #coordinates {
+    font-size: clamp(8px, 1.2vw, 9px);
+    letter-spacing: 2.5px;
+    opacity: 0.4;
+    margin-top: 8px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .poster-style-minimal #cityTitle {
+        letter-spacing: 8px;
+    }
+
+    .poster-style-oversized #cityTitle {
+        font-size: clamp(36px, 8vw, 56px);
+    }
+}
+
+/* Left Panel Scrollbar Styling */
+#controls::-webkit-scrollbar {
+    width: 8px;
+}
+
+#controls::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#controls::-webkit-scrollbar-thumb {
+    background: #440edf;
+    border-radius: 4px;
+}
+
+#controls::-webkit-scrollbar-thumb:hover {
+    background: #3509b8;
+}
+
+/* Firefox scrollbar styling */
+#controls {
+    scrollbar-width: thin;
+    scrollbar-color: #440edf transparent;
+}

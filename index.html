@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
-  <title>City Map Poster Generator</title>
+  <title> Map Poster Generator</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- MapLibre GL -->
@@ -17,1339 +17,281 @@
   <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-        sans-serif;
-      background: #f3f3f3;
-      color: #111;
-    }
-
-    header {
-      padding: 20px 32px;
-      background: #fff;
-      color: #111;
-      border-bottom: 1px solid #e0e0e0;
-    }
-
-    header h1 {
-      margin: 0;
-      font-size: 16px;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-    }
-
-    header small {
-      opacity: 0.6;
-      font-size: 11px;
-      font-weight: 400;
-    }
-
-    #container {
-      display: flex;
-      height: calc(100vh - 61px);
-      overflow: hidden;
-    }
-
-    @media (max-width: 900px) {
-      #container {
-        flex-direction: column;
-        height: auto;
-      }
-    }
-
-    #controls {
-      width: 320px;
-      background: #fff;
-      border-right: 1px solid #e0e0e0;
-      padding: 24px;
-      height: 100%;
-      overflow-y: auto;
-      flex-shrink: 0;
-    }
-
-    @media (max-width: 900px) {
-      #controls {
-        width: 100%;
-        border-right: none;
-        border-bottom: 1px solid #e0e0e0;
-        height: auto;
-      }
-    }
-
-    #controls h2 {
-      margin-top: 0;
-      margin-bottom: 20px;
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      opacity: 0.6;
-      padding-bottom: 12px;
-      border-bottom: 1px solid #e0e0e0;
-    }
-
-    .field {
-      margin-bottom: 20px;
-      text-align: left;
-    }
-
-    .field label {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 11px;
-      margin-bottom: 6px;
-      font-weight: 500;
-      color: #111;
-    }
-
-    .field label ion-icon {
-      font-size: 14px;
-      opacity: 0.7;
-    }
-
-    .field input,
-    .field select {
-      width: 100%;
-      padding: 10px 12px;
-      font-size: 13px;
-      border-radius: 6px;
-      border: 1px solid #ddd;
-      outline: none;
-      background: #fff;
-      transition: border-color 0.2s;
-    }
-
-    .field input:focus,
-    .field select:focus {
-      border-color: #111;
-      box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
-    }
-
-    .buttons {
-      margin-top: 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    button {
-      cursor: pointer;
-      border-radius: 6px;
-      border: none;
-      padding: 12px 18px;
-      font-size: 13px;
-      font-weight: 500;
-      transition: all 0.2s;
-    }
-
-    .primary {
-      background: #111;
-      color: #fff;
-    }
-
-    .primary:hover {
-      background: #000;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
-
-    .secondary {
-      background: #f5f5f5;
-      color: #111;
-      border: 1px solid #e0e0e0;
-    }
-
-    .secondary:hover {
-      background: #ebebeb;
-      border-color: #d0d0d0;
-    }
-
-    #status {
-      margin-top: 10px;
-      font-size: 11px;
-      min-height: 16px;
-      opacity: 0.7;
-    }
-
-    #posterWrapper {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 40px;
-      background: #f8f8f8;
-      overflow: visible;
-    }
-
-    /* Poster layout */
-    #poster {
-      width: 100%;
-      max-width: 700px;
-      max-height: calc(100vh - 141px);
-      aspect-ratio: 5/8;
-      background: #fff;
-      border: 1px solid #e0e0e0;
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      position: relative;
-      transition: all 0.3s ease;
-    }
-
-    #poster.landscape {
-      aspect-ratio: 8/5;
-      max-width: 900px;
-    }
-
-    /* Print Size Variations - Professional Quality Sizes */
-    #poster.size-24x36 {
-      aspect-ratio: 24/36;
-      max-width: 750px;
-    }
-
-    #poster.size-24x36.landscape {
-      aspect-ratio: 36/24;
-      max-width: 1100px;
-    }
-
-    #poster.size-a1 {
-      aspect-ratio: 594/841;
-      max-width: 700px;
-    }
-
-    #poster.size-a1.landscape {
-      aspect-ratio: 841/594;
-      max-width: 1000px;
-    }
-
-    #poster.size-18x24 {
-      aspect-ratio: 18/24;
-      max-width: 600px;
-    }
-
-    #poster.size-18x24.landscape {
-      aspect-ratio: 24/18;
-      max-width: 800px;
-    }
-
-    #poster.size-16x20 {
-      aspect-ratio: 16/20;
-      max-width: 550px;
-    }
-
-    #poster.size-16x20.landscape {
-      aspect-ratio: 20/16;
-      max-width: 750px;
-    }
-
-    #poster.size-a2 {
-      aspect-ratio: 420/594;
-      max-width: 600px;
-    }
-
-    #poster.size-a2.landscape {
-      aspect-ratio: 594/420;
-      max-width: 850px;
-    }
-
-    #poster.size-a3 {
-      aspect-ratio: 297/420;
-      max-width: 500px;
-    }
-
-    #poster.size-a3.landscape {
-      aspect-ratio: 420/297;
-      max-width: 700px;
-    }
-
-    #poster.size-11x14 {
-      aspect-ratio: 11/14;
-      max-width: 480px;
-    }
-
-    #poster.size-11x14.landscape {
-      aspect-ratio: 14/11;
-      max-width: 650px;
-    }
-
-    @media (max-width: 768px) {
-      #poster {
-        max-width: 95%;
-        aspect-ratio: 5/7;
-      }
-    }
-
-    #mapContainer {
-      width: 100%;
-      height: 100%;
-      flex: 1;
-      min-height: 0;
-      position: relative;
-    }
-
-    #mapContainer .maplibregl-canvas {
-      position: absolute;
-    }
-
-    #posterFooter {
-      text-align: center;
-      padding: 16px 18px 20px;
-      background: inherit;
-      color: inherit;
-      flex-shrink: 0;
-    }
-
-    #cityTitle {
-      font-size: 24px;
-      letter-spacing: 4px;
-      text-transform: uppercase;
-      margin-bottom: 6px;
-      font-weight: 800;
-      line-height: 1.2;
-    }
-
-    #citySubtitle {
-      font-size: 11px;
-      letter-spacing: 1px;
-      margin-bottom: 3px;
-      font-weight: 400;
-      font-style: italic;
-      opacity: 0.7;
-      line-height: 1.3;
-    }
-
-    #coordinates {
-      font-size: 9px;
-      letter-spacing: 1.2px;
-      text-transform: uppercase;
-      opacity: 0.5;
-      font-weight: 400;
-      margin-top: 6px;
-      line-height: 1.2;
-    }
-
-    /* Poster Layout Styles */
-
-    /* 1. Minimal Luxury - Ultra-light with generous spacing */
-    .poster-style-minimal #posterFooter {
-      padding: clamp(14px, 2.5vw, 20px) clamp(18px, 2.8vw, 24px) clamp(16px, 3vw, 22px);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .poster-style-minimal #cityTitle {
-      font-size: clamp(24px, 4.5vw, 38px);
-      letter-spacing: clamp(8px, 2vw, 14px);
-      text-transform: uppercase;
-      font-weight: 100;
-      margin-bottom: 10px;
-      line-height: 1.1;
-    }
-
-    .poster-style-minimal #citySubtitle {
-      font-size: clamp(8px, 1.2vw, 10px);
-      letter-spacing: clamp(2px, 0.5vw, 3px);
-      text-transform: uppercase;
-      font-weight: 400;
-      opacity: 0.45;
-      margin-bottom: 0;
-    }
-
-    .poster-style-minimal #coordinates {
-      font-size: clamp(7px, 1vw, 8px);
-      letter-spacing: 2px;
-      opacity: 0.28;
-      margin-top: 8px;
-    }
-
-    @media (max-width: 768px) {
-      .poster-style-minimal #cityTitle {
-        letter-spacing: 8px;
-      }
-    }
-
-    /* 2. Vertical Edge - Rotated title with modern layout */
-    .poster-style-vertical {
-      display: block;
-    }
-
-    .poster-style-vertical #mapContainer {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-    }
-
-    .poster-style-vertical #posterFooter {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      padding: 0;
-      text-align: left;
-      background: transparent;
-      pointer-events: none;
-      display: block;
-    }
-
-    .poster-style-vertical #cityTitle {
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      writing-mode: vertical-rl;
-      text-orientation: mixed;
-      font-size: clamp(28px, 4.5vw, 38px);
-      letter-spacing: clamp(8px, 2vw, 12px);
-      text-transform: uppercase;
-      font-weight: 900;
-      margin: 0;
-      padding: clamp(24px, 4vw, 36px);
-      transform: rotate(180deg);
-      pointer-events: auto;
-      display: flex;
-      align-items: center;
-    }
-
-    .poster-style-vertical #citySubtitle {
-      position: absolute;
-      bottom: clamp(20px, 3vw, 28px);
-      left: clamp(70px, 10vw, 110px);
-      font-size: clamp(10px, 1.5vw, 12px);
-      letter-spacing: 2px;
-      opacity: 0.65;
-      margin: 0;
-      text-transform: uppercase;
-      font-weight: 500;
-      max-width: 60%;
-      pointer-events: auto;
-    }
-
-    .poster-style-vertical #coordinates {
-      position: absolute;
-      top: clamp(24px, 4vw, 36px);
-      right: clamp(24px, 4vw, 36px);
-      font-size: clamp(8px, 1.2vw, 9px);
-      letter-spacing: 1.5px;
-      opacity: 0.5;
-      margin: 0;
-      pointer-events: auto;
-    }
-
-    /* 3. Corner Grid - Text in corners with dynamic layout */
-    .poster-style-corner {
-      display: block;
-    }
-
-    .poster-style-corner #mapContainer {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-    }
-
-    .poster-style-corner #posterFooter {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      padding: 0;
-      background: transparent;
-      pointer-events: none;
-    }
-
-    .poster-style-corner #cityTitle {
-      position: absolute;
-      top: clamp(20px, 3vw, 28px);
-      left: clamp(24px, 4vw, 36px);
-      font-size: clamp(20px, 3.5vw, 28px);
-      letter-spacing: clamp(3px, 0.8vw, 5px);
-      text-transform: uppercase;
-      font-weight: 800;
-      margin: 0;
-      text-align: left;
-      pointer-events: auto;
-      line-height: 1;
-    }
-
-    .poster-style-corner #citySubtitle {
-      position: absolute;
-      bottom: clamp(20px, 3vw, 28px);
-      left: clamp(24px, 4vw, 36px);
-      font-size: clamp(9px, 1.4vw, 11px);
-      letter-spacing: 2px;
-      opacity: 0.6;
-      margin: 0;
-      text-align: left;
-      text-transform: uppercase;
-      pointer-events: auto;
-    }
-
-    .poster-style-corner #coordinates {
-      position: absolute;
-      top: clamp(20px, 3vw, 28px);
-      right: clamp(24px, 4vw, 36px);
-      font-size: clamp(8px, 1.2vw, 9px);
-      letter-spacing: 1.5px;
-      opacity: 0.5;
-      margin: 0;
-      text-align: right;
-      pointer-events: auto;
-      line-height: 1;
-    }
-
-    /* 4. Oversized Drama - Massive title with stunning impact */
-    .poster-style-oversized #posterFooter {
-      padding: clamp(14px, 2.2vw, 18px) clamp(18px, 2.5vw, 22px) clamp(16px, 2.3vw, 20px);
-    }
-
-    .poster-style-oversized #cityTitle {
-      font-size: clamp(28px, 6.5vw, 52px);
-      letter-spacing: clamp(0.5px, 0.2vw, 1.5px);
-      text-transform: uppercase;
-      font-weight: 900;
-      margin-bottom: 6px;
-      line-height: 0.92;
-    }
-
-    .poster-style-oversized #citySubtitle {
-      font-size: clamp(10px, 1.5vw, 12px);
-      letter-spacing: clamp(2px, 0.5vw, 4px);
-      font-weight: 400;
-      opacity: 0.5;
-      margin-bottom: 4px;
-      text-transform: uppercase;
-    }
-
-    .poster-style-oversized #coordinates {
-      font-size: clamp(8px, 1.2vw, 9px);
-      letter-spacing: 2.5px;
-      opacity: 0.4;
-      margin-top: 8px;
-    }
-
-    @media (max-width: 768px) {
-      .poster-style-oversized #cityTitle {
-        font-size: clamp(36px, 8vw, 56px);
-      }
-    }
-
-    /* Toggle switch */
-    .toggle-container {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 20px;
-      padding: 12px;
-      background: #f9f9f9;
-      border-radius: 6px;
-      border: 1px solid #e0e0e0;
-    }
-
-    .toggle-container label {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 11px;
-      font-weight: 500;
-      margin: 0;
-    }
-
-    .toggle-container label ion-icon {
-      font-size: 14px;
-      opacity: 0.7;
-    }
-
-    .toggle-switch {
-      position: relative;
-      width: 48px;
-      height: 24px;
-      background: #ccc;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    .toggle-switch.active {
-      background: #111;
-    }
-
-    .toggle-switch::after {
-      content: '';
-      position: absolute;
-      top: 2px;
-      left: 2px;
-      width: 20px;
-      height: 20px;
-      background: white;
-      border-radius: 50%;
-      transition: transform 0.3s;
-    }
-
-    .toggle-switch.active::after {
-      transform: translateX(24px);
-    }
-
-    #attribution {
-      margin-top: 8px;
-      font-size: 12px;
-    }
-  </style>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Custom Styles -->
+  <link href="css/styles.css" rel="stylesheet" />
 </head>
 
-<body>
-  <header>
-    <div>
-      <h1>City Map Posters Generator</h1>
-      <small>Create stunning minimalist city map posters with dual-tone color palettes.</small>
+<body class="bg-[#f3f3f3] text-[#111] font-sans m-0 h-screen overflow-hidden">
+  <header class="px-8 py-5 bg-[#440edf] text-[#74e5c0] border-b border-[#e0e0e0]">
+    <div class="flex items-center justify-between">
+      <h1 class="m-0 text-xl  font-semibold tracking-[0.5px] flex items-center gap-2">
+        <ion-icon name="map-outline" class="text-2xl"></ion-icon>
+        MAPI
+      </h1>
+      <p class="m-0 text-md  tracking-wide opacity-90"> Map Posters Generator</p>
+      <button
+        class="cursor-pointer rounded-xl border border-transparent px-5 py-2.5 text-[13px] font-semibold transition-all duration-200 bg-[#74e5c0] text-[#000] hover:bg-[#440edf] hover:text-[#74e5c0] hover:border-[#74e5c0] hover:shadow-lg flex items-center gap-2"
+        id="downloadBtn">
+        <ion-icon name="download-outline" class="text-base"></ion-icon>
+        Download PNG
+      </button>
     </div>
   </header>
 
-  <div id="container">
-    <section id="controls">
-      <h2>Map Settings</h2>
+  <div id="container" class="flex h-[calc(100vh-61px)] overflow-hidden max-[900px]:flex-col max-[900px]:h-auto">
+    <section id="controls"
+      class="w-[320px] bg-[#fafafa] p-4 h-full overflow-y-auto shrink-0 max-[900px]:w-full max-[900px]:h-auto">
 
-      <div class="field">
-        <label for="cityInput">
-          <ion-icon name="location-outline"></ion-icon>
-          City / Place
-        </label>
-        <input id="cityInput" type="text" placeholder="Mexico City" />
-      </div>
-
-      <div class="field">
-        <label for="zoomInput">
-          <ion-icon name="search-outline"></ion-icon>
-          Zoom level: <span id="zoomValue">13.0</span>
-        </label>
-        <input id="zoomInput" type="range" min="1" max="20" step="0.1" value="13" />
-      </div>
-
-      <div class="field">
-        <label for="posterStyleSelect">
-          <ion-icon name="grid-outline"></ion-icon>
-          Poster Layout Style
-        </label>
-        <select id="posterStyleSelect">
-          <option value="minimal" selected>Minimal Luxury</option>
-          <option value="vertical">Vertical Edge</option>
-          <option value="corner">Corner Grid</option>
-          <option value="oversized">Oversized Drama</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label for="sizeSelect">
-          <ion-icon name="resize-outline"></ion-icon>
-          Print Size (High Quality)
-        </label>
-        <select id="sizeSelect">
-          <option value="a1">A1 — 23.4 × 33.1 in (59.4 × 84.1 cm)</option>
-          <option value="a2">A2 — 16.5 × 23.4 in (42 × 59.4 cm)</option>
-          <option value="a3">A3 — 11.7 × 16.5 in (29.7 × 42 cm)</option>
-          <option value="24x36" selected>24 × 36 in (61 × 91.4 cm)</option>
-          <option value="18x24">18 × 24 in (45.7 × 61 cm)</option>
-          <option value="16x20">16 × 20 in (40.6 × 50.8 cm)</option>
-          <option value="11x14">11 × 14 in (27.9 × 35.6 cm)</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label for="styleSelect">
-          <ion-icon name="color-palette-outline"></ion-icon>
-          Map Style
-        </label>
-        <select id="styleSelect">
-          <option value="Sage Green & Terracotta">Sage Green & Terracotta</option>
-          <option value="Midnight Navy & Gold">Midnight Navy & Gold</option>
-          <option value="Blush Pink & Charcoal">Blush Pink & Charcoal</option>
-          <option value="Forest Green & Cream">Forest Green & Cream</option>
-          <option value="Deep Ocean Blue & Sand">Deep Ocean Blue & Sand</option>
-          <option value="Rust Red & Ivory">Rust Red & Ivory</option>
-          <option value="Lavender Purple & Slate">Lavender Purple & Slate</option>
-          <option value="Emerald Green & Bone">Emerald Green & Bone</option>
-          <option value="Burgundy Red & Beige">Burgundy Red & Beige</option>
-          <option value="Teal Blue & Taupe">Teal Blue & Taupe</option>
-          <option value="Cobalt Blue & Cream">Cobalt Blue & Cream</option>
-          <option value="Mocha Brown & Mint Green">Mocha Brown & Mint Green</option>
-          <option value="Pure Black & White" selected>Pure Black & White</option>
-          <option value="Noir White & Black (Inverted)">Noir White & Black (Inverted)</option>
-          <option value="Deep Navy Blue & White">Deep Navy Blue & White</option>
-          <option value="Crimson Red & Ivory">Crimson Red & Ivory</option>
-          <option value="Electric Blue & White">Electric Blue & White</option>
-          <option value="Forest Green & White">Forest Green & White</option>
-          <option value="Charcoal Grey & Snow White">Charcoal Grey & Snow White</option>
-          <option value="Royal Purple & Cream">Royal Purple & Cream</option>
-          <option value="Burnt Orange & White">Burnt Orange & White</option>
-          <option value="Prussian Blue & White">Prussian Blue & White</option>
-          <option value="Vermillion Red & Ecru">Vermillion Red & Ecru</option>
-          <option value="Ink Black & Paper White">Ink Black & Paper White</option>
-          <option value="Hot Pink & White">Hot Pink & White</option>
-          <option value="Fuchsia Pink & Cream">Fuchsia Pink & Cream</option>
-          <option value="Neon Green & Black">Neon Green & Black</option>
-          <option value="Neon Cyan & Black">Neon Cyan & Black</option>
-          <option value="Magenta Pink & White">Magenta Pink & White</option>
-          <option value="Lime Yellow & Charcoal">Lime Yellow & Charcoal</option>
-          <option value="Tangerine Orange & White">Tangerine Orange & White</option>
-          <option value="Violet Purple & Ivory">Violet Purple & Ivory</option>
-          <option value="Coral Red & Navy Blue">Coral Red & Navy Blue</option>
-          <option value="Turquoise Blue & Cream">Turquoise Blue & Cream</option>
-          <option value="Raspberry Pink & White">Raspberry Pink & White</option>
-          <option value="Chartreuse Yellow & Black">Chartreuse Yellow & Black</option>
-          <option value="Amber Gold & Slate Grey">Amber Gold & Slate Grey</option>
-          <option value="Orchid Pink & White">Orchid Pink & White</option>
-          <option value="Cyan Blue & Black">Cyan Blue & Black</option>
-          <option value="Scarlet Red & Beige">Scarlet Red & Beige</option>
-          <option value="Mint Green & Chocolate Brown">Mint Green & Chocolate Brown</option>
-          <option value="Sapphire Blue & White">Sapphire Blue & White</option>
-          <option value="Peach Orange & Graphite">Peach Orange & Graphite</option>
-          <option value="Aqua Blue & Charcoal">Aqua Blue & Charcoal</option>
-          <option value="Rose Pink & White">Rose Pink & White</option>
-          <option value="Lemon Yellow & Navy Blue">Lemon Yellow & Navy Blue</option>
-          <option value="Plum Purple & Cream">Plum Purple & Cream</option>
-          <option value="Jade Green & Black">Jade Green & Black</option>
-          <option value="Sunset Orange & White">Sunset Orange & White</option>
-          <option value="Royal Blue & Coral Orange">Royal Blue & Coral Orange</option>
-          <option value="Bright Yellow & Teal Blue">Bright Yellow & Teal Blue</option>
-        </select>
-      </div>
-
-      <h2>Orientation</h2>
-
-      <div class="toggle-container">
-        <label>
-          <ion-icon name="phone-portrait-outline"></ion-icon>
-          Landscape Mode
-        </label>
-        <div class="toggle-switch" id="orientationToggle"></div>
-      </div>
-
-      <h2>Labels</h2>
-
-      <div class="toggle-container">
-        <label>
-          <ion-icon name="text-outline"></ion-icon>
-          Labels
-        </label>
-        <div class="toggle-switch active" id="labelsToggle"></div>
-      </div>
-
-      <div id="labelFields">
-        <div class="field">
-          <label for="titleInput">
-            <ion-icon name="create-outline"></ion-icon>
-            Title:
-          </label>
-          <input id="titleInput" type="text" placeholder="New York" value="HAVANA" />
+      <!-- Location Section -->
+      <div class="mb-6">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="w-1 h-4 bg-[#440edf] rounded-full"></div>
+          <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">Location</span>
         </div>
 
-        <div class="field">
-          <label for="subtitleInput">
-            <ion-icon name="create-outline"></ion-icon>
-            Subtitle:
-          </label>
-          <input id="subtitleInput" type="text" placeholder="The city that never sleeps"
-            value="The Pearl of the Antilles" />
-        </div>
+        <div class="space-y-2">
+          <div>
+            <label for="cityInput" class="block text-[11px] font-medium text-[#666] mb-1">City / Place</label>
+            <input id="cityInput" type="text" placeholder="Search for a city..."
+              class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20" />
+          </div>
 
-        <div class="field">
-          <label for="taglineInput">
-            <ion-icon name="create-outline"></ion-icon>
-            Tagline:
-          </label>
-          <input id="taglineInput" type="text" placeholder="40.713°N / 74.006°W" value="" />
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label for="zoomInput" class="text-[11px] font-medium text-[#666]">Zoom</label>
+              <span id="zoomValue" class="text-[11px] font-semibold text-[#440edf]">13.0</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <button type="button" id="zoomDecrement"
+                class="flex items-center justify-center w-8 h-8 rounded-lg bg-white shadow-sm text-[#666] text-base transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95">
+                <ion-icon name="remove-outline"></ion-icon>
+              </button>
+              <div class="flex-1">
+                <input id="zoomInput" type="range" min="1" max="20" step="0.1" value="13"
+                  class="w-full h-1.5 appearance-none bg-[#e5e5e5] rounded-full cursor-pointer
+                    [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#440edf] [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb]:duration-200 [&::-webkit-slider-thumb]:hover:scale-110 [&::-webkit-slider-thumb]:shadow-md
+                    [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-[#440edf] [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:transition-transform [&::-moz-range-thumb]:duration-200 [&::-moz-range-thumb]:hover:scale-110 [&::-moz-range-thumb]:shadow-md" />
+              </div>
+              <button type="button" id="zoomIncrement"
+                class="flex items-center justify-center w-8 h-8 rounded-lg bg-white shadow-sm text-[#666] text-base transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95">
+                <ion-icon name="add-outline"></ion-icon>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="buttons">
-        <button class="primary" id="downloadBtn">
-          <ion-icon name="download-outline" style="vertical-align: middle; margin-right: 6px;"></ion-icon>
-          Download PNG
-        </button>
+      <!-- Poster Style Section -->
+      <div class="mb-6">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="w-1 h-4 bg-[#440edf] rounded-full"></div>
+          <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">Poster Style</span>
+        </div>
+
+        <div class="space-y-2">
+          <div>
+            <label for="posterStyleSelect" class="block text-[11px] font-medium text-[#666] mb-1">Layout</label>
+            <select id="posterStyleSelect"
+              class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20 cursor-pointer">
+              <option value="minimal" selected>Minimal Luxury</option>
+              <option value="vertical">Vertical Edge</option>
+              <option value="corner">Corner Grid</option>
+              <option value="oversized">Oversized Drama</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="sizeSelect" class="block text-[11px] font-medium text-[#666] mb-1">Print Size</label>
+            <select id="sizeSelect"
+              class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20 cursor-pointer">
+              <option value="a1">A1 — 23.4 × 33.1 in / 59.4 × 84.1 cm</option>
+              <option value="a2">A2 — 16.5 × 23.4 in / 42 × 59.4 cm</option>
+              <option value="a3">A3 — 11.7 × 16.5 in / 29.7 × 42 cm</option>
+              <option value="24x36" selected>24 × 36 in / 61 × 91.4 cm</option>
+              <option value="18x24">18 × 24 in / 45.7 × 61 cm</option>
+              <option value="16x20">16 × 20 in / 40.6 × 50.8 cm</option>
+              <option value="11x14">11 × 14 in / 27.9 × 35.6 cm</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="styleSelect" class="block text-[11px] font-medium text-[#666] mb-1">Color Theme</label>
+
+            <!-- Selected Theme Preview -->
+            <div id="selectedThemePreview" class="mb-2 p-2 bg-white rounded-lg shadow-sm">
+              <div class="flex items-center gap-3">
+                <div id="selectedThemeSwatch" class="theme-swatch-large"></div>
+                <div class="flex-1 min-w-0">
+                  <div id="selectedThemeName" class="text-[12px] font-semibold text-[#333] truncate">Pure Black & White
+                  </div>
+                  <div class="flex gap-2 mt-1.5">
+                    <div class="flex items-center gap-1">
+                      <span id="selectedBgColor" class="color-dot"></span>
+                      <span class="text-[9px] text-[#888]">Background</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                      <span id="selectedRoadsColor" class="color-dot"></span>
+                      <span class="text-[9px] text-[#888]">Roads</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                      <span id="selectedWaterColor" class="color-dot"></span>
+                      <span class="text-[9px] text-[#888]">Water</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- All Themes Grid -->
+            <div class="mb-2">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-[10px] font-medium text-[#888]">All Themes</span>
+                <button id="toggleThemesGrid"
+                  class="text-[10px] text-[#440edf] hover:underline cursor-pointer bg-transparent border-none">Show
+                  all</button>
+              </div>
+              <div id="themesGrid" class="themes-grid collapsed"></div>
+            </div>
+
+            <select id="styleSelect"
+              class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20 cursor-pointer">
+              <option value="Sage Green & Terracotta">Sage Green & Terracotta</option>
+              <option value="Midnight Navy & Gold">Midnight Navy & Gold</option>
+              <option value="Blush Pink & Charcoal">Blush Pink & Charcoal</option>
+              <option value="Forest Green & Cream">Forest Green & Cream</option>
+              <option value="Deep Ocean Blue & Sand">Deep Ocean Blue & Sand</option>
+              <option value="Rust Red & Ivory">Rust Red & Ivory</option>
+              <option value="Lavender Purple & Slate">Lavender Purple & Slate</option>
+              <option value="Emerald Green & Bone">Emerald Green & Bone</option>
+              <option value="Burgundy Red & Beige">Burgundy Red & Beige</option>
+              <option value="Teal Blue & Taupe">Teal Blue & Taupe</option>
+              <option value="Cobalt Blue & Cream">Cobalt Blue & Cream</option>
+              <option value="Mocha Brown & Mint Green">Mocha Brown & Mint Green</option>
+              <option value="Pure Black & White" selected>Pure Black & White</option>
+              <option value="Noir White & Black (Inverted)">Noir White & Black (Inverted)</option>
+              <option value="Deep Navy Blue & White">Deep Navy Blue & White</option>
+              <option value="Crimson Red & Ivory">Crimson Red & Ivory</option>
+              <option value="Electric Blue & White">Electric Blue & White</option>
+              <option value="Forest Green & White">Forest Green & White</option>
+              <option value="Charcoal Grey & Snow White">Charcoal Grey & Snow White</option>
+              <option value="Royal Purple & Cream">Royal Purple & Cream</option>
+              <option value="Burnt Orange & White">Burnt Orange & White</option>
+              <option value="Prussian Blue & White">Prussian Blue & White</option>
+              <option value="Vermillion Red & Ecru">Vermillion Red & Ecru</option>
+              <option value="Ink Black & Paper White">Ink Black & Paper White</option>
+              <option value="Hot Pink & White">Hot Pink & White</option>
+              <option value="Fuchsia Pink & Cream">Fuchsia Pink & Cream</option>
+              <option value="Neon Green & Black">Neon Green & Black</option>
+              <option value="Neon Cyan & Black">Neon Cyan & Black</option>
+              <option value="Magenta Pink & White">Magenta Pink & White</option>
+              <option value="Lime Yellow & Charcoal">Lime Yellow & Charcoal</option>
+              <option value="Tangerine Orange & White">Tangerine Orange & White</option>
+              <option value="Violet Purple & Ivory">Violet Purple & Ivory</option>
+              <option value="Coral Red & Navy Blue">Coral Red & Navy Blue</option>
+              <option value="Turquoise Blue & Cream">Turquoise Blue & Cream</option>
+              <option value="Raspberry Pink & White">Raspberry Pink & White</option>
+              <option value="Chartreuse Yellow & Black">Chartreuse Yellow & Black</option>
+              <option value="Amber Gold & Slate Grey">Amber Gold & Slate Grey</option>
+              <option value="Orchid Pink & White">Orchid Pink & White</option>
+              <option value="Cyan Blue & Black">Cyan Blue & Black</option>
+              <option value="Scarlet Red & Beige">Scarlet Red & Beige</option>
+              <option value="Mint Green & Chocolate Brown">Mint Green & Chocolate Brown</option>
+              <option value="Sapphire Blue & White">Sapphire Blue & White</option>
+              <option value="Peach Orange & Graphite">Peach Orange & Graphite</option>
+              <option value="Aqua Blue & Charcoal">Aqua Blue & Charcoal</option>
+              <option value="Rose Pink & White">Rose Pink & White</option>
+              <option value="Lemon Yellow & Navy Blue">Lemon Yellow & Navy Blue</option>
+              <option value="Plum Purple & Cream">Plum Purple & Cream</option>
+              <option value="Jade Green & Black">Jade Green & Black</option>
+              <option value="Sunset Orange & White">Sunset Orange & White</option>
+              <option value="Royal Blue & Coral Orange">Royal Blue & Coral Orange</option>
+              <option value="Bright Yellow & Teal Blue">Bright Yellow & Teal Blue</option>
+            </select>
+          </div>
+        </div>
       </div>
 
-      <div id="attribution">
-        © OpenStreetMap contributors · Tiles © MapTiler
+      <!-- Options Section -->
+      <div class="mb-6">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="w-1 h-4 bg-[#440edf] rounded-full"></div>
+          <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">Options</span>
+        </div>
+
+        <div class="flex items-center gap-3 p-2 bg-white rounded-lg shadow-sm">
+          <div class="flex items-center gap-2">
+            <span class="text-[12px] font-medium text-[#555]">Landscape</span>
+            <div
+              class="toggle-switch relative w-11 h-6 bg-[#e0e0e0] rounded-full cursor-pointer transition-colors duration-300 after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:w-[18px] after:h-[18px] after:bg-white after:rounded-full after:transition-transform after:duration-300 after:shadow-sm [&.active]:bg-[#440edf] [&.active]:after:translate-x-5"
+              id="orientationToggle"></div>
+          </div>
+
+          <div class="w-px h-6 bg-[#e0e0e0]"></div>
+
+          <div class="flex items-center gap-2">
+            <span class="text-[12px] font-medium text-[#555]">Labels</span>
+            <div
+              class="toggle-switch active relative w-11 h-6 bg-[#e0e0e0] rounded-full cursor-pointer transition-colors duration-300 after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:w-[18px] after:h-[18px] after:bg-white after:rounded-full after:transition-transform after:duration-300 after:shadow-sm [&.active]:bg-[#440edf] [&.active]:after:translate-x-5"
+              id="labelsToggle"></div>
+          </div>
+        </div>
       </div>
 
-      <div id="status"></div>
+      <!-- Labels Section -->
+      <div id="labelFields" class="mb-4">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="w-1 h-4 bg-[#440edf] rounded-full"></div>
+          <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">Labels</span>
+        </div>
+
+        <div class="space-y-2">
+          <div>
+            <label for="titleInput" class="block text-[11px] font-medium text-[#666] mb-1">Title</label>
+            <input id="titleInput" type="text" placeholder="City name" value="HAVANA"
+              class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20" />
+          </div>
+
+          <div>
+            <label for="subtitleInput" class="block text-[11px] font-medium text-[#666] mb-1">Subtitle</label>
+            <input id="subtitleInput" type="text" placeholder="Optional tagline" value="The Pearl of the Antilles"
+              class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20" />
+          </div>
+
+          <div>
+            <label for="taglineInput" class="block text-[11px] font-medium text-[#666] mb-1">Tagline</label>
+            <input id="taglineInput" type="text" placeholder="40.712° N — 74.006° W" value=""
+              class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Status & Attribution -->
+      <div class="mt-auto">
+        <div id="status" class="text-[11px] min-h-[16px] text-center text-[#888]">&nbsp;</div>
+
+        <div id="attribution" class="mt-4 pt-2 border-t border-[#e5e5e5] text-[9px] text-center text-[#aaa]">
+          © OpenStreetMap contributors · Tiles © MapTiler
+        </div>
+      </div>
     </section>
 
-    <section id="posterWrapper">
-      <div id="poster" class="poster-style-minimal">
+    <section id="posterWrapper" class="flex-1 flex justify-center items-center p-4 bg-[#fff] overflow-hidden">
+      <div id="poster" class="poster-style-minimal rounded-xl">
         <div id="mapContainer"></div>
         <div id="posterFooter">
           <div id="cityTitle">HAVANA</div>
           <div id="citySubtitle">The Pearl of the Antilles</div>
-          <div id="coordinates">23.1136° N — 82.3666° W</div>
+          <div id="coordinates">23.114° N — 82.367° W</div>
         </div>
-
       </div>
     </section>
   </div>
 
-  <script>
-    // === CONFIGURATION ===
-    // 1. Get a free key at https://cloud.maptiler.com/
-    // 2. Replace the string below.
-    const MAPTILER_KEY = "2Q7XT8l9Iqoe1Z9gbvHw";
-
-    // Base style for custom dual-tone maps
-    const BASE_STYLE_URL = `https://api.maptiler.com/maps/streets-v2/style.json?key=${MAPTILER_KEY}`;
-
-    // 50 Dual-Tone Color Palettes - Soft, Bold, and Vibrant
-    const DUAL_TONE_PALETTES = {
-      'Sage Green & Terracotta': { bg: '#E8E5D8', roads: '#C67B5C', water: '#A8B5A0' },
-      'Midnight Navy & Gold': { bg: '#1A1A2E', roads: '#D4AF37', water: '#16213E' },
-      'Blush Pink & Charcoal': { bg: '#F4E4E0', roads: '#3D3D3D', water: '#E8B4B8' },
-      'Forest Green & Cream': { bg: '#F5F1E8', roads: '#2C5F4F', water: '#8BA888' },
-      'Deep Ocean Blue & Sand': { bg: '#F9F6F0', roads: '#2E5266', water: '#6E8898' },
-      'Rust Red & Ivory': { bg: '#FAF8F3', roads: '#B7410E', water: '#D4A574' },
-      'Lavender Purple & Slate': { bg: '#E8E4F3', roads: '#4A5568', water: '#A891D3' },
-      'Emerald Green & Bone': { bg: '#F8F5F0', roads: '#047857', water: '#6EE7B7' },
-      'Burgundy Red & Beige': { bg: '#EDE8E3', roads: '#800020', water: '#C19A6B' },
-      'Teal Blue & Taupe': { bg: '#E6E1DC', roads: '#008B8B', water: '#B8A99A' },
-      'Cobalt Blue & Cream': { bg: '#F7F4EF', roads: '#0047AB', water: '#7B9EC6' },
-      'Mocha Brown & Mint Green': { bg: '#E8F5E9', roads: '#6F4E37', water: '#A5D6A7' },
-      'Pure Black & White': { bg: '#FFFFFF', roads: '#000000', water: '#E0E0E0' },
-      'Noir White & Black (Inverted)': { bg: '#0A0A0A', roads: '#FFFFFF', water: '#1A1A1A' },
-      'Deep Navy Blue & White': { bg: '#FFFFFF', roads: '#001F3F', water: '#B8D4E8' },
-      'Crimson Red & Ivory': { bg: '#FFFEF7', roads: '#8B0000', water: '#FFE5D9' },
-      'Electric Blue & White': { bg: '#FAFAFA', roads: '#0066FF', water: '#CCE0FF' },
-      'Forest Green & White': { bg: '#FFFFFF', roads: '#1B4D3E', water: '#D4E8E0' },
-      'Charcoal Grey & Snow White': { bg: '#F8F8F8', roads: '#2C2C2C', water: '#D9D9D9' },
-      'Royal Purple & Cream': { bg: '#FAF9F6', roads: '#4B0082', water: '#E6D7FF' },
-      'Burnt Orange & White': { bg: '#FFFFFF', roads: '#CC5500', water: '#FFE4CC' },
-      'Prussian Blue & White': { bg: '#FFFFFF', roads: '#003153', water: '#B3D9E8' },
-      'Vermillion Red & Ecru': { bg: '#F5F3EF', roads: '#E34234', water: '#FFD6CC' },
-      'Ink Black & Paper White': { bg: '#F9F7F4', roads: '#1C1C1C', water: '#E8E6E3' },
-      'Hot Pink & White': { bg: '#FFFFFF', roads: '#FF1493', water: '#FFB6D9' },
-      'Fuchsia Pink & Cream': { bg: '#FFF8F5', roads: '#FF00FF', water: '#FFD4FF' },
-      'Neon Green & Black': { bg: '#0D0D0D', roads: '#39FF14', water: '#1A331A' },
-      'Neon Cyan & Black': { bg: '#0A0A0A', roads: '#00FFFF', water: '#003333' },
-      'Magenta Pink & White': { bg: '#FFFFFF', roads: '#C71585', water: '#F8BBE0' },
-      'Lime Yellow & Charcoal': { bg: '#2A2A2A', roads: '#CCFF00', water: '#3A3A3A' },
-      'Tangerine Orange & White': { bg: '#FFFFFF', roads: '#FF9500', water: '#FFE0B3' },
-      'Violet Purple & Ivory': { bg: '#FAF8F5', roads: '#8B00FF', water: '#E6D4FF' },
-      'Coral Red & Navy Blue': { bg: '#001F3F', roads: '#FF6B6B', water: '#0A2A4A' },
-      'Turquoise Blue & Cream': { bg: '#FFF9F5', roads: '#00CED1', water: '#B3F0F1' },
-      'Raspberry Pink & White': { bg: '#FFFFFF', roads: '#E30B5C', water: '#FFCCE0' },
-      'Chartreuse Yellow & Black': { bg: '#0E0E0E', roads: '#DFFF00', water: '#1E1E1E' },
-      'Amber Gold & Slate Grey': { bg: '#3A3A3A', roads: '#FFBF00', water: '#4A4A4A' },
-      'Orchid Pink & White': { bg: '#FFFFFF', roads: '#DA70D6', water: '#F5D9F5' },
-      'Cyan Blue & Black': { bg: '#000000', roads: '#00FFFF', water: '#0A1A1A' },
-      'Scarlet Red & Beige': { bg: '#F5F1E8', roads: '#FF2400', water: '#FFD1C7' },
-      'Mint Green & Chocolate Brown': { bg: '#2C1810', roads: '#98FF98', water: '#3C2820' },
-      'Sapphire Blue & White': { bg: '#FFFFFF', roads: '#0F52BA', water: '#C7D9F5' },
-      'Peach Orange & Graphite': { bg: '#3E3E3E', roads: '#FFB07C', water: '#4E4E4E' },
-      'Aqua Blue & Charcoal': { bg: '#2B2B2B', roads: '#00FFBF', water: '#3B3B3B' },
-      'Rose Pink & White': { bg: '#FFFFFF', roads: '#FF007F', water: '#FFCCEB' },
-      'Lemon Yellow & Navy Blue': { bg: '#001529', roads: '#FFF44F', water: '#0A2539' },
-      'Plum Purple & Cream': { bg: '#FFF8F0', roads: '#8E4585', water: '#E8D4E5' },
-      'Jade Green & Black': { bg: '#0F0F0F', roads: '#00A86B', water: '#1F1F1F' },
-      'Sunset Orange & White': { bg: '#FFFFFF', roads: '#FF4500', water: '#FFD4BF' },
-      'Royal Blue & Coral Orange': { bg: '#304085', roads: '#FFFFFF', water: '#de663a' },
-      'Bright Yellow & Teal Blue': { bg: '#37b4b8', roads: '#FFFFFF', water: '#eaf663' }
-    }
-
-    const STYLES = {};
-
-    // Print size dimensions (in inches) for 600 DPI calculation (professional quality)
-    const PRINT_SIZES = {
-      '24x36': { width: 24, height: 36 },
-      'a1': { width: 23.4, height: 33.1 },
-      '18x24': { width: 18, height: 24 },
-      '16x20': { width: 16, height: 20 },
-      'a2': { width: 16.5, height: 23.4 },
-      'a3': { width: 11.7, height: 16.5 },
-      '11x14': { width: 11, height: 14 }
-    };
-
-    // DPI setting for professional printing
-    const TARGET_DPI = 600;
-
-    const initialCenter = [-82.3666, 23.1136]; // Havana
-    const initialZoom = 13;
-
-    const statusEl = document.getElementById("status");
-    const zoomInput = document.getElementById("zoomInput");
-    const cityInput = document.getElementById("cityInput");
-    const styleSelect = document.getElementById("styleSelect");
-    const posterStyleSelect = document.getElementById("posterStyleSelect");
-    const sizeSelect = document.getElementById("sizeSelect");
-    const posterEl = document.getElementById("poster");
-    const titleInput = document.getElementById("titleInput");
-    const subtitleInput = document.getElementById("subtitleInput");
-    const taglineInput = document.getElementById("taglineInput");
-    const labelsToggle = document.getElementById("labelsToggle");
-    const orientationToggle = document.getElementById("orientationToggle");
-    const labelFields = document.getElementById("labelFields");
-    const cityTitleEl = document.getElementById("cityTitle");
-    const citySubtitleEl = document.getElementById("citySubtitle");
-    const coordinatesEl = document.getElementById("coordinates");
-
-    // Label toggle state
-    let labelsEnabled = true;
-    let isLandscape = false;
-
-    // Function to determine if a color is light or dark
-    function isLightColor(hexColor) {
-      const hex = hexColor.replace('#', '');
-      const r = parseInt(hex.substr(0, 2), 16);
-      const g = parseInt(hex.substr(2, 2), 16);
-      const b = parseInt(hex.substr(4, 2), 16);
-      const brightness = ((r * 299) + (g * 587) + (b * 114)) / 1000;
-      return brightness > 155;
-    }
-
-    // Function to update poster background and text colors
-    function updatePosterColors(palette) {
-      const posterEl = document.getElementById('poster');
-      const posterFooter = document.getElementById('posterFooter');
-
-      // Set background color to match map
-      posterEl.style.backgroundColor = palette.bg;
-
-      // Determine text color based on background brightness
-      const textColor = isLightColor(palette.bg) ? '#000000' : '#FFFFFF';
-      posterEl.style.color = textColor;
-
-      // Update footer to be transparent and inherit text color
-      if (posterFooter) {
-        posterFooter.style.backgroundColor = 'transparent';
-        posterFooter.style.color = textColor;
-      }
-    }
-
-    // Function to create custom dual-tone style
-    function createDualToneStyle(palette) {
-      return {
-        version: 8,
-        sources: {
-          'openmaptiles': {
-            type: 'vector',
-            url: `https://api.maptiler.com/tiles/v3/tiles.json?key=${MAPTILER_KEY}`
-          }
-        },
-        glyphs: `https://api.maptiler.com/fonts/{fontstack}/{range}.pbf?key=${MAPTILER_KEY}`,
-        layers: [
-          {
-            id: 'background',
-            type: 'background',
-            paint: { 'background-color': palette.bg }
-          },
-          {
-            id: 'water',
-            type: 'fill',
-            source: 'openmaptiles',
-            'source-layer': 'water',
-            paint: { 'fill-color': palette.water }
-          },
-          {
-            id: 'landcover_wood',
-            type: 'fill',
-            source: 'openmaptiles',
-            'source-layer': 'landcover',
-            filter: ['==', 'class', 'wood'],
-            paint: { 'fill-color': palette.bg, 'fill-opacity': 0.4 }
-          },
-          {
-            id: 'park',
-            type: 'fill',
-            source: 'openmaptiles',
-            'source-layer': 'park',
-            paint: { 'fill-color': palette.bg, 'fill-opacity': 0.3 }
-          },
-          {
-            id: 'highway_major',
-            type: 'line',
-            source: 'openmaptiles',
-            'source-layer': 'transportation',
-            filter: ['in', 'class', 'motorway', 'trunk', 'primary'],
-            paint: { 'line-color': palette.roads, 'line-width': 3 }
-          },
-          {
-            id: 'highway_minor',
-            type: 'line',
-            source: 'openmaptiles',
-            'source-layer': 'transportation',
-            filter: ['in', 'class', 'secondary', 'tertiary'],
-            paint: { 'line-color': palette.roads, 'line-width': 2 }
-          },
-          {
-            id: 'highway_other',
-            type: 'line',
-            source: 'openmaptiles',
-            'source-layer': 'transportation',
-            filter: ['in', 'class', 'minor', 'service', 'track'],
-            paint: { 'line-color': palette.roads, 'line-width': 1, 'line-opacity': 0.6 }
-          },
-          {
-            id: 'railway',
-            type: 'line',
-            source: 'openmaptiles',
-            'source-layer': 'transportation',
-            filter: ['==', 'class', 'rail'],
-            paint: { 'line-color': palette.roads, 'line-width': 1, 'line-opacity': 0.4 }
-          },
-          {
-            id: 'building',
-            type: 'fill',
-            source: 'openmaptiles',
-            'source-layer': 'building',
-            paint: { 'fill-color': palette.roads, 'fill-opacity': 0.3 }
-          }
-        ]
-      };
-    }
-
-    // Initialize MapLibre map
-    let currentStyle = 'Pure Black & White';
-    map = new maplibregl.Map({
-      container: "mapContainer",
-      style: createDualToneStyle(DUAL_TONE_PALETTES[currentStyle]),
-      center: initialCenter,
-      zoom: initialZoom,
-      interactive: true,
-      preserveDrawingBuffer: true, // important for image export
-      attributionControl: false
-    });
-
-    map.on("load", () => {
-      const zoomVal = map.getZoom().toFixed(1);
-      zoomInput.value = zoomVal;
-      document.getElementById("zoomValue").textContent = zoomVal;
-      updateFooter(initialCenter[1], initialCenter[0]);
-      updatePosterColors(DUAL_TONE_PALETTES[currentStyle]);
-    });
-
-    map.on("moveend", () => {
-      const zoomVal = map.getZoom().toFixed(1);
-      zoomInput.value = zoomVal;
-      document.getElementById("zoomValue").textContent = zoomVal;
-      const center = map.getCenter();
-      updateFooter(center.lat, center.lng);
-    });
-
-    function setStatus(msg, isError = false) {
-      statusEl.textContent = msg || "";
-      statusEl.style.color = isError ? "#b00020" : "#111";
-    }
-
-    function updateFooter(lat, lon) {
-      const latDir = lat >= 0 ? "N" : "S";
-      const lonDir = lon >= 0 ? "E" : "W";
-      const latAbs = Math.abs(lat).toFixed(4);
-      const lonAbs = Math.abs(lon).toFixed(4);
-
-      // Update tagline if using coordinates mode (empty tagline input)
-      if (!taglineInput.value.trim()) {
-        coordinatesEl.textContent = `${latAbs}° ${latDir} — ${lonAbs}° ${lonDir}`;
-      }
-    }
-
-    function updateLabels() {
-      const posterFooter = document.getElementById('posterFooter');
-
-      if (labelsEnabled) {
-        cityTitleEl.textContent = titleInput.value.toUpperCase() || "";
-        citySubtitleEl.textContent = subtitleInput.value || "";
-
-        // Use custom tagline if provided, otherwise use coordinates
-        if (taglineInput.value.trim()) {
-          coordinatesEl.textContent = taglineInput.value;
-        }
-
-        cityTitleEl.style.display = titleInput.value ? 'block' : 'none';
-        citySubtitleEl.style.display = subtitleInput.value ? 'block' : 'none';
-        coordinatesEl.style.display = (taglineInput.value || coordinatesEl.textContent) ? 'block' : 'none';
-
-        if (posterFooter) {
-          posterFooter.style.display = 'block';
-        }
-      } else {
-        cityTitleEl.style.display = 'none';
-        citySubtitleEl.style.display = 'none';
-        coordinatesEl.style.display = 'none';
-
-        if (posterFooter) {
-          posterFooter.style.display = 'none';
-        }
-      }
-    }
-
-    // Poster style change handler
-    posterStyleSelect.addEventListener("change", () => {
-      const selectedStyle = posterStyleSelect.value;
-      // Remove all poster style classes
-      posterEl.className = posterEl.className.replace(/poster-style-\w+/g, '').trim();
-      // Add new style class
-      posterEl.classList.add(`poster-style-${selectedStyle}`);
-    });
-
-    // Size select change handler
-    sizeSelect.addEventListener("change", () => {
-      const selectedSize = sizeSelect.value;
-      // Remove all size classes
-      posterEl.className = posterEl.className.replace(/size-\S+/g, '').trim();
-      // Add new size class if not default
-      if (selectedSize !== 'default') {
-        posterEl.classList.add(`size-${selectedSize}`);
-      }
-    });
-
-    // Auto-apply zoom when user changes the slider
-    zoomInput.addEventListener("input", () => {
-      const zoom = parseFloat(zoomInput.value);
-      document.getElementById("zoomValue").textContent = zoom.toFixed(1);
-      map.setZoom(zoom);
-    });
-
-    // Auto-apply style when user changes the select dropdown
-    styleSelect.addEventListener("change", () => {
-      const styleKey = styleSelect.value;
-      const center = map.getCenter();
-      const zoom = map.getZoom();
-
-      if (!MAPTILER_KEY || MAPTILER_KEY === "YOUR_MAPTILER_KEY") {
-        setStatus("Please set your MapTiler key in the code first.", true);
-        return;
-      }
-
-      setStatus("Updating map style…");
-
-      // Change style (recreate map to keep things simple)
-      const currentCenter = [center.lng, center.lat];
-      const currentZoom = zoom;
-
-      map.remove();
-
-      currentStyle = styleKey;
-      map = new maplibregl.Map({
-        container: "mapContainer",
-        style: createDualToneStyle(DUAL_TONE_PALETTES[styleKey]),
-        center: currentCenter,
-        zoom: currentZoom,
-        interactive: true,
-        preserveDrawingBuffer: true,
-        attributionControl: false
-      });
-
-      map.on("load", () => {
-        setStatus("Map style updated.");
-        const c = map.getCenter();
-        updateFooter(c.lat, c.lng);
-        updatePosterColors(DUAL_TONE_PALETTES[styleKey]);
-      });
-
-      map.on("moveend", () => {
-        zoomInput.value = map.getZoom().toFixed(1);
-        const c = map.getCenter();
-        updateFooter(c.lat, c.lng);
-      });
-    });
-
-    // Simple city search using MapTiler Geocoding
-    async function searchCityByName(name) {
-      if (!name) return;
-
-      if (!MAPTILER_KEY || MAPTILER_KEY === "YOUR_MAPTILER_KEY") {
-        setStatus("Please set your MapTiler key in the code first.", true);
-        return;
-      }
-
-      try {
-        setStatus("Searching city…");
-        const url = `https://api.maptiler.com/geocoding/${encodeURIComponent(
-          name
-        )}.json?key=${MAPTILER_KEY}`;
-
-        const res = await fetch(url);
-        if (!res.ok) throw new Error("Geocoding failed");
-
-        const data = await res.json();
-        if (!data.features || !data.features.length) {
-          setStatus("No results found for that place.", true);
-          return;
-        }
-
-        const feature = data.features[0];
-        const [lon, lat] = feature.center;
-
-        map.flyTo({ center: [lon, lat], zoom: 12 });
-        titleInput.value = name.toUpperCase();
-        updateLabels();
-        updateFooter(lat, lon);
-        setStatus("Location updated.");
-      } catch (err) {
-        console.error(err);
-        setStatus("Error searching city.", true);
-      }
-    }
-
-    cityInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        searchCityByName(cityInput.value.trim());
-      }
-    });
-
-    // Download poster as PNG with 600 DPI quality for professional printing
-    document.getElementById("downloadBtn").addEventListener("click", async () => {
-      if (!MAPTILER_KEY || MAPTILER_KEY === "YOUR_MAPTILER_KEY") {
-        setStatus("Please set your MapTiler key in the code first.", true);
-        return;
-      }
-
-      setStatus("Rendering ultra high-resolution poster at 600 DPI… this may take a moment.");
-
-      try {
-        const posterEl = document.getElementById("poster");
-        const selectedSize = sizeSelect.value;
-
-        // Calculate scale for 600 DPI output with safe limits
-        let scale = 5; // Conservative default quality scale
-
-        if (PRINT_SIZES[selectedSize]) {
-          const printSize = PRINT_SIZES[selectedSize];
-          const currentWidth = posterEl.offsetWidth;
-          const currentHeight = posterEl.offsetHeight;
-
-          // Determine target dimensions based on orientation
-          let targetWidth, targetHeight;
-          if (isLandscape) {
-            targetWidth = printSize.height * TARGET_DPI; // 600 DPI
-            targetHeight = printSize.width * TARGET_DPI;
-          } else {
-            targetWidth = printSize.width * TARGET_DPI;
-            targetHeight = printSize.height * TARGET_DPI;
-          }
-
-          // Calculate scale to achieve 600 DPI
-          const scaleX = targetWidth / currentWidth;
-          const scaleY = targetHeight / currentHeight;
-          scale = Math.max(scaleX, scaleY);
-
-          // Conservative limits to ensure browser compatibility
-          // Most browsers can handle 16384px max canvas dimension
-          const maxCanvasDimension = 16384;
-          const maxScaleFromWidth = maxCanvasDimension / currentWidth;
-          const maxScaleFromHeight = maxCanvasDimension / currentHeight;
-          const maxSafeScale = Math.min(maxScaleFromWidth, maxScaleFromHeight);
-
-          scale = Math.min(scale, maxSafeScale, 20);
-
-          console.log(`Render settings: scale=${scale.toFixed(2)}, target=${Math.round(currentWidth * scale)}x${Math.round(currentHeight * scale)}px`);
-        }
-
-        // Wait a moment for any pending map renders
-        await new Promise(resolve => setTimeout(resolve, 100));
-
-        // Capture with high-quality settings
-        const canvas = await html2canvas(posterEl, {
-          useCORS: true,
-          scale: scale,
-          logging: true,
-          backgroundColor: null,
-          allowTaint: true,
-          imageTimeout: 15000,
-          removeContainer: false,
-          foreignObjectRendering: false,
-          width: posterEl.offsetWidth,
-          height: posterEl.offsetHeight
-        });
-
-        // Validate canvas
-        if (!canvas || canvas.width === 0 || canvas.height === 0) {
-          throw new Error("Canvas rendering failed - invalid dimensions");
-        }
-
-        console.log(`Canvas created: ${canvas.width}x${canvas.height}px`);
-
-        // Convert to blob for better memory handling
-        const blob = await new Promise((resolve, reject) => {
-          canvas.toBlob((blob) => {
-            if (!blob) {
-              reject(new Error("Failed to create image blob"));
-            } else {
-              resolve(blob);
-            }
-          }, "image/png", 1.0);
-        });
-
-        if (blob.size === 0) {
-          throw new Error("Generated image is empty (0 bytes)");
-        }
-
-        const dataUrl = URL.createObjectURL(blob);
-
-        const cityName = document
-          .getElementById("cityTitle")
-          .textContent.replace(/\s+/g, "_")
-          .toLowerCase() || "city";
-
-        const sizeLabel = selectedSize.replace('x', 'x');
-        const timestamp = new Date().getTime();
-
-        const link = document.createElement("a");
-        link.href = dataUrl;
-        link.download = `${cityName}_${sizeLabel}_600dpi_${timestamp}.png`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-        // Clean up blob URL
-        setTimeout(() => URL.revokeObjectURL(dataUrl), 1000);
-
-        const fileSizeMB = (blob.size / 1024 / 1024).toFixed(1);
-        const actualDPI = Math.round((canvas.width / (PRINT_SIZES[selectedSize]?.width || 24)));
-        setStatus(`Ultra high-res poster downloaded (${canvas.width} × ${canvas.height} px @ ~${actualDPI} DPI, ${fileSizeMB}MB).`);
-      } catch (err) {
-        console.error("Download error:", err);
-        setStatus(`Error: ${err.message}. Try a smaller print size or refresh the page.`, true);
-      }
-    });    // Orientation toggle functionality
-    orientationToggle.addEventListener('click', () => {
-      isLandscape = !isLandscape;
-      orientationToggle.classList.toggle('active', isLandscape);
-      posterEl.classList.toggle('landscape', isLandscape);
-    });
-
-    // Labels toggle functionality
-    labelsToggle.addEventListener('click', () => {
-      labelsEnabled = !labelsEnabled;
-      labelsToggle.classList.toggle('active', labelsEnabled);
-      updateLabels();
-    });
-
-    // Label input listeners
-    titleInput.addEventListener('input', updateLabels);
-    subtitleInput.addEventListener('input', updateLabels);
-    taglineInput.addEventListener('input', () => {
-      updateLabels();
-      // If tagline is cleared, update with current coordinates
-      if (!taglineInput.value.trim()) {
-        const center = map.getCenter();
-        updateFooter(center.lat, center.lng);
-      }
-    });
-
-    // Initialize default city input and labels
-    cityInput.value = "Havana";
-    updateLabels();
-  </script>
+  <!-- App Script -->
+  <script src="js/app.js"></script>
 </body>
 
 </html>
