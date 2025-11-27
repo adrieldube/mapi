@@ -265,6 +265,20 @@
             <input id="taglineInput" type="text" placeholder="40.712° N — 74.006° W" value=""
               class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20" />
           </div>
+
+          <div>
+            <label for="labelColorInput" class="block text-[11px] font-medium text-[#666] mb-1">Label Color</label>
+            <div class="flex items-center gap-2">
+              <input id="labelColorInput" type="color" value="#000000"
+                class="w-10 h-10 rounded-lg border-0 bg-white shadow-sm cursor-pointer p-0.5 transition-all duration-200 hover:shadow-md" />
+              <input id="labelColorHex" type="text" value="#000000" placeholder="#000000"
+                class="flex-1 px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20 font-mono" />
+              <button id="labelColorAuto" type="button" title="Auto (based on background)"
+                class="flex items-center justify-center w-10 h-10 rounded-lg bg-white shadow-sm text-[#666] text-base transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95">
+                <ion-icon name="color-wand-outline"></ion-icon>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 

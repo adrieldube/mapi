@@ -100,7 +100,10 @@ const elements = {
     selectedThemeName: document.getElementById("selectedThemeName"),
     selectedBgColor: document.getElementById("selectedBgColor"),
     selectedRoadsColor: document.getElementById("selectedRoadsColor"),
-    selectedWaterColor: document.getElementById("selectedWaterColor")
+    selectedWaterColor: document.getElementById("selectedWaterColor"),
+    labelColorInput: document.getElementById("labelColorInput"),
+    labelColorHex: document.getElementById("labelColorHex"),
+    labelColorAuto: document.getElementById("labelColorAuto")
 };
 
 // === STATE ===
@@ -108,6 +111,8 @@ let map;
 let currentStyle = 'Pure Black & White';
 let labelsEnabled = true;
 let isLandscape = false;
+let labelColorAuto = true;
+let customLabelColor = null;
 
 // === UTILITY FUNCTIONS ===
 function isLightColor(hexColor) {
@@ -226,13 +231,40 @@ function createMapStyle(palette) {
 
 // === POSTER FUNCTIONS ===
 function updatePosterColors(palette) {
-    const textColor = isLightColor(palette.bg) ? '#000000' : '#FFFFFF';
+    const autoTextColor = isLightColor(palette.bg) ? '#000000' : '#FFFFFF';
+    const textColor = labelColorAuto ? autoTextColor : customLabelColor;
     elements.poster.style.backgroundColor = palette.bg;
     elements.poster.style.color = textColor;
     if (elements.posterFooter) {
         elements.posterFooter.style.backgroundColor = 'transparent';
         elements.posterFooter.style.color = textColor;
     }
+    // Update color picker to reflect current label color
+    if (elements.labelColorInput && elements.labelColorHex) {
+        elements.labelColorInput.value = textColor;
+        elements.labelColorHex.value = textColor.toUpperCase();
+    }
+}
+
+function updateLabelColor(color) {
+    customLabelColor = color;
+    labelColorAuto = false;
+    elements.poster.style.color = color;
+    if (elements.posterFooter) {
+        elements.posterFooter.style.color = color;
+    }
+    elements.labelColorInput.value = color;
+    elements.labelColorHex.value = color.toUpperCase();
+    elements.labelColorAuto.classList.remove('text-[#440edf]');
+    elements.labelColorAuto.classList.add('text-[#666]');
+}
+
+function setLabelColorAuto() {
+    labelColorAuto = true;
+    customLabelColor = null;
+    updatePosterColors(PALETTES[currentStyle]);
+    elements.labelColorAuto.classList.add('text-[#440edf]');
+    elements.labelColorAuto.classList.remove('text-[#666]');
 }
 
 function updateFooter(lat, lon) {
@@ -241,18 +273,63 @@ function updateFooter(lat, lon) {
     }
 }
 
-function updateLabels() {
-    if (labelsEnabled) {
-        elements.cityTitle.textContent = elements.titleInput.value.toUpperCase() || "";
-        elements.citySubtitle.textContent = elements.subtitleInput.value || "";
+// Render the title text, splitting characters for the vertical layout so exports match the preview
+function renderCityTitle(text) {
+    if (!elements.cityTitle) return;
 
-        if (elements.taglineInput.value.trim()) {
-            elements.coordinates.textContent = elements.taglineInput.value;
+    const titleEl = elements.cityTitle;
+    const content = text || "";
+    const isVertical = elements.poster.classList.contains('poster-style-vertical');
+
+    if (!content) {
+        titleEl.innerHTML = '';
+        titleEl.style.display = 'none';
+        titleEl.dataset.layout = isVertical ? 'vertical' : 'default';
+        titleEl.dataset.renderedText = '';
+        return;
+    }
+
+    if (isVertical) {
+        if (titleEl.dataset.layout !== 'vertical' || titleEl.dataset.renderedText !== content) {
+            titleEl.innerHTML = '';
+            for (const char of content) {
+                const span = document.createElement('span');
+                span.textContent = char === ' ' ? '\u00A0' : char;
+                titleEl.appendChild(span);
+            }
+            titleEl.dataset.layout = 'vertical';
+            titleEl.dataset.renderedText = content;
+        }
+        titleEl.style.display = 'flex';
+    } else {
+        if (titleEl.dataset.layout === 'vertical') {
+            titleEl.dataset.layout = 'default';
+        }
+        if (titleEl.textContent !== content) {
+            titleEl.textContent = content;
+        }
+        titleEl.style.display = 'block';
+        titleEl.dataset.renderedText = content;
+    }
+}
+
+function updateLabels() {
+    const titleText = (elements.titleInput.value || "").trim().toUpperCase();
+    const subtitleText = (elements.subtitleInput.value || "").trim();
+    const taglineText = (elements.taglineInput.value || "").trim();
+
+    if (labelsEnabled) {
+        renderCityTitle(titleText);
+
+        elements.citySubtitle.textContent = subtitleText;
+        elements.citySubtitle.style.display = subtitleText ? 'block' : 'none';
+
+        if (taglineText) {
+            elements.coordinates.textContent = taglineText;
         }
 
-        elements.cityTitle.style.display = elements.titleInput.value ? 'block' : 'none';
-        elements.citySubtitle.style.display = elements.subtitleInput.value ? 'block' : 'none';
-        elements.coordinates.style.display = (elements.taglineInput.value || elements.coordinates.textContent) ? 'block' : 'none';
+        const hasCoordinates = Boolean(elements.coordinates.textContent);
+        elements.coordinates.style.display = hasCoordinates ? 'block' : 'none';
         if (elements.posterFooter) elements.posterFooter.style.display = 'block';
     } else {
         elements.cityTitle.style.display = 'none';
@@ -470,6 +547,7 @@ function setupEventListeners() {
     elements.posterStyleSelect.addEventListener("change", () => {
         elements.poster.className = elements.poster.className.replace(/poster-style-\w+/g, '').trim();
         elements.poster.classList.add(`poster-style-${elements.posterStyleSelect.value}`);
+        updateLabels();
     });
 
     // Print size
@@ -513,6 +591,32 @@ function setupEventListeners() {
             updateFooter(center.lat, center.lng);
         }
     });
+
+    // Label color picker
+    elements.labelColorInput.addEventListener("input", (e) => {
+        updateLabelColor(e.target.value);
+    });
+
+    // Label color hex input
+    elements.labelColorHex.addEventListener("input", (e) => {
+        let value = e.target.value.trim();
+        if (!value.startsWith('#')) value = '#' + value;
+        if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
+            updateLabelColor(value);
+        }
+    });
+
+    elements.labelColorHex.addEventListener("blur", (e) => {
+        let value = e.target.value.trim();
+        if (!value.startsWith('#')) value = '#' + value;
+        if (!/^#[0-9A-Fa-f]{6}$/.test(value)) {
+            // Reset to current color if invalid
+            e.target.value = elements.labelColorInput.value.toUpperCase();
+        }
+    });
+
+    // Label color auto button
+    elements.labelColorAuto.addEventListener("click", setLabelColorAuto);
 }
 
 // === INITIALIZATION ===

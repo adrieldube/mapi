@@ -366,27 +366,34 @@
 }
 
 .poster-style-vertical #cityTitle {
-    writing-mode: vertical-rl;
-    text-orientation: mixed;
     font-size: clamp(28px, 4.5vw, 38px);
-    letter-spacing: clamp(8px, 2vw, 12px);
-    padding: clamp(24px, 4vw, 36px);
+    padding: clamp(18px, 3vw, 28px);
     position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
+    left: clamp(14px, 2.4vw, 22px);
+    bottom: clamp(20px, 3vw, 32px);
     text-transform: uppercase;
     font-weight: 900;
     margin: 0;
-    transform: rotate(180deg);
     pointer-events: auto;
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: flex-start;
+    gap: clamp(6px, 1.6vw, 10px);
+    letter-spacing: 0;
+    line-height: 1;
+    text-align: left;
+    max-height: 70%;
+}
+
+.poster-style-vertical #cityTitle span {
+    display: block;
+    line-height: 1;
 }
 
 .poster-style-vertical #citySubtitle {
     bottom: clamp(20px, 3vw, 28px);
-    left: clamp(70px, 10vw, 110px);
+    left: clamp(90px, 12vw, 120px);
     font-size: clamp(11px, 1.6vw, 14px);
     position: absolute;
     letter-spacing: 2px;
