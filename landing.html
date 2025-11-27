@@ -8,6 +8,51 @@
     <meta name="description"
         content="Create beautiful minimalist city map posters. Transform any location into stunning wall art." />
 
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand-yellow': '#E9FF00',
+                        'brand-yellow-hover': '#d4eb00',
+                        'brand-green': '#43E660',
+                        'brand-pink': '#E052A0',
+                        'brand-teal': '#00C8C8',
+                        'brand-dark': '#43002B',
+                        'noir': '#0A0A0A',
+                        'navy': '#001F3F',
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+                    },
+                    animation: {
+                        'pulse-bg': 'pulse-bg 8s ease-in-out infinite',
+                        'bounce-badge': 'bounce-badge 2s ease-in-out infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'float-delay-1': 'float 6s ease-in-out 0.5s infinite',
+                        'float-delay-2': 'float 6s ease-in-out 1s infinite',
+                    },
+                    keyframes: {
+                        'pulse-bg': {
+                            '0%, 100%': { transform: 'scale(1)', opacity: '0.5' },
+                            '50%': { transform: 'scale(1.1)', opacity: '0.8' },
+                        },
+                        'bounce-badge': {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-4px)' },
+                        },
+                        'float': {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-8px)' },
+                        },
+                    },
+                }
+            }
+        }
+    </script>
+
     <!-- Ionicons -->
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
@@ -19,93 +64,9 @@
         rel="stylesheet">
 
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        /* Only styles that can't be done with Tailwind */
         html {
             scroll-behavior: smooth;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #f8f8f8;
-            min-height: 100vh;
-            color: #111;
-            overflow-x: hidden;
-        }
-
-        /* Navbar */
-        .navbar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-            padding: 12px 24px;
-        }
-
-        .navbar-inner {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .navbar-logo {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 700;
-            font-size: 18px;
-            color: #111;
-            text-decoration: none;
-        }
-
-        .navbar-logo-icon {
-            width: 32px;
-            height: 32px;
-            background: #000;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .navbar-logo-icon ion-icon {
-            font-size: 18px;
-            color: #E9FF00;
-        }
-
-        .navbar-cta {
-            padding: 10px 20px;
-            background: #E9FF00;
-            color: #000;
-            border-radius: 24px;
-            font-size: 14px;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.2s ease;
-        }
-
-        .navbar-cta:hover {
-            background: #d4eb00;
-            transform: translateY(-1px);
-        }
-
-        /* Hero Section */
-        .hero {
-            padding: 140px 24px 80px;
-            text-align: center;
-            background: #E9FF00;
-            position: relative;
-            overflow: hidden;
         }
 
         .hero::before {
@@ -133,632 +94,8 @@
             }
         }
 
-        .hero-inner {
-            max-width: 680px;
-            margin: 0 auto;
-            position: relative;
-            z-index: 1;
-        }
-
-        .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: #000;
-            color: #E9FF00;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            margin-bottom: 24px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            animation: bounce-badge 2s ease-in-out infinite;
-        }
-
-        @keyframes bounce-badge {
-
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-
-            50% {
-                transform: translateY(-4px);
-            }
-        }
-
-        .hero-title {
-            font-size: clamp(36px, 6vw, 56px);
-            font-weight: 800;
-            line-height: 1.1;
-            margin-bottom: 20px;
-            letter-spacing: -1px;
-            color: #000;
-        }
-
-        .hero-title span {
-            color: #000;
-            background: none;
-            -webkit-background-clip: unset;
-            -webkit-text-fill-color: #000;
-            background-clip: unset;
-        }
-
-        .hero-title span em {
-            font-style: italic;
-            text-decoration: underline;
-            text-decoration-color: #000;
-            text-decoration-thickness: 3px;
-            text-underline-offset: 6px;
-        }
-
-        .hero-subtitle {
-            font-size: 18px;
-            color: #333;
-            line-height: 1.6;
-            margin-bottom: 32px;
-            max-width: 500px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .hero-cta-group {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 48px;
-        }
-
-        .hero-input-wrapper {
-            display: flex;
-            gap: 8px;
-            width: 100%;
-            max-width: 420px;
-            background: #fff;
-            border-radius: 32px;
-            padding: 6px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-            border: none;
-        }
-
-        .hero-input {
-            flex: 1;
-            padding: 12px 20px;
-            border: none;
-            background: transparent;
-            font-size: 15px;
-            outline: none;
-        }
-
-        .hero-input::placeholder {
-            color: #999;
-        }
-
-        .hero-btn {
-            padding: 12px 28px;
-            background: #000;
-            color: #E9FF00;
-            border: none;
-            border-radius: 26px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            white-space: nowrap;
-        }
-
-        .hero-btn:hover {
-            background: #222;
-            transform: scale(1.02);
-        }
-
-        .hero-note {
-            font-size: 13px;
-            color: #333;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            justify-content: center;
-        }
-
-        .hero-note::before {
-            content: '✓';
-            color: #000;
-            font-weight: bold;
-        }
-
-        /* Sample Maps Grid */
-        .samples-section {
-            width: 100%;
-            max-width: 500px;
-            margin: 0 auto;
-        }
-
-        .samples-label {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            color: #333;
-            text-align: center;
-            margin-bottom: 16px;
-            font-weight: 600;
-        }
-
-        .samples-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-        }
-
-        .sample-card {
-            aspect-ratio: 5 / 7;
-            border-radius: 12px;
-            overflow: hidden;
-            position: relative;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            cursor: pointer;
-            animation: float 6s ease-in-out infinite;
-        }
-
-        .sample-card:nth-child(1) {
-            animation-delay: 0s;
-        }
-
-        .sample-card:nth-child(2) {
-            animation-delay: 0.5s;
-        }
-
-        .sample-card:nth-child(3) {
-            animation-delay: 1s;
-        }
-
-        @keyframes float {
-
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-
-            50% {
-                transform: translateY(-8px);
-            }
-        }
-
         .sample-card:hover {
-            transform: translateY(-12px) scale(1.05);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
             animation-play-state: paused;
-        }
-
-        .sample-map {
-            width: 100%;
-            height: 70%;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .sample-map svg {
-            width: 100%;
-            height: 100%;
-        }
-
-        .sample-footer {
-            height: 30%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 8px;
-        }
-
-        .sample-city {
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            margin-bottom: 2px;
-        }
-
-        .sample-coords {
-            font-size: 8px;
-            opacity: 0.6;
-            letter-spacing: 0.5px;
-        }
-
-        /* Card themes */
-        .sample-card.theme-noir {
-            background: #0A0A0A;
-        }
-
-        .sample-card.theme-noir .sample-city,
-        .sample-card.theme-noir .sample-coords {
-            color: #fff;
-        }
-
-        .sample-card.theme-navy {
-            background: #001F3F;
-        }
-
-        .sample-card.theme-navy .sample-city,
-        .sample-card.theme-navy .sample-coords {
-            color: #fff;
-        }
-
-        .sample-card.theme-classic {
-            background: #FFFFFF;
-        }
-
-        .sample-card.theme-classic .sample-city,
-        .sample-card.theme-classic .sample-coords {
-            color: #111;
-        }
-
-        /* How It Works Section */
-        .how-it-works {
-            padding: 100px 24px;
-            background: #43E660;
-        }
-
-        .how-it-works .section-title {
-            color: #000;
-        }
-
-        .how-it-works .section-title em {
-            font-style: italic;
-            text-decoration: underline;
-            text-decoration-thickness: 3px;
-            text-underline-offset: 4px;
-        }
-
-        .how-it-works .section-subtitle {
-            color: rgba(0, 0, 0, 0.7);
-        }
-
-        .section-inner {
-            max-width: 1100px;
-            margin: 0 auto;
-        }
-
-        .section-header {
-            text-align: center;
-            margin-bottom: 60px;
-        }
-
-        .section-title {
-            font-size: clamp(28px, 4vw, 40px);
-            font-weight: 700;
-            margin-bottom: 16px;
-        }
-
-        .section-title em {
-            font-style: italic;
-        }
-
-        .section-subtitle {
-            font-size: 16px;
-            color: #666;
-            max-width: 500px;
-            margin: 0 auto;
-        }
-
-        .steps-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 40px;
-        }
-
-        .step-card {
-            text-align: center;
-            padding: 32px 24px;
-        }
-
-        .step-number {
-            width: 48px;
-            height: 48px;
-            background: #000;
-            color: #43E660;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            font-weight: 700;
-            margin: 0 auto 20px;
-        }
-
-        .step-icon {
-            width: 80px;
-            height: 80px;
-            background: rgba(255, 255, 255, 0.8);
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        }
-
-        .step-icon ion-icon {
-            font-size: 36px;
-            color: #000;
-        }
-
-        .step-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 12px;
-            color: #000;
-        }
-
-        .step-desc {
-            font-size: 14px;
-            color: rgba(0, 0, 0, 0.7);
-            line-height: 1.6;
-        }
-
-        /* Trust Section */
-        .trust-section {
-            padding: 80px 24px;
-            background: #ffffff;
-            text-align: center;
-        }
-
-        .trust-title {
-            font-size: clamp(24px, 4vw, 36px);
-            font-weight: 700;
-            margin-bottom: 12px;
-        }
-
-        .trust-title span {
-            color: #E052A0;
-            background: none;
-            -webkit-background-clip: unset;
-            -webkit-text-fill-color: #E052A0;
-            background-clip: unset;
-        }
-
-        .trust-title span em {
-            font-style: italic;
-        }
-
-        .trust-subtitle {
-            font-size: 15px;
-            color: #555;
-            margin-bottom: 32px;
-            letter-spacing: 0.5px;
-        }
-
-        .trust-logos {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 32px;
-            flex-wrap: wrap;
-        }
-
-        .trust-logos span {
-            font-size: 14px;
-            font-weight: 600;
-            color: #333;
-            letter-spacing: 0.5px;
-            background: #f5f5f5;
-            padding: 10px 20px;
-            border-radius: 24px;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-        }
-
-        /* Features Detail Section */
-        .features-detail {
-            padding: 100px 24px;
-            background: #E052A0;
-        }
-
-        .feature-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 60px;
-            align-items: center;
-            max-width: 1000px;
-            margin: 0 auto 80px;
-        }
-
-        .feature-row:last-child {
-            margin-bottom: 0;
-        }
-
-        .feature-row.reverse {
-            direction: rtl;
-        }
-
-        .feature-row.reverse>* {
-            direction: ltr;
-        }
-
-        .feature-content {
-            padding: 20px 0;
-        }
-
-        .feature-tag {
-            display: inline-block;
-            background: rgba(255, 255, 255, 0.2);
-            color: #fff;
-            padding: 6px 12px;
-            border-radius: 16px;
-            font-size: 12px;
-            font-weight: 600;
-            margin-bottom: 16px;
-        }
-
-        .feature-title {
-            font-size: clamp(24px, 3vw, 32px);
-            font-weight: 700;
-            margin-bottom: 16px;
-            line-height: 1.2;
-            color: #fff;
-        }
-
-        .feature-desc {
-            font-size: 15px;
-            color: rgba(255, 255, 255, 0.85);
-            line-height: 1.7;
-            margin-bottom: 24px;
-        }
-
-        .feature-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            color: #fff;
-            font-weight: 600;
-            font-size: 14px;
-            text-decoration: none;
-            transition: gap 0.2s ease;
-        }
-
-        .feature-link:hover {
-            gap: 12px;
-        }
-
-        .feature-visual {
-            background: rgba(255, 255, 255, 0.7);
-            border-radius: 24px;
-            padding: 40px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(10px);
-        }
-
-        .feature-visual .sample-card {
-            max-width: 180px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-        }
-
-        /* Testimonials Section */
-        .testimonials {
-            padding: 100px 24px;
-            background: #00C8C8;
-        }
-
-        .testimonials .section-title {
-            color: #fff;
-        }
-
-        .testimonials .section-title em {
-            font-style: italic;
-        }
-
-        .testimonials .section-subtitle {
-            color: rgba(255, 255, 255, 0.85);
-        }
-
-        .testimonials-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 24px;
-            max-width: 1100px;
-            margin: 0 auto;
-        }
-
-        .testimonial-card {
-            background: #fff;
-            border-radius: 20px;
-            padding: 32px;
-            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
-        }
-
-        .testimonial-text {
-            font-size: 15px;
-            line-height: 1.7;
-            color: #333;
-            margin-bottom: 24px;
-        }
-
-        .testimonial-author {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .testimonial-avatar {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background: #00C8C8;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-weight: 600;
-            font-size: 16px;
-            border: 2px solid #fff;
-        }
-
-        .testimonial-info h4 {
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 2px;
-        }
-
-        .testimonial-info p {
-            font-size: 12px;
-            color: #888;
-        }
-
-        /* FAQ Section */
-        .faq-section {
-            padding: 100px 24px;
-            background: #43002B;
-        }
-
-        .faq-section .section-title {
-            color: #fff;
-        }
-
-        .faq-section .section-title em {
-            font-style: italic;
-            color: #E9FF00;
-        }
-
-        .faq-section .section-subtitle {
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        .faq-list {
-            max-width: 700px;
-            margin: 0 auto;
-        }
-
-        .faq-item {
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .faq-question {
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 24px 0;
-            background: none;
-            border: none;
-            cursor: pointer;
-            text-align: left;
-            font-size: 16px;
-            font-weight: 600;
-            color: #fff;
-            font-family: inherit;
-        }
-
-        .faq-question ion-icon {
-            font-size: 20px;
-            color: rgba(255, 255, 255, 0.6);
-            transition: transform 0.3s ease;
-        }
-
-        .faq-item.open .faq-question ion-icon {
-            transform: rotate(45deg);
         }
 
         .faq-answer {
@@ -772,331 +109,106 @@
             padding-bottom: 24px;
         }
 
-        .faq-answer p {
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.7);
-            line-height: 1.7;
+        .faq-item.open .faq-question ion-icon {
+            transform: rotate(45deg);
         }
 
-        /* Final CTA Section */
-        .final-cta {
-            padding: 100px 24px;
-            background: #43002B;
-            text-align: center;
-        }
-
-        .final-cta-inner {
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .final-cta h2 {
-            font-size: clamp(28px, 4vw, 42px);
-            font-weight: 700;
-            color: #fff;
-            margin-bottom: 16px;
-        }
-
-        .final-cta h2 em {
-            font-style: italic;
-            color: #E9FF00;
-        }
-
-        .final-cta p {
-            font-size: 16px;
-            color: rgba(255, 255, 255, 0.8);
-            margin-bottom: 32px;
-        }
-
-        .final-cta-input-wrapper {
-            display: flex;
-            gap: 8px;
-            max-width: 420px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.25);
-            border-radius: 32px;
-            padding: 6px;
-        }
-
-        .final-cta-input {
-            flex: 1;
-            padding: 14px 20px;
-            border: none;
-            background: transparent;
-            font-size: 15px;
-            outline: none;
-            color: #fff;
-        }
-
-        .final-cta-input::placeholder {
-            color: rgba(255, 255, 255, 0.6);
-        }
-
-        .final-cta-btn {
-            padding: 14px 28px;
-            background: #E9FF00;
+        .hero-note::before {
+            content: '✓';
             color: #000;
-            border: none;
-            border-radius: 26px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            white-space: nowrap;
-        }
-
-        .final-cta-btn:hover {
-            background: #d4eb00;
-            color: #000;
-            transform: scale(1.02);
-        }
-
-        /* Footer */
-        .landing-footer {
-            padding: 60px 24px;
-            background: #111;
-            color: #fff;
-        }
-
-        .footer-inner {
-            max-width: 1100px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr;
-            gap: 48px;
-        }
-
-        .footer-brand {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 16px;
-        }
-
-        .footer-brand-icon {
-            width: 36px;
-            height: 36px;
-            background: #E9FF00;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .footer-brand-icon ion-icon {
-            font-size: 20px;
-            color: #000;
-        }
-
-        .footer-brand span {
-            font-size: 18px;
-            font-weight: 700;
-        }
-
-        .footer-desc {
-            font-size: 13px;
-            color: #888;
-            line-height: 1.6;
-            max-width: 280px;
-        }
-
-        .footer-col h4 {
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 16px;
-            color: #fff;
-        }
-
-        .footer-col a {
-            display: block;
-            font-size: 13px;
-            color: #888;
-            text-decoration: none;
-            margin-bottom: 10px;
-            transition: color 0.2s ease;
-        }
-
-        .footer-col a:hover {
-            color: #fff;
-        }
-
-        .footer-bottom {
-            max-width: 1100px;
-            margin: 40px auto 0;
-            padding-top: 24px;
-            border-top: 1px solid #222;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 12px;
-            color: #666;
-        }
-
-        .footer-socials {
-            display: flex;
-            gap: 16px;
-        }
-
-        .footer-socials a {
-            color: #888;
-            font-size: 20px;
-            transition: color 0.2s ease;
-        }
-
-        .footer-socials a:hover {
-            color: #fff;
-        }
-
-        /* Responsive */
-        @media (max-width: 900px) {
-            .steps-grid {
-                grid-template-columns: 1fr;
-                gap: 24px;
-            }
-
-            .feature-row {
-                grid-template-columns: 1fr;
-                gap: 40px;
-            }
-
-            .feature-row.reverse {
-                direction: ltr;
-            }
-
-            .testimonials-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .footer-inner {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-
-        @media (max-width: 600px) {
-            .hero-input-wrapper {
-                flex-direction: column;
-                border-radius: 16px;
-            }
-
-            .hero-btn {
-                width: 100%;
-                border-radius: 12px;
-            }
-
-            .samples-grid {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 8px;
-            }
-
-            .final-cta-input-wrapper {
-                flex-direction: column;
-                border-radius: 16px;
-            }
-
-            .final-cta-btn {
-                width: 100%;
-                border-radius: 12px;
-            }
-
-            .footer-inner {
-                grid-template-columns: 1fr;
-                text-align: center;
-            }
-
-            .footer-brand {
-                justify-content: center;
-            }
-
-            .footer-desc {
-                max-width: 100%;
-            }
-
-            .footer-bottom {
-                flex-direction: column;
-                gap: 16px;
-            }
+            font-weight: bold;
         }
     </style>
 </head>
 
-<body>
+<body class="font-inter bg-neutral-100 min-h-screen text-gray-900 overflow-x-hidden">
     <!-- Navbar -->
-    <nav class="navbar">
-        <div class="navbar-inner">
-            <a href="#" class="navbar-logo">
-                <div class="navbar-logo-icon">
-                    <ion-icon name="map-outline"></ion-icon>
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-xl border-b border-black/5 px-6 py-3">
+        <div class="max-w-6xl mx-auto flex items-center justify-between">
+            <a href="#" class="flex items-center gap-2 font-bold text-lg text-gray-900 no-underline">
+                <div class="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
+                    <ion-icon name="map-outline" class="text-lg text-brand-yellow"></ion-icon>
                 </div>
                 MAPI
             </a>
-            <a href="index.html" class="navbar-cta">Get Started Free →</a>
+            <a href="index.html"
+                class="px-5 py-2.5 bg-brand-yellow text-black rounded-3xl text-sm font-semibold no-underline transition-all duration-200 hover:bg-brand-yellow-hover hover:-translate-y-0.5">
+                Get Started Free →
+            </a>
         </div>
     </nav>
 
     <!-- Hero Section -->
-    <section class="hero">
-        <div class="hero-inner">
-            <div class="hero-badge">
+    <section class="hero pt-36 pb-20 px-6 text-center bg-brand-yellow relative overflow-hidden">
+        <div class="max-w-5xl mx-auto relative z-10 flex flex-col items-center">
+            <div
+                class="inline-flex items-center gap-1.5 bg-black text-brand-yellow px-4 py-2 rounded-full text-xs font-semibold mb-6 shadow-lg animate-bounce-badge">
                 <ion-icon name="flash"></ion-icon>
                 🔥 10,000+ posters created this week
             </div>
-            <h1 class="hero-title">
-                A <span><em>map poster</em></span> built for you.
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-5 tracking-tight text-black">
+                A <span><em class="italic underline decoration-black decoration-[3px] underline-offset-[6px]">map
+                        poster</em></span> built for you.
             </h1>
-            <p class="hero-subtitle">
+            <p class="text-lg text-gray-700 leading-relaxed mb-8 max-w-lg text-center">
                 Create stunning minimalist city map posters in seconds. Perfect for wall art, gifts, or memories of
                 places you love.
             </p>
-            <div class="hero-cta-group">
-                <div class="hero-input-wrapper">
-                    <input type="text" class="hero-input" placeholder="Enter your city name..." id="heroCity">
-                    <button class="hero-btn" onclick="goToApp()">Create Free →</button>
+            <div class="flex flex-col items-center gap-3 mb-12">
+                <div class="flex gap-2 w-full max-w-md bg-white rounded-full p-1.5 shadow-xl flex-col sm:flex-row">
+                    <input type="text"
+                        class="flex-1 px-5 py-3 border-none bg-transparent text-base outline-none placeholder:text-gray-400 rounded-xl sm:rounded-none"
+                        placeholder="Enter your city name..." id="heroCity">
+                    <button
+                        class="px-7 py-3 bg-black text-brand-yellow border-none rounded-full sm:rounded-3xl text-sm font-semibold cursor-pointer transition-all duration-200 whitespace-nowrap hover:bg-gray-800 hover:scale-[1.02]"
+                        onclick="goToApp()">Create Free →</button>
                 </div>
-                <p class="hero-note">No account needed. Start in 5 seconds.</p>
+                <p class="hero-note text-sm text-gray-700 flex items-center gap-1.5 justify-center">No account needed.
+                    Start in 5 seconds.</p>
             </div>
 
             <!-- Sample Maps -->
-            <div class="samples-section">
-                <p class="samples-label">✨ Popular Designs</p>
-                <div class="samples-grid">
+            <div class="w-full max-w-4xl mx-auto flex flex-col items-center">
+                <p class="text-xs uppercase tracking-wider text-gray-700 text-center mb-4 font-semibold">✨ Popular
+                    Designs</p>
+                <div class="grid grid-cols-3 gap-4 sm:gap-8 max-w-4xl mx-auto">
                     <!-- Tokyo - Noir theme -->
-                    <div class="sample-card theme-noir">
-                        <div class="sample-map">
-                            <svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice">
+                    <div
+                        class="sample-card aspect-[5/7] rounded-3xl overflow-hidden relative shadow-2xl transition-all duration-300 cursor-pointer animate-float min-w-[100px] sm:min-w-[280px] bg-noir hover:-translate-y-4 hover:scale-[1.08]">
+                        <div class="w-full h-[70%] relative overflow-hidden">
+                            <svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice" class="w-full h-full">
                                 <rect fill="#0A0A0A" width="200" height="200" />
-                                <!-- Roads -->
                                 <path d="M0 50 L200 50" stroke="#fff" stroke-width="1.5" fill="none" />
                                 <path d="M0 100 L200 100" stroke="#fff" stroke-width="2" fill="none" />
                                 <path d="M0 150 L200 150" stroke="#fff" stroke-width="1" fill="none" />
                                 <path d="M50 0 L50 200" stroke="#fff" stroke-width="1" fill="none" />
                                 <path d="M100 0 L100 200" stroke="#fff" stroke-width="2" fill="none" />
                                 <path d="M150 0 L150 200" stroke="#fff" stroke-width="1.5" fill="none" />
-                                <!-- Diagonal roads -->
                                 <path d="M0 0 L120 200" stroke="#fff" stroke-width="0.8" fill="none" />
                                 <path d="M80 0 L200 200" stroke="#fff" stroke-width="0.8" fill="none" />
                                 <path d="M0 80 L200 80" stroke="#fff" stroke-width="0.5" fill="none" />
                                 <path d="M0 120 L200 120" stroke="#fff" stroke-width="0.5" fill="none" />
                                 <path d="M30 0 L30 200" stroke="#fff" stroke-width="0.5" fill="none" />
                                 <path d="M170 0 L170 200" stroke="#fff" stroke-width="0.5" fill="none" />
-                                <!-- Water -->
                                 <ellipse cx="160" cy="170" rx="50" ry="40" fill="#1A1A1A" />
                             </svg>
                         </div>
-                        <div class="sample-footer">
-                            <span class="sample-city">Tokyo</span>
-                            <span class="sample-coords">35.6762° N — 139.6503° E</span>
+                        <div class="h-[30%] flex flex-col justify-center items-center p-4">
+                            <span
+                                class="text-base sm:text-lg font-bold tracking-widest uppercase mb-2 text-white">Tokyo</span>
+                            <span class="text-[10px] sm:text-xs opacity-60 tracking-wide text-white">35.6762° N —
+                                139.6503° E</span>
                         </div>
                     </div>
 
                     <!-- Paris - Classic theme -->
-                    <div class="sample-card theme-classic">
-                        <div class="sample-map">
-                            <svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice">
+                    <div
+                        class="sample-card aspect-[5/7] rounded-3xl overflow-hidden relative shadow-2xl transition-all duration-300 cursor-pointer animate-float-delay-1 min-w-[100px] sm:min-w-[280px] bg-white hover:-translate-y-4 hover:scale-[1.08]">
+                        <div class="w-full h-[70%] relative overflow-hidden">
+                            <svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice" class="w-full h-full">
                                 <rect fill="#FFFFFF" width="200" height="200" />
-                                <!-- Roads -->
                                 <path d="M100 0 L100 200" stroke="#000" stroke-width="2" fill="none" />
                                 <path d="M0 100 L200 100" stroke="#000" stroke-width="2" fill="none" />
-                                <!-- Radial pattern (Paris style) -->
                                 <path d="M100 100 L30 30" stroke="#000" stroke-width="1" fill="none" />
                                 <path d="M100 100 L170 30" stroke="#000" stroke-width="1" fill="none" />
                                 <path d="M100 100 L170 170" stroke="#000" stroke-width="1" fill="none" />
@@ -1105,26 +217,26 @@
                                 <path d="M100 100 L200 100" stroke="#000" stroke-width="1.5" fill="none" />
                                 <path d="M100 100 L100 0" stroke="#000" stroke-width="1.5" fill="none" />
                                 <path d="M100 100 L100 200" stroke="#000" stroke-width="1.5" fill="none" />
-                                <!-- Ring roads -->
                                 <circle cx="100" cy="100" r="40" stroke="#000" stroke-width="0.8" fill="none" />
                                 <circle cx="100" cy="100" r="70" stroke="#000" stroke-width="0.5" fill="none" />
-                                <!-- Water (Seine) -->
                                 <path d="M0 90 Q50 100 100 85 Q150 70 200 80" stroke="#E0E0E0" stroke-width="12"
                                     fill="none" />
                             </svg>
                         </div>
-                        <div class="sample-footer">
-                            <span class="sample-city">Paris</span>
-                            <span class="sample-coords">48.8566° N — 2.3522° E</span>
+                        <div class="h-[30%] flex flex-col justify-center items-center p-4">
+                            <span
+                                class="text-base sm:text-lg font-bold tracking-widest uppercase mb-2 text-gray-900">Paris</span>
+                            <span class="text-[10px] sm:text-xs opacity-60 tracking-wide text-gray-900">48.8566° N —
+                                2.3522° E</span>
                         </div>
                     </div>
 
                     <!-- New York - Navy theme -->
-                    <div class="sample-card theme-navy">
-                        <div class="sample-map">
-                            <svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice">
+                    <div
+                        class="sample-card aspect-[5/7] rounded-3xl overflow-hidden relative shadow-2xl transition-all duration-300 cursor-pointer animate-float-delay-2 min-w-[100px] sm:min-w-[280px] bg-navy hover:-translate-y-4 hover:scale-[1.08]">
+                        <div class="w-full h-[70%] relative overflow-hidden">
+                            <svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice" class="w-full h-full">
                                 <rect fill="#001F3F" width="200" height="200" />
-                                <!-- Grid pattern (NYC) -->
                                 <path d="M20 0 L20 200" stroke="#B8D4E8" stroke-width="0.5" fill="none" />
                                 <path d="M40 0 L40 200" stroke="#B8D4E8" stroke-width="0.5" fill="none" />
                                 <path d="M60 0 L60 200" stroke="#B8D4E8" stroke-width="0.5" fill="none" />
@@ -1134,23 +246,22 @@
                                 <path d="M140 0 L140 200" stroke="#B8D4E8" stroke-width="0.5" fill="none" />
                                 <path d="M160 0 L160 200" stroke="#B8D4E8" stroke-width="0.5" fill="none" />
                                 <path d="M180 0 L180 200" stroke="#B8D4E8" stroke-width="0.5" fill="none" />
-                                <!-- Horizontal streets -->
                                 <path d="M0 30 L200 30" stroke="#B8D4E8" stroke-width="0.5" fill="none" />
                                 <path d="M0 60 L200 60" stroke="#B8D4E8" stroke-width="0.5" fill="none" />
                                 <path d="M0 90 L200 90" stroke="#B8D4E8" stroke-width="0.5" fill="none" />
                                 <path d="M0 120 L200 120" stroke="#B8D4E8" stroke-width="0.5" fill="none" />
                                 <path d="M0 150 L200 150" stroke="#B8D4E8" stroke-width="0.5" fill="none" />
                                 <path d="M0 180 L200 180" stroke="#B8D4E8" stroke-width="0.5" fill="none" />
-                                <!-- Broadway diagonal -->
                                 <path d="M60 0 L140 200" stroke="#B8D4E8" stroke-width="1.2" fill="none" />
-                                <!-- Water (Hudson/East River) -->
                                 <rect x="0" y="0" width="15" height="200" fill="#0A2A4A" />
                                 <rect x="185" y="0" width="15" height="200" fill="#0A2A4A" />
                             </svg>
                         </div>
-                        <div class="sample-footer">
-                            <span class="sample-city">New York</span>
-                            <span class="sample-coords">40.7128° N — 74.0060° W</span>
+                        <div class="h-[30%] flex flex-col justify-center items-center p-4">
+                            <span class="text-base sm:text-lg font-bold tracking-widest uppercase mb-2 text-white">New
+                                York</span>
+                            <span class="text-[10px] sm:text-xs opacity-60 tracking-wide text-white">40.7128° N —
+                                74.0060° W</span>
                         </div>
                     </div>
                 </div>
@@ -1159,70 +270,88 @@
     </section>
 
     <!-- How It Works -->
-    <section class="how-it-works">
-        <div class="section-inner">
-            <div class="section-header">
-                <h2 class="section-title">Create your poster <em>in minutes</em></h2>
-                <p class="section-subtitle">Three simple steps to transform any location into beautiful wall art.</p>
+    <section class="py-24 px-6 bg-brand-green">
+        <div class="max-w-5xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4 text-black">Create your poster <em
+                        class="italic underline decoration-[3px] underline-offset-4">in minutes</em></h2>
+                <p class="text-base text-black/70 max-w-lg mx-auto">Three simple steps to transform any location into
+                    beautiful wall art.</p>
             </div>
-            <div class="steps-grid">
-                <div class="step-card">
-                    <div class="step-icon">
-                        <ion-icon name="search-outline"></ion-icon>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-10">
+                <div class="text-center p-8">
+                    <div
+                        class="w-20 h-20 bg-white/80 rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-lg">
+                        <ion-icon name="search-outline" class="text-4xl text-black"></ion-icon>
                     </div>
-                    <h3 class="step-title">Search Any City</h3>
-                    <p class="step-desc">Enter any city, neighborhood, or address. Our smart search finds the exact
-                        location you want.</p>
+                    <h3 class="text-lg font-semibold mb-3 text-black">Search Any City</h3>
+                    <p class="text-sm text-black/70 leading-relaxed">Enter any city, neighborhood, or address. Our smart
+                        search finds the exact location you want.</p>
                 </div>
-                <div class="step-card">
-                    <div class="step-icon">
-                        <ion-icon name="color-palette-outline"></ion-icon>
+                <div class="text-center p-8">
+                    <div
+                        class="w-20 h-20 bg-white/80 rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-lg">
+                        <ion-icon name="color-palette-outline" class="text-4xl text-black"></ion-icon>
                     </div>
-                    <h3 class="step-title">Customize Style</h3>
-                    <p class="step-desc">Choose from 50+ color themes, adjust zoom levels, and personalize text to match
-                        your aesthetic.</p>
+                    <h3 class="text-lg font-semibold mb-3 text-black">Customize Style</h3>
+                    <p class="text-sm text-black/70 leading-relaxed">Choose from 50+ color themes, adjust zoom levels,
+                        and personalize text to match your aesthetic.</p>
                 </div>
-                <div class="step-card">
-                    <div class="step-icon">
-                        <ion-icon name="download-outline"></ion-icon>
+                <div class="text-center p-8">
+                    <div
+                        class="w-20 h-20 bg-white/80 rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-lg">
+                        <ion-icon name="download-outline" class="text-4xl text-black"></ion-icon>
                     </div>
-                    <h3 class="step-title">Download & Print</h3>
-                    <p class="step-desc">Export high-resolution PNG files ready for printing at any size, from small
-                        frames to large posters.</p>
+                    <h3 class="text-lg font-semibold mb-3 text-black">Download & Print</h3>
+                    <p class="text-sm text-black/70 leading-relaxed">Export high-resolution PNG files ready for printing
+                        at any size, from small frames to large posters.</p>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Trust Section -->
-    <section class="trust-section">
-        <h2 class="trust-title">The #1 map poster tool loved by <span><em>50,000+</em></span> creators</h2>
-        <p class="trust-subtitle">🎨 designers • 📸 photographers • 🏠 home decorators • 🎁 gift makers • ✈️ travelers
-        </p>
-        <div class="trust-logos">
-            <span>⭐ 4.9/5 Rating</span>
-            <span>🎨 50+ Themes</span>
-            <span>🌍 195 Countries</span>
-            <span>🖨️ Print Ready</span>
+    <section class="py-20 px-6 bg-white text-center">
+        <h2 class="text-2xl md:text-4xl font-bold mb-3">The #1 map poster tool loved by <span
+                class="text-brand-pink"><em class="italic">50,000+</em></span> creators</h2>
+        <p class="text-sm text-gray-600 mb-8 tracking-wide">🎨 designers • 📸 photographers • 🏠 home decorators • 🎁
+            gift makers • ✈️ travelers</p>
+        <div class="flex justify-center items-center gap-4 md:gap-8 flex-wrap">
+            <span
+                class="text-sm font-semibold text-gray-700 tracking-wide bg-gray-100 px-5 py-2.5 rounded-3xl shadow-sm">⭐
+                4.9/5 Rating</span>
+            <span
+                class="text-sm font-semibold text-gray-700 tracking-wide bg-gray-100 px-5 py-2.5 rounded-3xl shadow-sm">🎨
+                50+ Themes</span>
+            <span
+                class="text-sm font-semibold text-gray-700 tracking-wide bg-gray-100 px-5 py-2.5 rounded-3xl shadow-sm">🌍
+                195 Countries</span>
+            <span
+                class="text-sm font-semibold text-gray-700 tracking-wide bg-gray-100 px-5 py-2.5 rounded-3xl shadow-sm">🖨️
+                Print Ready</span>
         </div>
     </section>
 
     <!-- Features Detail -->
-    <section class="features-detail">
-        <div class="feature-row">
-            <div class="feature-content">
-                <span class="feature-tag">Customization</span>
-                <h3 class="feature-title">50+ stunning color palettes</h3>
-                <p class="feature-desc">From classic black and white to vibrant neons, find the perfect color
-                    combination for your space. Each palette is carefully designed for maximum visual impact.</p>
-                <a href="index.html" class="feature-link">
+    <section class="py-24 px-6 bg-brand-pink">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center max-w-5xl mx-auto mb-20">
+            <div class="py-5">
+                <span
+                    class="inline-block bg-white/20 text-white px-3 py-1.5 rounded-2xl text-xs font-semibold mb-4">Customization</span>
+                <h3 class="text-2xl md:text-3xl font-bold mb-4 leading-tight text-white">50+ stunning color palettes
+                </h3>
+                <p class="text-sm text-white/85 leading-relaxed mb-6">From classic black and white to vibrant neons,
+                    find the perfect color combination for your space. Each palette is carefully designed for maximum
+                    visual impact.</p>
+                <a href="index.html"
+                    class="inline-flex items-center gap-2 text-white font-semibold text-sm no-underline transition-all duration-200 hover:gap-3">
                     Explore themes <ion-icon name="arrow-forward"></ion-icon>
                 </a>
             </div>
-            <div class="feature-visual">
-                <div class="sample-card theme-noir" style="width: 160px;">
-                    <div class="sample-map">
-                        <svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice">
+            <div class="bg-white/70 rounded-3xl p-10 flex justify-center items-center backdrop-blur-sm">
+                <div class="aspect-[5/7] rounded-2xl overflow-hidden relative shadow-2xl w-40 bg-noir">
+                    <div class="w-full h-[70%] relative overflow-hidden">
+                        <svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice" class="w-full h-full">
                             <rect fill="#0A0A0A" width="200" height="200" />
                             <path d="M0 50 L200 50" stroke="#fff" stroke-width="1.5" fill="none" />
                             <path d="M0 100 L200 100" stroke="#fff" stroke-width="2" fill="none" />
@@ -1233,28 +362,32 @@
                             <ellipse cx="160" cy="170" rx="50" ry="40" fill="#1A1A1A" />
                         </svg>
                     </div>
-                    <div class="sample-footer">
-                        <span class="sample-city">London</span>
-                        <span class="sample-coords">51.5074° N — 0.1278° W</span>
+                    <div class="h-[30%] flex flex-col justify-center items-center p-3">
+                        <span class="text-sm font-bold tracking-widest uppercase mb-1 text-white">London</span>
+                        <span class="text-[9px] opacity-60 tracking-wide text-white">51.5074° N — 0.1278° W</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="feature-row reverse">
-            <div class="feature-content">
-                <span class="feature-tag">Global Coverage</span>
-                <h3 class="feature-title">Any place, anywhere in the world</h3>
-                <p class="feature-desc">From bustling metropolises to quiet villages, create posters for any location on
-                    Earth. Powered by OpenStreetMap data with MapTiler rendering.</p>
-                <a href="index.html" class="feature-link">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center max-w-5xl mx-auto mb-20">
+            <div class="py-5 md:order-2">
+                <span
+                    class="inline-block bg-white/20 text-white px-3 py-1.5 rounded-2xl text-xs font-semibold mb-4">Global
+                    Coverage</span>
+                <h3 class="text-2xl md:text-3xl font-bold mb-4 leading-tight text-white">Any place, anywhere in the
+                    world</h3>
+                <p class="text-sm text-white/85 leading-relaxed mb-6">From bustling metropolises to quiet villages,
+                    create posters for any location on Earth. Powered by OpenStreetMap data with MapTiler rendering.</p>
+                <a href="index.html"
+                    class="inline-flex items-center gap-2 text-white font-semibold text-sm no-underline transition-all duration-200 hover:gap-3">
                     Try it now <ion-icon name="arrow-forward"></ion-icon>
                 </a>
             </div>
-            <div class="feature-visual">
-                <div class="sample-card theme-classic" style="width: 160px;">
-                    <div class="sample-map">
-                        <svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice">
+            <div class="bg-white/70 rounded-3xl p-10 flex justify-center items-center backdrop-blur-sm md:order-1">
+                <div class="aspect-[5/7] rounded-2xl overflow-hidden relative shadow-2xl w-40 bg-white">
+                    <div class="w-full h-[70%] relative overflow-hidden">
+                        <svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice" class="w-full h-full">
                             <rect fill="#FFFFFF" width="200" height="200" />
                             <path d="M100 0 L100 200" stroke="#000" stroke-width="2" fill="none" />
                             <path d="M0 100 L200 100" stroke="#000" stroke-width="2" fill="none" />
@@ -1268,28 +401,32 @@
                                 fill="none" />
                         </svg>
                     </div>
-                    <div class="sample-footer">
-                        <span class="sample-city">Rome</span>
-                        <span class="sample-coords">41.9028° N — 12.4964° E</span>
+                    <div class="h-[30%] flex flex-col justify-center items-center p-3">
+                        <span class="text-sm font-bold tracking-widest uppercase mb-1 text-gray-900">Rome</span>
+                        <span class="text-[9px] opacity-60 tracking-wide text-gray-900">41.9028° N — 12.4964° E</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="feature-row">
-            <div class="feature-content">
-                <span class="feature-tag">High Quality</span>
-                <h3 class="feature-title">Print-ready exports up to 600 DPI</h3>
-                <p class="feature-desc">Download crisp, high-resolution files perfect for professional printing. From
-                    small desk frames to gallery-sized wall art.</p>
-                <a href="index.html" class="feature-link">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center max-w-5xl mx-auto">
+            <div class="py-5">
+                <span
+                    class="inline-block bg-white/20 text-white px-3 py-1.5 rounded-2xl text-xs font-semibold mb-4">High
+                    Quality</span>
+                <h3 class="text-2xl md:text-3xl font-bold mb-4 leading-tight text-white">Print-ready exports up to 600
+                    DPI</h3>
+                <p class="text-sm text-white/85 leading-relaxed mb-6">Download crisp, high-resolution files perfect for
+                    professional printing. From small desk frames to gallery-sized wall art.</p>
+                <a href="index.html"
+                    class="inline-flex items-center gap-2 text-white font-semibold text-sm no-underline transition-all duration-200 hover:gap-3">
                     Start creating <ion-icon name="arrow-forward"></ion-icon>
                 </a>
             </div>
-            <div class="feature-visual">
-                <div class="sample-card theme-navy" style="width: 160px;">
-                    <div class="sample-map">
-                        <svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice">
+            <div class="bg-white/70 rounded-3xl p-10 flex justify-center items-center backdrop-blur-sm">
+                <div class="aspect-[5/7] rounded-2xl overflow-hidden relative shadow-2xl w-40 bg-navy">
+                    <div class="w-full h-[70%] relative overflow-hidden">
+                        <svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice" class="w-full h-full">
                             <rect fill="#001F3F" width="200" height="200" />
                             <path d="M20 0 L20 200" stroke="#B8D4E8" stroke-width="0.5" fill="none" />
                             <path d="M40 0 L40 200" stroke="#B8D4E8" stroke-width="0.5" fill="none" />
@@ -1305,9 +442,9 @@
                             <rect x="0" y="0" width="15" height="200" fill="#0A2A4A" />
                         </svg>
                     </div>
-                    <div class="sample-footer">
-                        <span class="sample-city">Barcelona</span>
-                        <span class="sample-coords">41.3851° N — 2.1734° E</span>
+                    <div class="h-[30%] flex flex-col justify-center items-center p-3">
+                        <span class="text-sm font-bold tracking-widest uppercase mb-1 text-white">Barcelona</span>
+                        <span class="text-[9px] opacity-60 tracking-wide text-white">41.3851° N — 2.1734° E</span>
                     </div>
                 </div>
             </div>
@@ -1315,42 +452,50 @@
     </section>
 
     <!-- Testimonials -->
-    <section class="testimonials">
-        <div class="section-header">
-            <h2 class="section-title"><em>Loved</em> by creators everywhere</h2>
-            <p class="section-subtitle">See what people are saying about their MAPI experience.</p>
+    <section class="py-24 px-6 bg-brand-teal">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl md:text-4xl font-bold mb-4 text-white"><em class="italic">Loved</em> by creators
+                everywhere</h2>
+            <p class="text-base text-white/85 max-w-lg mx-auto">See what people are saying about their MAPI experience.
+            </p>
         </div>
-        <div class="testimonials-grid">
-            <div class="testimonial-card">
-                <p class="testimonial-text">"I created a poster of our first apartment for our anniversary. My partner
-                    was in tears. So simple yet so meaningful."</p>
-                <div class="testimonial-author">
-                    <div class="testimonial-avatar">JM</div>
-                    <div class="testimonial-info">
-                        <h4>Jessica M.</h4>
-                        <p>Interior Designer</p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            <div class="bg-white rounded-2xl p-8 shadow-md">
+                <p class="text-sm leading-relaxed text-gray-700 mb-6">"I created a poster of our first apartment for our
+                    anniversary. My partner was in tears. So simple yet so meaningful."</p>
+                <div class="flex items-center gap-3">
+                    <div
+                        class="w-11 h-11 rounded-full bg-brand-teal flex items-center justify-center text-white font-semibold text-base border-2 border-white">
+                        JM</div>
+                    <div>
+                        <h4 class="text-sm font-semibold mb-0.5">Jessica M.</h4>
+                        <p class="text-xs text-gray-500">Interior Designer</p>
                     </div>
                 </div>
             </div>
-            <div class="testimonial-card">
-                <p class="testimonial-text">"The quality is incredible. I've printed posters for my entire gallery wall
-                    and they look professional."</p>
-                <div class="testimonial-author">
-                    <div class="testimonial-avatar">DK</div>
-                    <div class="testimonial-info">
-                        <h4>David K.</h4>
-                        <p>Photographer</p>
+            <div class="bg-white rounded-2xl p-8 shadow-md">
+                <p class="text-sm leading-relaxed text-gray-700 mb-6">"The quality is incredible. I've printed posters
+                    for my entire gallery wall and they look professional."</p>
+                <div class="flex items-center gap-3">
+                    <div
+                        class="w-11 h-11 rounded-full bg-brand-teal flex items-center justify-center text-white font-semibold text-base border-2 border-white">
+                        DK</div>
+                    <div>
+                        <h4 class="text-sm font-semibold mb-0.5">David K.</h4>
+                        <p class="text-xs text-gray-500">Photographer</p>
                     </div>
                 </div>
             </div>
-            <div class="testimonial-card">
-                <p class="testimonial-text">"Finally, a tool that just works. No signup, no hassle. Created 5 posters
-                    for gifts in under 10 minutes."</p>
-                <div class="testimonial-author">
-                    <div class="testimonial-avatar">SR</div>
-                    <div class="testimonial-info">
-                        <h4>Sarah R.</h4>
-                        <p>Gift Shop Owner</p>
+            <div class="bg-white rounded-2xl p-8 shadow-md">
+                <p class="text-sm leading-relaxed text-gray-700 mb-6">"Finally, a tool that just works. No signup, no
+                    hassle. Created 5 posters for gifts in under 10 minutes."</p>
+                <div class="flex items-center gap-3">
+                    <div
+                        class="w-11 h-11 rounded-full bg-brand-teal flex items-center justify-center text-white font-semibold text-base border-2 border-white">
+                        SR</div>
+                    <div>
+                        <h4 class="text-sm font-semibold mb-0.5">Sarah R.</h4>
+                        <p class="text-xs text-gray-500">Gift Shop Owner</p>
                     </div>
                 </div>
             </div>
@@ -1358,116 +503,155 @@
     </section>
 
     <!-- FAQ Section -->
-    <section class="faq-section">
-        <div class="section-header">
-            <h2 class="section-title">Questions? <em>Answered</em></h2>
-            <p class="section-subtitle">Everything you need to know about MAPI.</p>
+    <section class="py-24 px-6 bg-brand-dark">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl md:text-4xl font-bold mb-4 text-white">Questions? <em
+                    class="italic text-brand-yellow">Answered</em></h2>
+            <p class="text-base text-white/70 max-w-lg mx-auto">Everything you need to know about MAPI.</p>
         </div>
-        <div class="faq-list">
-            <div class="faq-item">
-                <button class="faq-question">
+        <div class="max-w-2xl mx-auto">
+            <div class="faq-item border-b border-white/20">
+                <button
+                    class="faq-question w-full flex justify-between items-center py-6 bg-transparent border-none cursor-pointer text-left text-base font-semibold text-white font-inter">
                     Is MAPI really free to use?
-                    <ion-icon name="add-outline"></ion-icon>
+                    <ion-icon name="add-outline"
+                        class="text-xl text-white/60 transition-transform duration-300"></ion-icon>
                 </button>
                 <div class="faq-answer">
-                    <p>Yes! MAPI is completely free to use. No account required, no hidden fees. Create and download as
-                        many posters as you like.</p>
+                    <p class="text-sm text-white/70 leading-relaxed">Yes! MAPI is completely free to use. No account
+                        required, no hidden fees. Create and download as many posters as you like.</p>
                 </div>
             </div>
-            <div class="faq-item">
-                <button class="faq-question">
+            <div class="faq-item border-b border-white/20">
+                <button
+                    class="faq-question w-full flex justify-between items-center py-6 bg-transparent border-none cursor-pointer text-left text-base font-semibold text-white font-inter">
                     What resolution are the exported images?
-                    <ion-icon name="add-outline"></ion-icon>
+                    <ion-icon name="add-outline"
+                        class="text-xl text-white/60 transition-transform duration-300"></ion-icon>
                 </button>
                 <div class="faq-answer">
-                    <p>MAPI exports high-resolution PNG files suitable for printing. You can choose from multiple size
-                        presets optimized for common print sizes like A3, A2, and poster sizes up to 24x36 inches.</p>
+                    <p class="text-sm text-white/70 leading-relaxed">MAPI exports high-resolution PNG files suitable for
+                        printing. You can choose from multiple size presets optimized for common print sizes like A3,
+                        A2, and poster sizes up to 24x36 inches.</p>
                 </div>
             </div>
-            <div class="faq-item">
-                <button class="faq-question">
+            <div class="faq-item border-b border-white/20">
+                <button
+                    class="faq-question w-full flex justify-between items-center py-6 bg-transparent border-none cursor-pointer text-left text-base font-semibold text-white font-inter">
                     Can I create a poster for any location?
-                    <ion-icon name="add-outline"></ion-icon>
+                    <ion-icon name="add-outline"
+                        class="text-xl text-white/60 transition-transform duration-300"></ion-icon>
                 </button>
                 <div class="faq-answer">
-                    <p>Yes! MAPI uses OpenStreetMap data, which covers the entire world. You can create posters for
-                        cities, neighborhoods, landmarks, or any specific address.</p>
+                    <p class="text-sm text-white/70 leading-relaxed">Yes! MAPI uses OpenStreetMap data, which covers the
+                        entire world. You can create posters for cities, neighborhoods, landmarks, or any specific
+                        address.</p>
                 </div>
             </div>
-            <div class="faq-item">
-                <button class="faq-question">
+            <div class="faq-item border-b border-white/20">
+                <button
+                    class="faq-question w-full flex justify-between items-center py-6 bg-transparent border-none cursor-pointer text-left text-base font-semibold text-white font-inter">
                     How do I print my poster?
-                    <ion-icon name="add-outline"></ion-icon>
+                    <ion-icon name="add-outline"
+                        class="text-xl text-white/60 transition-transform duration-300"></ion-icon>
                 </button>
                 <div class="faq-answer">
-                    <p>After downloading your PNG file, you can print it at home, at a local print shop, or use online
-                        printing services. We recommend using high-quality paper for the best results.</p>
+                    <p class="text-sm text-white/70 leading-relaxed">After downloading your PNG file, you can print it
+                        at home, at a local print shop, or use online printing services. We recommend using high-quality
+                        paper for the best results.</p>
                 </div>
             </div>
-            <div class="faq-item">
-                <button class="faq-question">
+            <div class="faq-item border-b border-white/20">
+                <button
+                    class="faq-question w-full flex justify-between items-center py-6 bg-transparent border-none cursor-pointer text-left text-base font-semibold text-white font-inter">
                     Can I use the posters commercially?
-                    <ion-icon name="add-outline"></ion-icon>
+                    <ion-icon name="add-outline"
+                        class="text-xl text-white/60 transition-transform duration-300"></ion-icon>
                 </button>
                 <div class="faq-answer">
-                    <p>The map data is from OpenStreetMap (© OpenStreetMap contributors). You can use the posters for
-                        personal use. For commercial purposes, please review the OpenStreetMap license terms.</p>
+                    <p class="text-sm text-white/70 leading-relaxed">The map data is from OpenStreetMap (© OpenStreetMap
+                        contributors). You can use the posters for personal use. For commercial purposes, please review
+                        the OpenStreetMap license terms.</p>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Final CTA -->
-    <section class="final-cta">
-        <div class="final-cta-inner">
-            <h2>Start creating your <em>map poster</em> now</h2>
-            <p>Join thousands creating stunning wall art. 100% free, no account needed.</p>
-            <div class="final-cta-input-wrapper">
-                <input type="text" class="final-cta-input" placeholder="Enter your city..." id="footerCity">
-                <button class="final-cta-btn" onclick="goToAppFooter()">Create Free →</button>
+    <section class="py-24 px-6 bg-brand-dark text-center">
+        <div class="max-w-xl mx-auto">
+            <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Start creating your <em
+                    class="italic text-brand-yellow">map poster</em> now</h2>
+            <p class="text-base text-white/80 mb-8">Join thousands creating stunning wall art. 100% free, no account
+                needed.</p>
+            <div class="flex gap-2 max-w-md mx-auto bg-white/25 rounded-full p-1.5 flex-col sm:flex-row">
+                <input type="text"
+                    class="flex-1 px-5 py-3.5 border-none bg-transparent text-base outline-none text-white placeholder:text-white/60 rounded-xl sm:rounded-none"
+                    placeholder="Enter your city..." id="footerCity">
+                <button
+                    class="px-7 py-3.5 bg-brand-yellow text-black border-none rounded-full sm:rounded-3xl text-sm font-semibold cursor-pointer transition-all duration-200 whitespace-nowrap hover:bg-brand-yellow-hover hover:scale-[1.02]"
+                    onclick="goToAppFooter()">Create Free →</button>
             </div>
-            <p style="margin-top: 16px; font-size: 13px; color: rgba(255,255,255,0.6);">⚡ Takes less than 60 seconds</p>
+            <p class="mt-4 text-sm text-white/60">⚡ Takes less than 60 seconds</p>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer class="landing-footer">
-        <div class="footer-inner">
-            <div>
-                <div class="footer-brand">
-                    <div class="footer-brand-icon">
-                        <ion-icon name="map-outline"></ion-icon>
+    <footer class="py-16 px-6 bg-gray-900 text-white">
+        <div class="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12">
+            <div class="sm:col-span-2 lg:col-span-1">
+                <div class="flex items-center gap-2.5 mb-4">
+                    <div class="w-9 h-9 bg-brand-yellow rounded-xl flex items-center justify-center">
+                        <ion-icon name="map-outline" class="text-xl text-black"></ion-icon>
                     </div>
-                    <span>MAPI</span>
+                    <span class="text-lg font-bold">MAPI</span>
                 </div>
-                <p class="footer-desc">Create beautiful minimalist city map posters. Transform any location into
-                    stunning wall art, perfect for your home or as a meaningful gift.</p>
+                <p class="text-sm text-gray-500 leading-relaxed max-w-xs">Create beautiful minimalist city map posters.
+                    Transform any location into stunning wall art, perfect for your home or as a meaningful gift.</p>
             </div>
-            <div class="footer-col">
-                <h4>Product</h4>
-                <a href="index.html">Create Poster</a>
-                <a href="#features">Features</a>
-                <a href="#">Themes</a>
+            <div>
+                <h4 class="text-sm font-semibold mb-4 text-white">Product</h4>
+                <a href="index.html"
+                    class="block text-sm text-gray-500 no-underline mb-2.5 transition-colors duration-200 hover:text-white">Create
+                    Poster</a>
+                <a href="#features"
+                    class="block text-sm text-gray-500 no-underline mb-2.5 transition-colors duration-200 hover:text-white">Features</a>
+                <a href="#"
+                    class="block text-sm text-gray-500 no-underline mb-2.5 transition-colors duration-200 hover:text-white">Themes</a>
             </div>
-            <div class="footer-col">
-                <h4>Resources</h4>
-                <a href="#">How It Works</a>
-                <a href="#">Print Guide</a>
-                <a href="#">FAQ</a>
+            <div>
+                <h4 class="text-sm font-semibold mb-4 text-white">Resources</h4>
+                <a href="#"
+                    class="block text-sm text-gray-500 no-underline mb-2.5 transition-colors duration-200 hover:text-white">How
+                    It Works</a>
+                <a href="#"
+                    class="block text-sm text-gray-500 no-underline mb-2.5 transition-colors duration-200 hover:text-white">Print
+                    Guide</a>
+                <a href="#"
+                    class="block text-sm text-gray-500 no-underline mb-2.5 transition-colors duration-200 hover:text-white">FAQ</a>
             </div>
-            <div class="footer-col">
-                <h4>Legal</h4>
-                <a href="#">Privacy Policy</a>
-                <a href="#">Terms of Service</a>
-                <a href="#">Licenses</a>
+            <div>
+                <h4 class="text-sm font-semibold mb-4 text-white">Legal</h4>
+                <a href="#"
+                    class="block text-sm text-gray-500 no-underline mb-2.5 transition-colors duration-200 hover:text-white">Privacy
+                    Policy</a>
+                <a href="#"
+                    class="block text-sm text-gray-500 no-underline mb-2.5 transition-colors duration-200 hover:text-white">Terms
+                    of Service</a>
+                <a href="#"
+                    class="block text-sm text-gray-500 no-underline mb-2.5 transition-colors duration-200 hover:text-white">Licenses</a>
             </div>
         </div>
-        <div class="footer-bottom">
+        <div
+            class="max-w-5xl mx-auto mt-10 pt-6 border-t border-gray-800 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-gray-600">
             <p>© 2025 MAPI. Made with ♥ for map lovers. Map data © OpenStreetMap contributors.</p>
-            <div class="footer-socials">
-                <a href="#"><ion-icon name="logo-twitter"></ion-icon></a>
-                <a href="#"><ion-icon name="logo-instagram"></ion-icon></a>
-                <a href="#"><ion-icon name="logo-github"></ion-icon></a>
+            <div class="flex gap-4">
+                <a href="#" class="text-gray-500 text-xl transition-colors duration-200 hover:text-white"><ion-icon
+                        name="logo-twitter"></ion-icon></a>
+                <a href="#" class="text-gray-500 text-xl transition-colors duration-200 hover:text-white"><ion-icon
+                        name="logo-instagram"></ion-icon></a>
+                <a href="#" class="text-gray-500 text-xl transition-colors duration-200 hover:text-white"><ion-icon
+                        name="logo-github"></ion-icon></a>
             </div>
         </div>
     </footer>

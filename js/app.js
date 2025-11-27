@@ -149,6 +149,188 @@ const PALETTES = {
     'Bright Yellow & Teal Blue': { bg: '#37b4b8', roads: '#FFFFFF', water: '#eaf663' }
 };
 
+// === TOP 150 CITIES WITH SUBTITLES ===
+const WORLD_CITIES = {
+    // Asia
+    'Tokyo': 'The Land of the Rising Sun',
+    'Delhi': 'The Heart of India',
+    'Shanghai': 'The Pearl of the Orient',
+    'Beijing': 'The Forbidden City',
+    'Mumbai': 'The City of Dreams',
+    'Osaka': 'The Nation\'s Kitchen',
+    'Dhaka': 'The City of Mosques',
+    'Karachi': 'The City of Lights',
+    'Kolkata': 'The City of Joy',
+    'Chengdu': 'The Land of Abundance',
+    'Guangzhou': 'The City of Flowers',
+    'Shenzhen': 'China\'s Silicon Valley',
+    'Jakarta': 'The Big Durian',
+    'Bangkok': 'The City of Angels',
+    'Seoul': 'The Soul of Asia',
+    'Ho Chi Minh City': 'The Pearl of the Far East',
+    'Singapore': 'The Lion City',
+    'Hong Kong': 'The Pearl of the Orient',
+    'Taipei': 'The Beautiful Island Capital',
+    'Manila': 'The Pearl of the Orient Seas',
+    'Kuala Lumpur': 'The Garden City of Lights',
+    'Hanoi': 'The City of the Rising Dragon',
+    'Riyadh': 'The Gardens of the Desert',
+    'Dubai': 'The City of Gold',
+    'Abu Dhabi': 'The Garden City',
+    'Doha': 'The Pearl of the Gulf',
+    'Tel Aviv': 'The White City',
+    'Jerusalem': 'The Holy City',
+    'Amman': 'The White City',
+    'Beirut': 'The Paris of the Middle East',
+    'Chennai': 'The Gateway to South India',
+    'Bangalore': 'The Silicon Valley of India',
+    'Hyderabad': 'The City of Pearls',
+    'Pune': 'The Oxford of the East',
+    'Jaipur': 'The Pink City',
+    'Ahmedabad': 'The Manchester of India',
+    'Kyoto': 'The Cultural Heart of Japan',
+    'Nagoya': 'The Heart of Japan',
+    'Fukuoka': 'The Gateway to Asia',
+    'Busan': 'The Maritime Capital',
+    'Taipei': 'The Beautiful Island',
+    'Yangon': 'The Garden City of the East',
+
+    // Europe
+    'London': 'The Big Smoke',
+    'Paris': 'The City of Light',
+    'Berlin': 'The City of Freedom',
+    'Madrid': 'The City That Never Sleeps',
+    'Rome': 'The Eternal City',
+    'Barcelona': 'The City of Counts',
+    'Vienna': 'The City of Music',
+    'Amsterdam': 'The Venice of the North',
+    'Prague': 'The City of a Hundred Spires',
+    'Brussels': 'The Capital of Europe',
+    'Munich': 'The Heart of Bavaria',
+    'Milan': 'The Fashion Capital',
+    'Dublin': 'The Fair City',
+    'Lisbon': 'The City of Seven Hills',
+    'Athens': 'The Cradle of Civilization',
+    'Stockholm': 'The Venice of the North',
+    'Copenhagen': 'The City of Spires',
+    'Oslo': 'The Tiger City',
+    'Helsinki': 'The Daughter of the Baltic',
+    'Zurich': 'The Little Big City',
+    'Geneva': 'The Peace Capital',
+    'Budapest': 'The Pearl of the Danube',
+    'Warsaw': 'The Phoenix City',
+    'Krakow': 'The Cultural Capital',
+    'Venice': 'The Floating City',
+    'Florence': 'The Cradle of the Renaissance',
+    'Naples': 'The City of the Sun',
+    'Edinburgh': 'The Athens of the North',
+    'Manchester': 'The Rainy City',
+    'Liverpool': 'The Pool of Life',
+    'Glasgow': 'The Dear Green Place',
+    'Marseille': 'The Gateway to the South',
+    'Lyon': 'The Capital of Gastronomy',
+    'Nice': 'The Queen of the Riviera',
+    'Seville': 'The Pearl of Andalusia',
+    'Valencia': 'The City of Arts and Sciences',
+    'Bilbao': 'The Botxo',
+    'Porto': 'The Unvanquished City',
+    'Hamburg': 'The Gateway to the World',
+    'Frankfurt': 'The Mainhattan',
+    'Cologne': 'The Cathedral City',
+    'Düsseldorf': 'The Little Paris',
+    'Rotterdam': 'The Gateway to Europe',
+    'Antwerp': 'The Diamond City',
+    'Brussels': 'The Comic Strip Capital',
+    'Moscow': 'The Third Rome',
+    'St. Petersburg': 'The Venice of the North',
+    'Istanbul': 'Where East Meets West',
+
+    // North America
+    'New York': 'The Big Apple',
+    'Los Angeles': 'The City of Angels',
+    'Chicago': 'The Windy City',
+    'Houston': 'Space City',
+    'Phoenix': 'The Valley of the Sun',
+    'Philadelphia': 'The City of Brotherly Love',
+    'San Antonio': 'The Alamo City',
+    'San Diego': 'America\'s Finest City',
+    'Dallas': 'The Big D',
+    'San Francisco': 'The Golden Gate City',
+    'Seattle': 'The Emerald City',
+    'Denver': 'The Mile High City',
+    'Boston': 'The Cradle of Liberty',
+    'Austin': 'The Live Music Capital',
+    'Nashville': 'Music City',
+    'Portland': 'The City of Roses',
+    'Las Vegas': 'Sin City',
+    'Miami': 'The Magic City',
+    'Atlanta': 'The City Too Busy to Hate',
+    'New Orleans': 'The Big Easy',
+    'Washington': 'The Nation\'s Capital',
+    'Detroit': 'The Motor City',
+    'Minneapolis': 'The City of Lakes',
+    'San Jose': 'The Capital of Silicon Valley',
+    'Baltimore': 'Charm City',
+    'Toronto': 'The Six',
+    'Montreal': 'The City of Saints',
+    'Vancouver': 'The Hollywood of the North',
+    'Calgary': 'The Stampede City',
+    'Ottawa': 'The Capital of Canada',
+    'Quebec City': 'The Gibraltar of America',
+    'Mexico City': 'The City of Palaces',
+    'Guadalajara': 'The Pearl of the West',
+    'Monterrey': 'The Sultana del Norte',
+    'Tijuana': 'The Gateway to Mexico',
+    'Cancun': 'The Mexican Caribbean',
+
+    // South America
+    'São Paulo': 'The Concrete Jungle',
+    'Rio de Janeiro': 'The Marvelous City',
+    'Buenos Aires': 'The Paris of South America',
+    'Lima': 'The City of Kings',
+    'Bogotá': 'The Athens of South America',
+    'Santiago': 'The Jewel of the Andes',
+    'Caracas': 'The Sultana of the Avila',
+    'Medellín': 'The City of Eternal Spring',
+    'Quito': 'The Light of America',
+    'Montevideo': 'The Switzerland of America',
+    'Cartagena': 'The Heroic City',
+    'Cusco': 'The Navel of the World',
+    'Havana': 'The Pearl of the Antilles',
+    'San Juan': 'The Walled City',
+
+    // Africa
+    'Cairo': 'The City of a Thousand Minarets',
+    'Lagos': 'The Giant of Africa',
+    'Johannesburg': 'The City of Gold',
+    'Cape Town': 'The Mother City',
+    'Nairobi': 'The Green City in the Sun',
+    'Casablanca': 'The White City',
+    'Marrakech': 'The Red City',
+    'Addis Ababa': 'The New Flower',
+    'Accra': 'The Gateway to West Africa',
+    'Dar es Salaam': 'The Haven of Peace',
+    'Tunis': 'The Olive Tree Capital',
+    'Algiers': 'The White City',
+    'Kigali': 'The Land of a Thousand Hills',
+    'Dakar': 'The Gateway to Africa',
+    'Abuja': 'The Centre of Unity',
+
+    // Oceania
+    'Sydney': 'The Harbour City',
+    'Melbourne': 'The Garden City',
+    'Brisbane': 'The River City',
+    'Perth': 'The City of Light',
+    'Auckland': 'The City of Sails',
+    'Wellington': 'The Windy City',
+    'Adelaide': 'The City of Churches',
+    'Gold Coast': 'The Surfers Paradise',
+    'Canberra': 'The Bush Capital',
+    'Christchurch': 'The Garden City'
+};
+
+const DEFAULT_SUBTITLE = 'A Beautiful Place to Explore';
+
 // Print sizes in inches for DPI calculation
 const PRINT_SIZES = {
     '24x36': { width: 24, height: 36 },
@@ -501,6 +683,30 @@ function changeMapStyle(styleKey) {
 }
 
 // === GEOCODING ===
+function getCitySubtitle(cityName) {
+    // Try exact match first
+    if (WORLD_CITIES[cityName]) {
+        return WORLD_CITIES[cityName];
+    }
+    
+    // Try case-insensitive match
+    const lowerName = cityName.toLowerCase();
+    for (const [city, subtitle] of Object.entries(WORLD_CITIES)) {
+        if (city.toLowerCase() === lowerName) {
+            return subtitle;
+        }
+    }
+    
+    // Try partial match (city name contains or is contained in our list)
+    for (const [city, subtitle] of Object.entries(WORLD_CITIES)) {
+        if (city.toLowerCase().includes(lowerName) || lowerName.includes(city.toLowerCase())) {
+            return subtitle;
+        }
+    }
+    
+    return DEFAULT_SUBTITLE;
+}
+
 async function searchCity(name) {
     if (!name) return;
 
@@ -519,7 +725,12 @@ async function searchCity(name) {
 
         const [lon, lat] = data.features[0].center;
         map.flyTo({ center: [lon, lat], zoom: 12 });
-        elements.titleInput.value = name.toUpperCase();
+        
+        // Update title and subtitle
+        const cityName = name.trim();
+        elements.titleInput.value = cityName.toUpperCase();
+        elements.subtitleInput.value = getCitySubtitle(cityName);
+        
         updateLabels();
         updateFooter(lat, lon);
         setStatus("Location updated.");
