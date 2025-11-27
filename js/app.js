@@ -491,9 +491,9 @@ function createMapStyle(palette) {
         glyphs: `https://api.maptiler.com/fonts/{fontstack}/{range}.pbf?key=${MAPTILER_KEY}`,
         layers: [
             { id: 'background', type: 'background', paint: { 'background-color': palette.bg } },
-            { id: 'water', type: 'fill', source: 'openmaptiles', 'source-layer': 'water', paint: { 'fill-color': palette.water } },
             { id: 'landcover', type: 'fill', source: 'openmaptiles', 'source-layer': 'landcover', filter: ['==', 'class', 'wood'], paint: { 'fill-color': palette.bg, 'fill-opacity': 0.4 } },
             { id: 'park', type: 'fill', source: 'openmaptiles', 'source-layer': 'park', paint: { 'fill-color': palette.bg, 'fill-opacity': 0.3 } },
+            { id: 'water', type: 'fill', source: 'openmaptiles', 'source-layer': 'water', paint: { 'fill-color': palette.water } },
             { id: 'highway_major', type: 'line', source: 'openmaptiles', 'source-layer': 'transportation', filter: ['in', 'class', 'motorway', 'trunk', 'primary'], paint: { 'line-color': palette.roads, 'line-width': 3 } },
             { id: 'highway_minor', type: 'line', source: 'openmaptiles', 'source-layer': 'transportation', filter: ['in', 'class', 'secondary', 'tertiary'], paint: { 'line-color': palette.roads, 'line-width': 2 } },
             { id: 'highway_other', type: 'line', source: 'openmaptiles', 'source-layer': 'transportation', filter: ['in', 'class', 'minor', 'service', 'track'], paint: { 'line-color': palette.roads, 'line-width': 1, 'line-opacity': 0.6 } },
@@ -688,7 +688,7 @@ function getCitySubtitle(cityName) {
     if (WORLD_CITIES[cityName]) {
         return WORLD_CITIES[cityName];
     }
-    
+
     // Try case-insensitive match
     const lowerName = cityName.toLowerCase();
     for (const [city, subtitle] of Object.entries(WORLD_CITIES)) {
@@ -696,14 +696,14 @@ function getCitySubtitle(cityName) {
             return subtitle;
         }
     }
-    
+
     // Try partial match (city name contains or is contained in our list)
     for (const [city, subtitle] of Object.entries(WORLD_CITIES)) {
         if (city.toLowerCase().includes(lowerName) || lowerName.includes(city.toLowerCase())) {
             return subtitle;
         }
     }
-    
+
     return DEFAULT_SUBTITLE;
 }
 
@@ -725,12 +725,12 @@ async function searchCity(name) {
 
         const [lon, lat] = data.features[0].center;
         map.flyTo({ center: [lon, lat], zoom: 12 });
-        
+
         // Update title and subtitle
         const cityName = name.trim();
         elements.titleInput.value = cityName.toUpperCase();
         elements.subtitleInput.value = getCitySubtitle(cityName);
-        
+
         updateLabels();
         updateFooter(lat, lon);
         setStatus("Location updated.");
