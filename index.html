@@ -24,16 +24,18 @@
   <link href="css/styles.css" rel="stylesheet" />
 </head>
 
-<body class="bg-[#f3f3f3] text-[#111] font-sans m-0 h-screen overflow-hidden">
-  <header class="px-8 py-5 bg-[#440edf] text-[#74e5c0] border-b border-[#e0e0e0]">
+<body class="bg-[#440edf] text-[#111] font-sans m-0 h-screen overflow-hidden">
+  <header class="px-6 py-2 bg-[#440edf] text-[#d2e823]">
     <div class="flex items-center justify-between">
-      <h1 class="m-0 text-xl  font-semibold tracking-[0.5px] flex items-center gap-2">
-        <ion-icon name="map-outline" class="text-2xl"></ion-icon>
+      <a href="#" class="flex items-center gap-2 font-bold text-lg text-[#d2e823]">
+        <div class="w-10 h-10 bg-black rounded-lg flex items-center justify-center">
+          <ion-icon name="map-outline" class="text-lg text-[#d2e823]"></ion-icon>
+        </div>
         MAPI
-      </h1>
-      <p class="m-0 text-md  tracking-wide opacity-90"> Map Posters Generator</p>
+      </a>
+      <p class="m-0 text-md tracking-wide opacity-90"> Map Posters Generator</p>
       <button
-        class="cursor-pointer rounded-xl border border-transparent px-5 py-2.5 text-[13px] font-semibold transition-all duration-200 bg-[#74e5c0] text-[#000] hover:bg-[#440edf] hover:text-[#74e5c0] hover:border-[#74e5c0] hover:shadow-lg flex items-center gap-2"
+        class="cursor-pointer rounded-xl border border-transparent px-5 py-2.5 text-[13px] font-semibold transition-all duration-200 bg-[#d2e823] text-[#000] hover:bg-[#440edf] hover:text-[#d2e823] hover:border-[#d2e823] hover:shadow-lg flex items-center gap-2"
         id="downloadBtn">
         <ion-icon name="download-outline" class="text-base"></ion-icon>
         Download PNG
@@ -41,7 +43,8 @@
     </div>
   </header>
 
-  <div id="container" class="flex h-[calc(100vh-61px)] overflow-hidden max-[900px]:flex-col max-[900px]:h-auto">
+  <div id="container"
+    class="flex h-[calc(100vh-74px)] rounded-xl m-2 overflow-hidden max-[900px]:flex-col max-[900px]:h-auto">
     <section id="controls"
       class="w-[320px] bg-[#fafafa] p-4 h-full overflow-y-auto shrink-0 max-[900px]:w-full max-[900px]:h-auto">
 
