@@ -504,41 +504,32 @@ function createMapStyle(palette) {
 }
 
 // === POSTER FUNCTIONS ===
+function applyTextColor(color) {
+    elements.poster.style.color = color;
+    if (elements.posterFooter) elements.posterFooter.style.color = color;
+    elements.labelColorInput.value = color;
+    elements.labelColorHex.value = color.toUpperCase();
+}
+
 function updatePosterColors(palette) {
-    const autoTextColor = isLightColor(palette.bg) ? '#000000' : '#FFFFFF';
-    const textColor = labelColorAuto ? autoTextColor : customLabelColor;
+    const autoColor = isLightColor(palette.bg) ? '#000000' : '#FFFFFF';
     elements.poster.style.backgroundColor = palette.bg;
-    elements.poster.style.color = textColor;
-    if (elements.posterFooter) {
-        elements.posterFooter.style.backgroundColor = 'transparent';
-        elements.posterFooter.style.color = textColor;
-    }
-    // Update color picker to reflect current label color
-    if (elements.labelColorInput && elements.labelColorHex) {
-        elements.labelColorInput.value = textColor;
-        elements.labelColorHex.value = textColor.toUpperCase();
-    }
+    if (elements.posterFooter) elements.posterFooter.style.backgroundColor = 'transparent';
+    applyTextColor(labelColorAuto ? autoColor : customLabelColor);
 }
 
 function updateLabelColor(color) {
     customLabelColor = color;
     labelColorAuto = false;
-    elements.poster.style.color = color;
-    if (elements.posterFooter) {
-        elements.posterFooter.style.color = color;
-    }
-    elements.labelColorInput.value = color;
-    elements.labelColorHex.value = color.toUpperCase();
-    elements.labelColorAuto.classList.remove('text-[#440edf]');
-    elements.labelColorAuto.classList.add('text-[#666]');
+    applyTextColor(color);
+    elements.labelColorAuto.classList.replace('text-[#440edf]', 'text-[#666]');
 }
 
 function setLabelColorAuto() {
     labelColorAuto = true;
     customLabelColor = null;
     updatePosterColors(PALETTES[currentStyle]);
-    elements.labelColorAuto.classList.add('text-[#440edf]');
-    elements.labelColorAuto.classList.remove('text-[#666]');
+    elements.labelColorAuto.classList.replace('text-[#666]', 'text-[#440edf]');
 }
 
 function updateFooter(lat, lon) {
@@ -547,44 +538,28 @@ function updateFooter(lat, lon) {
     }
 }
 
-// Render the title text, splitting characters for the vertical layout so exports match the preview
 function renderCityTitle(text) {
-    if (!elements.cityTitle) return;
-
     const titleEl = elements.cityTitle;
+    if (!titleEl) return;
+
     const content = text || "";
     const isVertical = elements.poster.classList.contains('poster-style-vertical');
+    const needsUpdate = titleEl.dataset.layout !== (isVertical ? 'vertical' : 'default') || titleEl.dataset.renderedText !== content;
 
     if (!content) {
         titleEl.innerHTML = '';
         titleEl.style.display = 'none';
-        titleEl.dataset.layout = isVertical ? 'vertical' : 'default';
-        titleEl.dataset.renderedText = '';
-        return;
-    }
-
-    if (isVertical) {
-        if (titleEl.dataset.layout !== 'vertical' || titleEl.dataset.renderedText !== content) {
-            titleEl.innerHTML = '';
-            for (const char of content) {
-                const span = document.createElement('span');
-                span.textContent = char === ' ' ? '\u00A0' : char;
-                titleEl.appendChild(span);
-            }
-            titleEl.dataset.layout = 'vertical';
-            titleEl.dataset.renderedText = content;
+    } else if (isVertical) {
+        if (needsUpdate) {
+            titleEl.innerHTML = [...content].map(c => `<span>${c === ' ' ? '\u00A0' : c}</span>`).join('');
         }
         titleEl.style.display = 'flex';
     } else {
-        if (titleEl.dataset.layout === 'vertical') {
-            titleEl.dataset.layout = 'default';
-        }
-        if (titleEl.textContent !== content) {
-            titleEl.textContent = content;
-        }
+        if (needsUpdate) titleEl.textContent = content;
         titleEl.style.display = 'block';
-        titleEl.dataset.renderedText = content;
     }
+    titleEl.dataset.layout = isVertical ? 'vertical' : 'default';
+    titleEl.dataset.renderedText = content;
 }
 
 function updateLabels() {
@@ -638,72 +613,46 @@ function initMap(center, zoom, style) {
     });
 }
 
+function syncZoomUI() {
+    const zoom = map.getZoom().toFixed(1);
+    elements.zoomInput.value = zoom;
+    elements.zoomValue.textContent = zoom;
+}
+
+function onMapUpdate() {
+    syncZoomUI();
+    const { lat, lng } = map.getCenter();
+    updateFooter(lat, lng);
+    updateRoadVisibility();
+}
+
 function setupMapEvents() {
     map.on("load", () => {
-        const zoom = map.getZoom().toFixed(1);
-        elements.zoomInput.value = zoom;
-        elements.zoomValue.textContent = zoom;
-        updateFooter(INITIAL_CENTER[1], INITIAL_CENTER[0]);
+        onMapUpdate();
         updatePosterColors(PALETTES[currentStyle]);
-        updateRoadVisibility();
     });
-
-    map.on("moveend", () => {
-        const zoom = map.getZoom().toFixed(1);
-        elements.zoomInput.value = zoom;
-        elements.zoomValue.textContent = zoom;
-        const center = map.getCenter();
-        updateFooter(center.lat, center.lng);
-        updateRoadVisibility();
-    });
+    map.on("moveend", onMapUpdate);
 }
 
 function changeMapStyle(styleKey) {
-    const center = map.getCenter();
+    const { lng, lat } = map.getCenter();
     const zoom = map.getZoom();
-
     map.remove();
     currentStyle = styleKey;
-    map = initMap([center.lng, center.lat], zoom, styleKey);
-
-    map.on("load", () => {
-        setStatus("Map style updated.");
-        const c = map.getCenter();
-        updateFooter(c.lat, c.lng);
-        updatePosterColors(PALETTES[styleKey]);
-        updateRoadVisibility();
-    });
-
-    map.on("moveend", () => {
-        elements.zoomInput.value = map.getZoom().toFixed(1);
-        const c = map.getCenter();
-        updateFooter(c.lat, c.lng);
-        updateRoadVisibility();
-    });
+    map = initMap([lng, lat], zoom, styleKey);
+    setupMapEvents();
+    map.once("load", () => setStatus("Map style updated."));
 }
 
 // === GEOCODING ===
 function getCitySubtitle(cityName) {
-    // Try exact match first
-    if (WORLD_CITIES[cityName]) {
-        return WORLD_CITIES[cityName];
-    }
-
-    // Try case-insensitive match
     const lowerName = cityName.toLowerCase();
     for (const [city, subtitle] of Object.entries(WORLD_CITIES)) {
-        if (city.toLowerCase() === lowerName) {
+        const lowerCity = city.toLowerCase();
+        if (lowerCity === lowerName || lowerCity.includes(lowerName) || lowerName.includes(lowerCity)) {
             return subtitle;
         }
     }
-
-    // Try partial match (city name contains or is contained in our list)
-    for (const [city, subtitle] of Object.entries(WORLD_CITIES)) {
-        if (city.toLowerCase().includes(lowerName) || lowerName.includes(city.toLowerCase())) {
-            return subtitle;
-        }
-    }
-
     return DEFAULT_SUBTITLE;
 }
 
@@ -746,59 +695,33 @@ async function downloadPoster() {
 
     try {
         const selectedSize = elements.sizeSelect.value;
+        const printSize = PRINT_SIZES[selectedSize];
+        const { offsetWidth: w, offsetHeight: h } = elements.poster;
+
         let scale = 3;
-
-        if (PRINT_SIZES[selectedSize]) {
-            const printSize = PRINT_SIZES[selectedSize];
-            const currentWidth = elements.poster.offsetWidth;
-            const currentHeight = elements.poster.offsetHeight;
-
-            const targetWidth = isLandscape ? printSize.height * TARGET_DPI : printSize.width * TARGET_DPI;
-            const targetHeight = isLandscape ? printSize.width * TARGET_DPI : printSize.height * TARGET_DPI;
-
-            const scaleX = targetWidth / currentWidth;
-            const scaleY = targetHeight / currentHeight;
-            scale = Math.max(scaleX, scaleY);
-
-            const maxDim = 16384;
-            const maxScale = Math.min(maxDim / currentWidth, maxDim / currentHeight);
-            scale = Math.min(scale, maxScale, 12);
+        if (printSize) {
+            const [tw, th] = isLandscape ? [printSize.height, printSize.width] : [printSize.width, printSize.height];
+            scale = Math.min(Math.max(tw * TARGET_DPI / w, th * TARGET_DPI / h), 16384 / Math.max(w, h), 12);
         }
 
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise(r => setTimeout(r, 100));
 
         const canvas = await html2canvas(elements.poster, {
-            useCORS: true,
-            scale,
-            logging: false,
-            backgroundColor: null,
-            allowTaint: true,
-            imageTimeout: 15000,
-            width: elements.poster.offsetWidth,
-            height: elements.poster.offsetHeight
+            useCORS: true, scale, logging: false, backgroundColor: null,
+            allowTaint: true, imageTimeout: 15000, width: w, height: h
         });
 
-        if (!canvas || canvas.width === 0 || canvas.height === 0) {
-            throw new Error("Canvas rendering failed");
-        }
+        if (!canvas?.width || !canvas?.height) throw new Error("Canvas rendering failed");
 
-        const blob = await new Promise((resolve, reject) => {
-            canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error("Failed to create image")), "image/png", 1.0);
-        });
-
-        const dataUrl = URL.createObjectURL(blob);
+        const blob = await new Promise((res, rej) => canvas.toBlob(b => b ? res(b) : rej(new Error("Failed to create image")), "image/png", 1.0));
+        const url = URL.createObjectURL(blob);
         const cityName = elements.cityTitle.textContent.replace(/\s+/g, "_").toLowerCase() || "city";
-        const timestamp = Date.now();
 
-        const link = document.createElement("a");
-        link.href = dataUrl;
-        link.download = `${cityName}_${selectedSize}_600dpi_${timestamp}.png`;
-        link.click();
+        Object.assign(document.createElement("a"), { href: url, download: `${cityName}_${selectedSize}_600dpi_${Date.now()}.png` }).click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
 
-        setTimeout(() => URL.revokeObjectURL(dataUrl), 1000);
-
-        const sizeMB = (blob.size / 1024 / 1024).toFixed(1);
-        const dpi = Math.round(canvas.width / (PRINT_SIZES[selectedSize]?.width || 24));
+        const sizeMB = (blob.size / 1048576).toFixed(1);
+        const dpi = Math.round(canvas.width / (printSize?.width || 24));
         setStatus(`Poster downloaded (${canvas.width} × ${canvas.height} px @ ~${dpi} DPI, ${sizeMB}MB).`);
     } catch (err) {
         console.error("Download error:", err);
@@ -807,133 +730,113 @@ async function downloadPoster() {
 }
 
 // === EVENT LISTENERS ===
+function setZoom(zoom) {
+    zoom = Math.max(1, Math.min(20, zoom));
+    elements.zoomInput.value = zoom;
+    elements.zoomValue.textContent = zoom.toFixed(1);
+    map.setZoom(zoom);
+}
+
 function setupEventListeners() {
-    // Zoom slider
-    elements.zoomInput.addEventListener("input", () => {
-        const zoom = parseFloat(elements.zoomInput.value);
-        elements.zoomValue.textContent = zoom.toFixed(1);
-        map.setZoom(zoom);
-    });
+    elements.zoomInput.addEventListener("input", () => setZoom(parseFloat(elements.zoomInput.value)));
+    elements.zoomIncrement.addEventListener("click", () => setZoom(parseFloat(elements.zoomInput.value) + 0.5));
+    elements.zoomDecrement.addEventListener("click", () => setZoom(parseFloat(elements.zoomInput.value) - 0.5));
 
-    // Zoom increment button
-    elements.zoomIncrement.addEventListener("click", () => {
-        const currentZoom = parseFloat(elements.zoomInput.value);
-        const newZoom = Math.min(20, currentZoom + 0.5);
-        elements.zoomInput.value = newZoom;
-        elements.zoomValue.textContent = newZoom.toFixed(1);
-        map.setZoom(newZoom);
-    });
-
-    // Zoom decrement button
-    elements.zoomDecrement.addEventListener("click", () => {
-        const currentZoom = parseFloat(elements.zoomInput.value);
-        const newZoom = Math.max(1, currentZoom - 0.5);
-        elements.zoomInput.value = newZoom;
-        elements.zoomValue.textContent = newZoom.toFixed(1);
-        map.setZoom(newZoom);
-    });
-
-    // Style select
     elements.styleSelect.addEventListener("change", () => {
         setStatus("Updating map style…");
-        changeMapStyle(elements.styleSelect.value);
-        updateSelectedThemePreview(elements.styleSelect.value);
+        const style = elements.styleSelect.value;
+        changeMapStyle(style);
+        updateSelectedThemePreview(style);
     });
 
-    // Theme grid toggle
     elements.toggleThemesGrid.addEventListener("click", () => {
-        const isCollapsed = elements.themesGrid.classList.toggle('collapsed');
-        elements.toggleThemesGrid.textContent = isCollapsed ? 'Show all' : 'Show less';
+        const collapsed = elements.themesGrid.classList.toggle('collapsed');
+        elements.toggleThemesGrid.textContent = collapsed ? 'Show all' : 'Show less';
     });
 
-    // Poster layout style
     elements.posterStyleSelect.addEventListener("change", () => {
-        elements.poster.className = elements.poster.className.replace(/poster-style-\w+/g, '').trim();
-        elements.poster.classList.add(`poster-style-${elements.posterStyleSelect.value}`);
+        elements.poster.className = elements.poster.className.replace(/poster-style-\w+/g, `poster-style-${elements.posterStyleSelect.value}`);
         updateLabels();
     });
 
-    // Print size
     elements.sizeSelect.addEventListener("change", () => {
         elements.poster.className = elements.poster.className.replace(/size-\S+/g, '').trim();
-        const size = elements.sizeSelect.value;
-        if (size !== 'default') {
-            elements.poster.classList.add(`size-${size}`);
-        }
+        if (elements.sizeSelect.value !== 'default') elements.poster.classList.add(`size-${elements.sizeSelect.value}`);
     });
 
-    // City search
-    elements.cityInput.addEventListener("keydown", e => {
-        if (e.key === "Enter") searchCity(elements.cityInput.value.trim());
-    });
-
-    // Download
+    elements.cityInput.addEventListener("keydown", e => e.key === "Enter" && searchCity(elements.cityInput.value.trim()));
     elements.downloadBtn.addEventListener("click", downloadPoster);
 
-    // Orientation toggle
     elements.orientationToggle.addEventListener("click", () => {
         isLandscape = !isLandscape;
         elements.orientationToggle.classList.toggle("active", isLandscape);
         elements.poster.classList.toggle("landscape", isLandscape);
     });
 
-    // Labels toggle
     elements.labelsToggle.addEventListener("click", () => {
         labelsEnabled = !labelsEnabled;
         elements.labelsToggle.classList.toggle("active", labelsEnabled);
         updateLabels();
     });
 
-    // Label inputs
-    elements.titleInput.addEventListener("input", updateLabels);
-    elements.subtitleInput.addEventListener("input", updateLabels);
+    [elements.titleInput, elements.subtitleInput].forEach(el => el.addEventListener("input", updateLabels));
     elements.taglineInput.addEventListener("input", () => {
         updateLabels();
         if (!elements.taglineInput.value.trim()) {
-            const center = map.getCenter();
-            updateFooter(center.lat, center.lng);
+            const { lat, lng } = map.getCenter();
+            updateFooter(lat, lng);
         }
     });
 
-    // Label color picker
-    elements.labelColorInput.addEventListener("input", (e) => {
-        updateLabelColor(e.target.value);
+    elements.labelColorInput.addEventListener("input", e => updateLabelColor(e.target.value));
+    elements.labelColorHex.addEventListener("input", e => {
+        const val = e.target.value.startsWith('#') ? e.target.value : '#' + e.target.value;
+        if (/^#[0-9A-Fa-f]{6}$/.test(val)) updateLabelColor(val);
     });
-
-    // Label color hex input
-    elements.labelColorHex.addEventListener("input", (e) => {
-        let value = e.target.value.trim();
-        if (!value.startsWith('#')) value = '#' + value;
-        if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
-            updateLabelColor(value);
-        }
+    elements.labelColorHex.addEventListener("blur", e => {
+        const val = e.target.value.startsWith('#') ? e.target.value : '#' + e.target.value;
+        if (!/^#[0-9A-Fa-f]{6}$/.test(val)) e.target.value = elements.labelColorInput.value.toUpperCase();
     });
-
-    elements.labelColorHex.addEventListener("blur", (e) => {
-        let value = e.target.value.trim();
-        if (!value.startsWith('#')) value = '#' + value;
-        if (!/^#[0-9A-Fa-f]{6}$/.test(value)) {
-            // Reset to current color if invalid
-            e.target.value = elements.labelColorInput.value.toUpperCase();
-        }
-    });
-
-    // Label color auto button
     elements.labelColorAuto.addEventListener("click", setLabelColorAuto);
 }
 
 // === INITIALIZATION ===
-function init() {
-    map = initMap(INITIAL_CENTER, INITIAL_ZOOM, currentStyle);
+const getQueryParam = param => new URLSearchParams(window.location.search).get(param);
+
+function initializeApp(center, zoom, cityName) {
+    map = initMap(center, zoom, currentStyle);
     setupMapEvents();
     setupEventListeners();
-
-    elements.cityInput.value = "Havana";
+    elements.cityInput.value = cityName;
+    elements.titleInput.value = cityName.toUpperCase();
+    elements.subtitleInput.value = getCitySubtitle(cityName);
     updateLabels();
-
-    // Initialize theme previews
     generateThemesGrid();
     updateSelectedThemePreview(currentStyle);
+}
+
+async function init() {
+    const cityParam = getQueryParam('city');
+
+    if (cityParam) {
+        try {
+            setStatus("Loading city location…");
+            const res = await fetch(`https://api.maptiler.com/geocoding/${encodeURIComponent(cityParam)}.json?key=${MAPTILER_KEY}`);
+            if (res.ok) {
+                const data = await res.json();
+                if (data.features?.length) {
+                    initializeApp(data.features[0].center, 12, cityParam);
+                    map.once('load', () => setStatus("City loaded."));
+                    return;
+                }
+            }
+        } catch (err) {
+            console.error("Error loading city:", err);
+            setStatus("Error loading city, using default location.", true);
+        }
+    }
+
+    initializeApp(INITIAL_CENTER, INITIAL_ZOOM, "Havana");
 }
 
 // Start the app
