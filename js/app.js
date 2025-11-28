@@ -693,7 +693,7 @@ async function searchCity(name) {
 async function downloadPoster() {
     setStatus("Rendering high-resolution poster… this may take a moment.");
 
-    try {
+    try { await document.fonts.ready;
         const selectedSize = elements.sizeSelect.value;
         const printSize = PRINT_SIZES[selectedSize];
         const { offsetWidth: w, offsetHeight: h } = elements.poster;
@@ -706,10 +706,26 @@ async function downloadPoster() {
 
         await new Promise(r => setTimeout(r, 100));
 
+        // Temporary image replacement for WebGL context to fix html2canvas issues
+        const mapCanvas = map.getCanvas();
+        const tempImg = document.createElement("img");
+        tempImg.src = mapCanvas.toDataURL();
+        Object.assign(tempImg.style, {
+            position: "absolute", left: "0", top: "0", width: "100%", height: "100%", zIndex: "0"
+        });
+
+        const mapContainer = document.getElementById("mapContainer");
+        mapContainer.appendChild(tempImg);
+        mapCanvas.style.visibility = "hidden";
+
         const canvas = await html2canvas(elements.poster, {
             useCORS: true, scale, logging: false, backgroundColor: null,
-            allowTaint: true, imageTimeout: 15000, width: w, height: h
+            imageTimeout: 15000, width: w, height: h
         });
+
+        // Cleanup
+        mapContainer.removeChild(tempImg);
+        mapCanvas.style.visibility = "visible";
 
         if (!canvas?.width || !canvas?.height) throw new Error("Canvas rendering failed");
 
