@@ -352,6 +352,7 @@ const elements = {
     zoomIncrement: document.getElementById("zoomIncrement"),
     zoomDecrement: document.getElementById("zoomDecrement"),
     cityInput: document.getElementById("cityInput"),
+    citySearchBtn: document.getElementById("citySearchBtn"),
     styleSelect: document.getElementById("styleSelect"),
     posterStyleSelect: document.getElementById("posterStyleSelect"),
     sizeSelect: document.getElementById("sizeSelect"),
@@ -797,7 +798,9 @@ function setupEventListeners() {
         setTimeout(() => map.resize(), 350);
     });
 
-    elements.cityInput.addEventListener("keydown", e => e.key === "Enter" && searchCity(elements.cityInput.value.trim()));
+    const triggerCitySearch = () => searchCity(elements.cityInput.value.trim());
+    elements.cityInput.addEventListener("keydown", e => e.key === "Enter" && triggerCitySearch());
+    elements.citySearchBtn?.addEventListener("click", triggerCitySearch);
     elements.downloadBtn.addEventListener("click", downloadPoster);
 
     elements.orientationToggle.addEventListener("click", () => {

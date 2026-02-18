@@ -93,7 +93,7 @@
 
         <button id="skipIntro"
           class="group cursor-pointer bg-[#440edf] text-white font-semibold px-7 py-2.5 rounded-full text-sm transition-all duration-300 hover:bg-[#3308b8] hover:shadow-lg hover:shadow-purple-500/30 hover:scale-105 active:scale-95">
-          Explore freely
+          Explore
           <span class="inline-block transition-transform duration-300 group-hover:translate-x-1">&rarr;</span>
         </button>
       </div>
@@ -108,7 +108,7 @@
         </div>
         MAPI
       </a>
-      <p class="m-0 text-md tracking-wide opacity-90"> Map Posters Generator</p>
+      <p class="m-0 text-md tracking-wide opacity-90 hidden md:block"> Map Posters Generator</p>
       <button
         class="cursor-pointer rounded-xl border border-transparent px-5 py-2.5 text-[13px] font-semibold transition-all duration-200 bg-[#d2e823] text-[#000] hover:bg-[#440edf] hover:text-[#d2e823] hover:border-[#d2e823] hover:shadow-lg flex items-center gap-2"
         id="downloadBtn">
@@ -133,8 +133,16 @@
         <div class="space-y-2">
           <div>
             <label for="cityInput" class="block text-[11px] font-medium text-[#666] mb-1">City / Place</label>
-            <input id="cityInput" type="text" placeholder="Search for a city..."
-              class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20" />
+            <div class="relative">
+              <input id="cityInput" type="text" placeholder="Search for a city..."
+                class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20"
+                style="padding-right: 2.6rem;" />
+              <button id="citySearchBtn" type="button" aria-label="Search city"
+                class="absolute rounded-lg text-[#666] text-base transition-colors duration-200 hover:text-[#440edf]"
+                style="right: 0.25rem; top: 50%; width: 2rem; height: 2rem; transform: translateY(-50%); display: flex; align-items: center; justify-content: center;">
+                <ion-icon name="search-outline"></ion-icon>
+              </button>
+            </div>
           </div>
 
           <div>
