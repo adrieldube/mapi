@@ -375,7 +375,9 @@ const elements = {
     selectedWaterColor: document.getElementById("selectedWaterColor"),
     labelColorInput: document.getElementById("labelColorInput"),
     labelColorHex: document.getElementById("labelColorHex"),
-    labelColorAuto: document.getElementById("labelColorAuto")
+    labelColorAuto: document.getElementById("labelColorAuto"),
+    // Removed togglePanelBtn as it is no longer needed
+    controls: document.getElementById("controls"),
 };
 
 // === STATE ===
@@ -1291,6 +1293,7 @@ function initializeApp(center, zoom, cityName) {
     map = initMap(center, zoom, currentStyle);
     setupMapEvents();
     setupEventListeners();
+    // Removed setupMobilePanelToggle function as it is no longer needed
     elements.cityInput.value = cityName;
     elements.titleInput.value = cityName.toUpperCase();
     elements.subtitleInput.value = getCitySubtitle(cityName);

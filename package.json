@@ -1,0 +1,13 @@
+{
+  "name": "mapi",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "npm run build:css && npm run build:js",
+    "build:css": "npx tailwindcss -c tailwind.config.js -i ./css/tailwind.css -o ./css/styles.min.css --minify",
+    "build:js": "npx terser js/app.js --compress --mangle --output js/app.min.js"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.0",
+    "terser": "^5.46.0"
+  }
+}
