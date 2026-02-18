@@ -377,7 +377,8 @@ const elements = {
     labelColorInput: document.getElementById("labelColorInput"),
     labelColorHex: document.getElementById("labelColorHex"),
     labelColorAuto: document.getElementById("labelColorAuto"),
-    // Removed togglePanelBtn as it is no longer needed
+    panelToggleBtn: document.getElementById("panelToggleBtn"),
+    panelCloseBtn: document.getElementById("panelCloseBtn"),
     controls: document.getElementById("controls"),
 };
 
@@ -835,6 +836,50 @@ function setupEventListeners() {
         if (!/^#[0-9A-Fa-f]{6}$/.test(val)) e.target.value = elements.labelColorInput.value.toUpperCase();
     });
     elements.labelColorAuto.addEventListener("click", setLabelColorAuto);
+}
+
+function setupMobilePanelToggle() {
+    const mobileQuery = window.matchMedia("(max-width: 900px)");
+    if (!elements.controls || !elements.panelToggleBtn || !elements.panelCloseBtn) return;
+
+    const syncPanelState = () => {
+        const isMobile = mobileQuery.matches;
+
+        if (isMobile) {
+            const isHidden = elements.controls.classList.contains("panel-hidden");
+            elements.panelToggleBtn.setAttribute("aria-expanded", String(!isHidden));
+        } else {
+            elements.controls.classList.remove("panel-hidden");
+            elements.panelToggleBtn.setAttribute("aria-expanded", "true");
+        }
+    };
+
+    elements.panelToggleBtn.addEventListener("click", () => {
+        if (!mobileQuery.matches) return;
+        const nowHidden = elements.controls.classList.toggle("panel-hidden");
+        elements.panelToggleBtn.setAttribute("aria-expanded", String(!nowHidden));
+        setTimeout(() => map.resize(), 260);
+    });
+
+    elements.panelCloseBtn.addEventListener("click", () => {
+        if (!mobileQuery.matches) return;
+        elements.controls.classList.add("panel-hidden");
+        elements.panelToggleBtn.setAttribute("aria-expanded", "false");
+        setTimeout(() => map.resize(), 260);
+    });
+
+    mobileQuery.addEventListener("change", () => {
+        if (mobileQuery.matches) {
+            elements.controls.classList.add("panel-hidden");
+        }
+        syncPanelState();
+        setTimeout(() => map.resize(), 260);
+    });
+
+    if (mobileQuery.matches) {
+        elements.controls.classList.add("panel-hidden");
+    }
+    syncPanelState();
 }
 
 // === 3D GLOBE ===
@@ -1296,7 +1341,7 @@ function initializeApp(center, zoom, cityName) {
     map = initMap(center, zoom, currentStyle);
     setupMapEvents();
     setupEventListeners();
-    // Removed setupMobilePanelToggle function as it is no longer needed
+    setupMobilePanelToggle();
     elements.cityInput.value = cityName;
     elements.titleInput.value = cityName.toUpperCase();
     elements.subtitleInput.value = getCitySubtitle(cityName);

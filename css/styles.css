@@ -1,8 +1,59 @@
 /* --- Mobile Panel Toggle --- */
-/* Removed toggle button styles as it is no longer needed */
+#panelToggleBtn {
+    display: none;
+}
+
+.mobile-panel-header {
+    display: none;
+}
+
 @media (max-width: 900px) {
+
+    html,
+    body {
+        height: auto !important;
+        min-height: 100%;
+        overflow-y: auto !important;
+    }
+
+    body {
+        position: relative;
+    }
+
+    #container {
+        display: block;
+        height: auto !important;
+        margin: 0.25rem;
+        overflow: visible !important;
+    }
+
+    #panelToggleBtn {
+        width: 42px;
+        height: 42px;
+        border: 0;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+
+    #panelToggleBtn ion-icon {
+        font-size: 20px;
+    }
+
     #controls {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 44;
+        width: min(86vw, 320px) !important;
+        height: 100dvh !important;
+        max-height: 100dvh;
+        padding-top: 1rem;
         transform: translateX(0);
+        transition: transform 0.25s ease;
+        box-shadow: 18px 0 36px rgba(0, 0, 0, 0.18);
     }
 
     #controls.panel-hidden {
@@ -10,21 +61,51 @@
         pointer-events: none;
     }
 
+    .mobile-panel-header {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 0.5rem;
+    }
+
+    #panelCloseBtn {
+        width: 32px;
+        height: 32px;
+        border: 0;
+        border-radius: 10px;
+        background: #440edf;
+        color: #d2e823;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+
+    #panelCloseBtn ion-icon {
+        font-size: 20px;
+    }
+
     #posterWrapper {
-        height: calc(100vh - 56px);
-        padding: 0.5rem;
+        height: auto !important;
+        min-height: auto;
+        padding: 0;
+        background: #fff;
+        border-radius: 0.75rem;
+        overflow: visible !important;
     }
 
     #poster {
-        max-width: 100vw;
-        max-height: 100vh;
+        width: 100%;
+        max-width: 100%;
+        max-height: none;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
         border-radius: 0.75rem;
     }
 
     #mapContainer {
-        min-height: 300px;
-        max-height: 60vh;
-        overflow: auto;
+        min-height: 320px;
+        max-height: none;
+        overflow: visible;
         border-radius: 0.75rem;
     }
 }
@@ -40,6 +121,13 @@
 
 .intro-card {
     animation: cardSlideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.intro-postcards-row {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    padding-bottom: 4px;
+    box-sizing: border-box;
 }
 
 #introModal.closing .intro-card {
@@ -109,10 +197,11 @@
     font-weight: 500;
     cursor: pointer;
     transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-    width: 148px;
+    width: 144px;
     overflow: hidden;
     position: relative;
     box-shadow: 0 2px 12px rgba(68, 14, 223, 0.08), 0 0 0 1px rgba(68, 14, 223, 0.06);
+    flex: 0 0 auto;
 }
 
 .intro-city-btn.postcard:hover {
@@ -194,6 +283,27 @@
 .intro-city-icon {
     font-size: 18px;
     line-height: 1;
+}
+
+@media (max-width: 640px) {
+    .intro-copy {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .intro-postcards-row {
+        overflow-x: auto;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .intro-card {
+        border-radius: 20px;
+    }
+
+    .intro-city-btn.postcard {
+        width: 132px;
+    }
 }
 
 /* Theme Preview Styles */
