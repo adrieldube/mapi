@@ -192,7 +192,6 @@ const WORLD_CITIES = {
     'Nagoya': 'The Heart of Japan',
     'Fukuoka': 'The Gateway to Asia',
     'Busan': 'The Maritime Capital',
-    'Taipei': 'The Beautiful Island',
     'Yangon': 'The Garden City of the East',
 
     // Europe
@@ -240,7 +239,6 @@ const WORLD_CITIES = {
     'Düsseldorf': 'The Little Paris',
     'Rotterdam': 'The Gateway to Europe',
     'Antwerp': 'The Diamond City',
-    'Brussels': 'The Comic Strip Capital',
     'Moscow': 'The Third Rome',
     'St. Petersburg': 'The Venice of the North',
     'Istanbul': 'Where East Meets West',
@@ -343,7 +341,7 @@ const PRINT_SIZES = {
 };
 
 const TARGET_DPI = 600;
-const INITIAL_CENTER = [-82.3666, 23.1136]; // Havana
+const INITIAL_CENTER = [139.6503, 35.6762]; // Tokyo
 const INITIAL_ZOOM = 13;
 
 // === DOM ELEMENTS ===
@@ -387,6 +385,7 @@ let labelsEnabled = true;
 let isLandscape = false;
 let labelColorAuto = true;
 let customLabelColor = null;
+let isDownloading = false;
 
 // === UTILITY FUNCTIONS ===
 function isLightColor(hexColor) {
@@ -647,12 +646,19 @@ function changeMapStyle(styleKey) {
 // === GEOCODING ===
 function getCitySubtitle(cityName) {
     const lowerName = cityName.toLowerCase();
+
+    // First pass: exact match
     for (const [city, subtitle] of Object.entries(WORLD_CITIES)) {
-        const lowerCity = city.toLowerCase();
-        if (lowerCity === lowerName || lowerCity.includes(lowerName) || lowerName.includes(lowerCity)) {
-            return subtitle;
-        }
+        if (city.toLowerCase() === lowerName) return subtitle;
     }
+
+    // Second pass: input contains a full city name (e.g. "New York City" → "New York")
+    // Sort by name length descending so longer (more specific) names match first
+    const sortedEntries = Object.entries(WORLD_CITIES).sort((a, b) => b[0].length - a[0].length);
+    for (const [city, subtitle] of sortedEntries) {
+        if (lowerName.includes(city.toLowerCase())) return subtitle;
+    }
+
     return DEFAULT_SUBTITLE;
 }
 
@@ -691,9 +697,13 @@ async function searchCity(name) {
 
 // === EXPORT ===
 async function downloadPoster() {
+    if (isDownloading) return;
+    isDownloading = true;
+
     setStatus("Rendering high-resolution poster… this may take a moment.");
 
-    try { await document.fonts.ready;
+    try {
+        await document.fonts.ready;
         const selectedSize = elements.sizeSelect.value;
         const printSize = PRINT_SIZES[selectedSize];
         const { offsetWidth: w, offsetHeight: h } = elements.poster;
@@ -737,11 +747,14 @@ async function downloadPoster() {
         setTimeout(() => URL.revokeObjectURL(url), 1000);
 
         const sizeMB = (blob.size / 1048576).toFixed(1);
-        const dpi = Math.round(canvas.width / (printSize?.width || 24));
+        const effectiveWidth = isLandscape ? (printSize?.height || 36) : (printSize?.width || 24);
+        const dpi = Math.round(canvas.width / effectiveWidth);
         setStatus(`Poster downloaded (${canvas.width} × ${canvas.height} px @ ~${dpi} DPI, ${sizeMB}MB).`);
     } catch (err) {
         console.error("Download error:", err);
         setStatus(`Error: ${err.message}. Try a smaller size or refresh.`, true);
+    } finally {
+        isDownloading = false;
     }
 }
 
@@ -773,11 +786,13 @@ function setupEventListeners() {
     elements.posterStyleSelect.addEventListener("change", () => {
         elements.poster.className = elements.poster.className.replace(/poster-style-\w+/g, `poster-style-${elements.posterStyleSelect.value}`);
         updateLabels();
+        setTimeout(() => map.resize(), 350);
     });
 
     elements.sizeSelect.addEventListener("change", () => {
         elements.poster.className = elements.poster.className.replace(/size-\S+/g, '').trim();
         if (elements.sizeSelect.value !== 'default') elements.poster.classList.add(`size-${elements.sizeSelect.value}`);
+        setTimeout(() => map.resize(), 350);
     });
 
     elements.cityInput.addEventListener("keydown", e => e.key === "Enter" && searchCity(elements.cityInput.value.trim()));
@@ -787,6 +802,7 @@ function setupEventListeners() {
         isLandscape = !isLandscape;
         elements.orientationToggle.classList.toggle("active", isLandscape);
         elements.poster.classList.toggle("landscape", isLandscape);
+        setTimeout(() => map.resize(), 350);
     });
 
     elements.labelsToggle.addEventListener("click", () => {
@@ -816,6 +832,458 @@ function setupEventListeners() {
     elements.labelColorAuto.addEventListener("click", setLabelColorAuto);
 }
 
+// === 3D GLOBE ===
+function initGlobe() {
+    const container = document.getElementById('globeContainer');
+    if (!container) return;
+
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+    const radius = Math.min(width, height) * 0.4;
+
+    // Scene setup
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, width / height, 1, 2000);
+    camera.position.z = radius * 3;
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setClearColor(0x000000, 0);
+    container.appendChild(renderer.domElement);
+
+    const globeGroup = new THREE.Group();
+    scene.add(globeGroup);
+
+    // --- Lighting ---
+    scene.add(new THREE.AmbientLight(0xffffff, 0.35));
+    const sunLight = new THREE.DirectionalLight(0xffffff, 0.4);
+    sunLight.position.set(5, 3, 5);
+    scene.add(sunLight);
+
+    // --- Palette cycling for dual-tone globe ---
+    const globePalettes = [
+        { name: 'Midnight Navy & Gold', land: '#D4AF37', water: '#1A1A2E' },
+        { name: 'Neon Green & Black', land: '#39FF14', water: '#0D0D0D' },
+        { name: 'Sage Green & Terracotta', land: '#C67B5C', water: '#A8B5A0' },
+        { name: 'Pure Black & White', land: '#000000', water: '#FFFFFF' },
+        { name: 'Coral Red & Navy Blue', land: '#FF6B6B', water: '#001F3F' },
+        { name: 'Digital Lavender & Noir', land: '#B4A7D6', water: '#121212' },
+        { name: 'Mocha Mousse & Cream', land: '#A47764', water: '#FAF6F1' },
+        { name: 'Emerald Green & Bone', land: '#047857', water: '#F8F5F0' },
+        { name: 'Rose Gold & Charcoal', land: '#B76E79', water: '#2C2C2C' },
+        { name: 'Electric Blue & White', land: '#0066FF', water: '#FAFAFA' },
+        { name: 'Sakura & Charcoal', land: '#FFB7C5', water: '#2E2E32' },
+        { name: 'Art Deco Gold & Black', land: '#C9A227', water: '#0D0D0D' },
+    ];
+
+    let currentPaletteIndex = 0;
+    let nextPaletteIndex = 1;
+    let paletteLerp = 0;
+    const PALETTE_DURATION = 3.0; // seconds per palette
+
+    function hexToVec3(hex) {
+        const c = hex.replace('#', '');
+        return {
+            r: parseInt(c.substr(0, 2), 16) / 255,
+            g: parseInt(c.substr(2, 2), 16) / 255,
+            b: parseInt(c.substr(4, 2), 16) / 255
+        };
+    }
+
+    // --- Custom shader material for dual-tone globe ---
+    const landMask = new THREE.TextureLoader().load(
+        'https://unpkg.com/three-globe@2.31.1/example/img/earth-water.png'
+    );
+    const bumpTexture = new THREE.TextureLoader().load(
+        'https://unpkg.com/three-globe@2.31.1/example/img/earth-topology.png'
+    );
+
+    const globeUniforms = {
+        landMap: { value: landMask },
+        topoMap: { value: bumpTexture },
+        landColor: { value: new THREE.Color(globePalettes[0].land) },
+        waterColor: { value: new THREE.Color(globePalettes[0].water) },
+        targetLandColor: { value: new THREE.Color(globePalettes[1].land) },
+        targetWaterColor: { value: new THREE.Color(globePalettes[1].water) },
+        blendFactor: { value: 0.0 },
+        displacementScale: { value: radius * 0.08 }
+    };
+
+    const earthGeo = new THREE.SphereGeometry(radius, 200, 200);
+    const earthMat = new THREE.ShaderMaterial({
+        uniforms: globeUniforms,
+        vertexShader: `
+            uniform sampler2D topoMap;
+            uniform float displacementScale;
+            varying vec2 vUv;
+            varying vec3 vNormal;
+            varying vec3 vWorldPos;
+            varying float vElevation;
+
+            void main() {
+                vUv = uv;
+                float topo = texture2D(topoMap, uv).r;
+                vElevation = topo;
+                // Stronger displacement with power curve for exaggerated peaks
+                float displaced = pow(topo, 0.7) * displacementScale;
+                vec3 displacedPos = position + normal * displaced;
+                vNormal = normalize(normalMatrix * normal);
+                vWorldPos = (modelMatrix * vec4(displacedPos, 1.0)).xyz;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(displacedPos, 1.0);
+            }
+        `,
+        fragmentShader: `
+            uniform sampler2D landMap;
+            uniform sampler2D topoMap;
+            uniform vec3 landColor;
+            uniform vec3 waterColor;
+            uniform vec3 targetLandColor;
+            uniform vec3 targetWaterColor;
+            uniform float blendFactor;
+            varying vec2 vUv;
+            varying vec3 vNormal;
+            varying vec3 vWorldPos;
+            varying float vElevation;
+
+            void main() {
+                vec4 mask = texture2D(landMap, vUv);
+                float isWater = mask.r;
+                float topo = texture2D(topoMap, vUv).r;
+
+                vec3 curLand = mix(landColor, targetLandColor, blendFactor);
+                vec3 curWater = mix(waterColor, targetWaterColor, blendFactor);
+
+                // Elevation-based shading: valleys are darker, peaks are lighter
+                float elevFactor = pow(topo, 0.6);
+                vec3 landShaded = curLand * (0.5 + 0.7 * elevFactor);
+                // Water depth: deeper areas darker
+                vec3 waterShaded = curWater * (0.8 + 0.2 * (1.0 - topo));
+
+                vec3 baseColor = mix(landShaded, waterShaded, isWater);
+
+                // Compute normal from topology for per-pixel bump lighting
+                float texel = 1.0 / 2048.0;
+                float hL = texture2D(topoMap, vUv + vec2(-texel, 0.0)).r;
+                float hR = texture2D(topoMap, vUv + vec2(texel, 0.0)).r;
+                float hU = texture2D(topoMap, vUv + vec2(0.0, texel)).r;
+                float hD = texture2D(topoMap, vUv + vec2(0.0, -texel)).r;
+                vec3 bumpNormal = normalize(vNormal + vec3((hL - hR) * 3.0, (hD - hU) * 3.0, 0.0));
+
+                // Directional lighting — subdued for realism
+                vec3 lightDir = normalize(vec3(0.8, 0.4, 0.6));
+                float NdotL = dot(bumpNormal, lightDir);
+                float wrap = max(NdotL * 0.5 + 0.5, 0.0);
+
+                // Subtle specular on water only
+                vec3 viewDir = normalize(cameraPosition - vWorldPos);
+                vec3 halfDir = normalize(lightDir + viewDir);
+                float spec = pow(max(dot(bumpNormal, halfDir), 0.0), 60.0) * 0.15 * isWater;
+
+                // Soft Fresnel rim
+                float fresnel = 1.0 - max(dot(vNormal, viewDir), 0.0);
+                float rim = pow(fresnel, 4.0) * 0.12;
+
+                // Final compositing — lower ambient for moodier look
+                vec3 finalColor = baseColor * (0.45 + 0.55 * wrap) + spec + rim * curLand;
+
+                gl_FragColor = vec4(finalColor, 1.0);
+            }
+        `
+    });
+    const earth = new THREE.Mesh(earthGeo, earthMat);
+    globeGroup.add(earth);
+
+    // --- Glowing atmosphere that matches current palette ---
+    const glowGeo = new THREE.SphereGeometry(radius * 1.04, 64, 64);
+    const glowMat = new THREE.MeshBasicMaterial({
+        color: new THREE.Color(globePalettes[0].land),
+        transparent: true,
+        opacity: 0.06,
+        side: THREE.BackSide
+    });
+    const glowMesh = new THREE.Mesh(glowGeo, glowMat);
+    globeGroup.add(glowMesh);
+
+    // --- City markers ---
+    const cities = [
+        { name: 'Tokyo', lat: 35.6762, lon: 139.6503 },
+        { name: 'Paris', lat: 48.8566, lon: 2.3522 },
+        { name: 'New York', lat: 40.7128, lon: -74.006 }
+    ];
+
+    const markerGroup = new THREE.Group();
+    globeGroup.add(markerGroup);
+    const MARKER_ACCENT = '#d2e823';
+
+    cities.forEach(city => {
+        const phi = (90 - city.lat) * Math.PI / 180;
+        const theta = (city.lon + 180) * Math.PI / 180;
+        const x = -(radius * 1.01) * Math.sin(phi) * Math.cos(theta);
+        const y = (radius * 1.01) * Math.cos(phi);
+        const z = (radius * 1.01) * Math.sin(phi) * Math.sin(theta);
+
+        const markerGeo = new THREE.SphereGeometry(3, 12, 12);
+        const markerMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(MARKER_ACCENT) });
+        const marker = new THREE.Mesh(markerGeo, markerMat);
+        marker.position.set(x, y, z);
+        markerGroup.add(marker);
+
+        const pulseGeo = new THREE.RingGeometry(4.5, 6, 24);
+        const pulseMat = new THREE.MeshBasicMaterial({
+            color: new THREE.Color(MARKER_ACCENT),
+            transparent: true,
+            opacity: 0.5,
+            side: THREE.DoubleSide
+        });
+        const pulse = new THREE.Mesh(pulseGeo, pulseMat);
+        pulse.position.set(x, y, z);
+        pulse.lookAt(0, 0, 0);
+        pulse.userData = { baseScale: 1 };
+        markerGroup.add(pulse);
+    });
+
+    // --- Mouse interaction ---
+    let isDragging = false;
+    let previousMouse = { x: 0, y: 0 };
+    let rotationSpeed = { x: 0, y: 0 };
+
+    container.addEventListener('mousedown', e => {
+        isDragging = true;
+        previousMouse = { x: e.clientX, y: e.clientY };
+        rotationSpeed = { x: 0, y: 0 };
+    });
+
+    container.addEventListener('mousemove', e => {
+        if (!isDragging) return;
+        const dx = e.clientX - previousMouse.x;
+        const dy = e.clientY - previousMouse.y;
+        globeGroup.rotation.y += dx * 0.005;
+        globeGroup.rotation.x += dy * 0.005;
+        rotationSpeed = { x: dy * 0.005, y: dx * 0.005 };
+        previousMouse = { x: e.clientX, y: e.clientY };
+    });
+
+    window.addEventListener('mouseup', () => { isDragging = false; });
+
+    container.addEventListener('touchstart', e => {
+        isDragging = true;
+        previousMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        rotationSpeed = { x: 0, y: 0 };
+    }, { passive: true });
+
+    container.addEventListener('touchmove', e => {
+        if (!isDragging) return;
+        const dx = e.touches[0].clientX - previousMouse.x;
+        const dy = e.touches[0].clientY - previousMouse.y;
+        globeGroup.rotation.y += dx * 0.005;
+        globeGroup.rotation.x += dy * 0.005;
+        rotationSpeed = { x: dy * 0.005, y: dx * 0.005 };
+        previousMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    }, { passive: true });
+
+    container.addEventListener('touchend', () => { isDragging = false; }, { passive: true });
+
+    // --- Animation loop ---
+    let time = 0;
+    let animId;
+
+    function animate() {
+        animId = requestAnimationFrame(animate);
+        time += 0.016;
+
+        // --- Palette transition ---
+        paletteLerp += 0.016 / PALETTE_DURATION;
+        if (paletteLerp >= 1.0) {
+            paletteLerp = 0;
+            currentPaletteIndex = nextPaletteIndex;
+            nextPaletteIndex = (nextPaletteIndex + 1) % globePalettes.length;
+
+            globeUniforms.landColor.value.set(globePalettes[currentPaletteIndex].land);
+            globeUniforms.waterColor.value.set(globePalettes[currentPaletteIndex].water);
+            globeUniforms.targetLandColor.value.set(globePalettes[nextPaletteIndex].land);
+            globeUniforms.targetWaterColor.value.set(globePalettes[nextPaletteIndex].water);
+        }
+
+        // Smooth easing for blend
+        const ease = paletteLerp < 0.5
+            ? 2 * paletteLerp * paletteLerp
+            : 1 - Math.pow(-2 * paletteLerp + 2, 2) / 2;
+        globeUniforms.blendFactor.value = ease;
+
+        // Update glow + marker colors to match current blend
+        const curLand = hexToVec3(globePalettes[currentPaletteIndex].land);
+        const nxtLand = hexToVec3(globePalettes[nextPaletteIndex].land);
+        const blendedR = curLand.r + (nxtLand.r - curLand.r) * ease;
+        const blendedG = curLand.g + (nxtLand.g - curLand.g) * ease;
+        const blendedB = curLand.b + (nxtLand.b - curLand.b) * ease;
+        const blendedColor = new THREE.Color(blendedR, blendedG, blendedB);
+
+        glowMat.color.copy(blendedColor);
+
+        if (!isDragging) {
+            globeGroup.rotation.y += 0.002;
+            if (Math.abs(rotationSpeed.x) > 0.0001 || Math.abs(rotationSpeed.y) > 0.0001) {
+                globeGroup.rotation.x += rotationSpeed.x;
+                globeGroup.rotation.y += rotationSpeed.y;
+                rotationSpeed.x *= 0.95;
+                rotationSpeed.y *= 0.95;
+            }
+        }
+
+        // Pulse city markers
+        markerGroup.children.forEach((child, i) => {
+            if (child.userData.baseScale !== undefined) {
+                const scale = 1 + 0.3 * Math.sin(time * 2 + i);
+                child.scale.set(scale, scale, scale);
+                child.material.opacity = 0.3 + 0.4 * Math.abs(Math.sin(time * 2 + i));
+            }
+        });
+
+        renderer.render(scene, camera);
+    }
+
+    animate();
+
+    // --- Responsive resize handling ---
+    let resizeTimeout;
+    const resizeObserver = new ResizeObserver(entries => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            const entry = entries[0];
+            if (!entry) return;
+            const newWidth = entry.contentRect.width;
+            const newHeight = entry.contentRect.height;
+            if (newWidth === 0 || newHeight === 0) return;
+
+            const newRadius = Math.min(newWidth, newHeight) * 0.4;
+
+            // Update renderer
+            renderer.setSize(newWidth, newHeight);
+
+            // Update camera
+            camera.aspect = newWidth / newHeight;
+            camera.position.z = newRadius * 3;
+            camera.updateProjectionMatrix();
+
+            // Rebuild earth geometry with new radius
+            earth.geometry.dispose();
+            earth.geometry = new THREE.SphereGeometry(newRadius, 200, 200);
+            globeUniforms.displacementScale.value = newRadius * 0.08;
+
+            // Rebuild glow geometry
+            glowMesh.geometry.dispose();
+            glowMesh.geometry = new THREE.SphereGeometry(newRadius * 1.04, 64, 64);
+
+            // Reposition city markers
+            let markerIdx = 0;
+            cities.forEach(city => {
+                const phi = (90 - city.lat) * Math.PI / 180;
+                const theta = (city.lon + 180) * Math.PI / 180;
+                const x = -(newRadius * 1.01) * Math.sin(phi) * Math.cos(theta);
+                const y = (newRadius * 1.01) * Math.cos(phi);
+                const z = (newRadius * 1.01) * Math.sin(phi) * Math.sin(theta);
+
+                // Dot marker
+                const dot = markerGroup.children[markerIdx];
+                if (dot) {
+                    dot.geometry.dispose();
+                    dot.geometry = new THREE.SphereGeometry(Math.max(2, newRadius * 0.025), 12, 12);
+                    dot.position.set(x, y, z);
+                }
+                markerIdx++;
+
+                // Pulse ring
+                const ring = markerGroup.children[markerIdx];
+                if (ring) {
+                    ring.geometry.dispose();
+                    const ringInner = Math.max(3, newRadius * 0.037);
+                    const ringOuter = Math.max(4, newRadius * 0.05);
+                    ring.geometry = new THREE.RingGeometry(ringInner, ringOuter, 24);
+                    ring.position.set(x, y, z);
+                    ring.lookAt(0, 0, 0);
+                }
+                markerIdx++;
+            });
+        }, 100); // debounce 100ms
+    });
+    resizeObserver.observe(container);
+
+    // Cleanup function
+    return () => {
+        cancelAnimationFrame(animId);
+        resizeObserver.disconnect();
+        clearTimeout(resizeTimeout);
+        renderer.dispose();
+        container.innerHTML = '';
+    };
+}
+
+// === INTRO MODAL ===
+function setupIntroModal() {
+    const modal = document.getElementById('introModal');
+    if (!modal) return;
+
+    const cleanupGlobe = initGlobe();
+
+    // Render mini MapLibre maps in each postcard
+    const miniMaps = [];
+    const miniMapConfigs = [
+        { id: 'minimap-tokyo', lon: 139.6503, lat: 35.6762 },
+        { id: 'minimap-paris', lon: 2.3522, lat: 48.8566 },
+        { id: 'minimap-newyork', lon: -74.0060, lat: 40.7128 }
+    ];
+    const miniPalette = { bg: '#f0f0f5', roads: '#440edf', water: '#d2e823' };
+    miniMapConfigs.forEach(cfg => {
+        const container = document.getElementById(cfg.id);
+        if (!container) return;
+        const m = new maplibregl.Map({
+            container: cfg.id,
+            style: createMapStyle(miniPalette),
+            center: [cfg.lon, cfg.lat],
+            zoom: 11,
+            interactive: false,
+            attributionControl: false
+        });
+        miniMaps.push(m);
+    });
+
+    function closeModal(cityName, lat, lon) {
+        modal.classList.add('closing');
+        modal.addEventListener('animationend', () => {
+            modal.remove();
+            if (cleanupGlobe) cleanupGlobe();
+            miniMaps.forEach(m => m.remove());
+
+            if (cityName && lat !== undefined && lon !== undefined) {
+                map.flyTo({ center: [lon, lat], zoom: 12 });
+                elements.cityInput.value = cityName;
+                elements.titleInput.value = cityName.toUpperCase();
+                elements.subtitleInput.value = getCitySubtitle(cityName);
+                updateLabels();
+                updateFooter(lat, lon);
+                setStatus('Location updated.');
+            }
+        }, { once: true });
+    }
+
+    // City buttons
+    document.querySelectorAll('.intro-city-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const city = btn.dataset.city;
+            const lat = parseFloat(btn.dataset.lat);
+            const lon = parseFloat(btn.dataset.lon);
+            closeModal(city, lat, lon);
+        });
+    });
+
+    // Skip / Explore freely button
+    document.getElementById('skipIntro')?.addEventListener('click', () => closeModal());
+
+    // Click backdrop to close
+    document.getElementById('introBackdrop')?.addEventListener('click', () => closeModal());
+}
+
 // === INITIALIZATION ===
 const getQueryParam = param => new URLSearchParams(window.location.search).get(param);
 
@@ -829,6 +1297,7 @@ function initializeApp(center, zoom, cityName) {
     updateLabels();
     generateThemesGrid();
     updateSelectedThemePreview(currentStyle);
+    setupIntroModal();
 }
 
 async function init() {
@@ -852,7 +1321,7 @@ async function init() {
         }
     }
 
-    initializeApp(INITIAL_CENTER, INITIAL_ZOOM, "Havana");
+    initializeApp(INITIAL_CENTER, INITIAL_ZOOM, "Tokyo");
 }
 
 // Start the app

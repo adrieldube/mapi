@@ -1,3 +1,170 @@
+/* === INTRO MODAL === */
+#introModal {
+    animation: modalFadeIn 0.5s ease-out;
+}
+
+#introModal.closing {
+    animation: modalFadeOut 0.4s ease-in forwards;
+}
+
+.intro-card {
+    animation: cardSlideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#introModal.closing .intro-card {
+    animation: cardSlideOut 0.35s ease-in forwards;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes modalFadeOut {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+    }
+}
+
+@keyframes cardSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(24px) scale(0.96);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes cardSlideOut {
+    from {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateY(12px) scale(0.97);
+    }
+}
+
+#globeContainer canvas {
+    border-radius: 50%;
+}
+
+/* Modern postcard city buttons */
+.intro-city-btn.postcard {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 0;
+    border-radius: 16px;
+    border: none;
+    background: #fff;
+    color: #333;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 148px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 2px 12px rgba(68, 14, 223, 0.08), 0 0 0 1px rgba(68, 14, 223, 0.06);
+}
+
+.intro-city-btn.postcard:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 32px rgba(68, 14, 223, 0.18), 0 0 0 3px #440edf;
+}
+
+.intro-city-btn.postcard:active {
+    transform: translateY(-2px) scale(0.98);
+}
+
+.postcard-map {
+    width: 100%;
+    height: 90px;
+    overflow: hidden;
+    position: relative;
+}
+
+.postcard-map .maplibregl-canvas {
+    border-radius: 0;
+}
+
+/* Hide all MapLibre controls in mini maps */
+.postcard-map .maplibregl-ctrl-top-left,
+.postcard-map .maplibregl-ctrl-top-right,
+.postcard-map .maplibregl-ctrl-bottom-left,
+.postcard-map .maplibregl-ctrl-bottom-right,
+.postcard-map .maplibregl-ctrl-attrib {
+    display: none !important;
+}
+
+.postcard-body {
+    padding: 10px 12px;
+    text-align: left;
+    position: relative;
+}
+
+.postcard-city {
+    display: block;
+    font-size: 15px;
+    font-weight: 700;
+    color: #1a1a2e;
+    letter-spacing: -0.2px;
+    line-height: 1.2;
+}
+
+.postcard-country {
+    display: block;
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #440edf;
+    margin-top: 2px;
+    opacity: 0.7;
+}
+
+.postcard-pin {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 26px;
+    height: 26px;
+    background: #440edf;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    color: #d2e823;
+    box-shadow: 0 2px 8px rgba(68, 14, 223, 0.3);
+    transition: transform 0.3s ease;
+}
+
+.intro-city-btn.postcard:hover .postcard-pin {
+    transform: scale(1.15);
+}
+
+.intro-city-icon {
+    font-size: 18px;
+    line-height: 1;
+}
+
 /* Theme Preview Styles */
 .theme-swatch-large {
     width: 40px;
@@ -473,7 +640,7 @@
 }
 
 .poster-style-corner #coordinates {
-    top: clamp(38px, 3vw, 28px);
+    top: clamp(28px, 3vw, 38px);
     right: clamp(24px, 4vw, 36px);
     font-size: clamp(9px, 1.4vw, 11px);
     position: absolute;

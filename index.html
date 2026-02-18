@@ -7,15 +7,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- MapLibre GL -->
-  <link href="https://unpkg.com/maplibre-gl@3.5.0/dist/maplibre-gl.css" rel="stylesheet" />
-  <script src="https://unpkg.com/maplibre-gl@3.5.0/dist/maplibre-gl.js"></script>
+  <link href="https://unpkg.com/maplibre-gl@5.18.0/dist/maplibre-gl.css" rel="stylesheet" />
+  <script src="https://unpkg.com/maplibre-gl@5.18.0/dist/maplibre-gl.js"></script>
 
   <!-- html2canvas for exporting the poster as PNG -->
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
+  <!-- Three.js for 3D Globe -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
   <!-- Ionicons -->
-  <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
-  <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+  <script type="module" src="https://unpkg.com/ionicons@8.0.13/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@8.0.13/dist/ionicons/ionicons.js"></script>
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -25,6 +28,78 @@
 </head>
 
 <body class="bg-[#440edf] text-[#111] font-sans m-0 h-screen overflow-hidden">
+
+  <!-- Intro Modal with 3D Globe -->
+  <div id="introModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <!-- Backdrop -->
+    <div id="introBackdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+    <!-- Card -->
+    <div
+      class="intro-card relative z-10 flex flex-col lg:flex-row items-center gap-6 lg:gap-10 max-w-[1100px] w-full mx-auto px-6 py-6 lg:px-10 lg:py-8 rounded-3xl bg-white"
+      style="border: 1px solid rgba(68,14,223,0.08); box-shadow: 0 32px 80px rgba(0,0,0,0.25);">
+      <!-- 3D Globe -->
+      <div id="globeContainer"
+        class="w-[260px] h-[260px] sm:w-[320px] sm:h-[320px] lg:w-[500px] lg:h-[500px] flex-shrink-0 cursor-grab active:cursor-grabbing mx-auto lg:mx-0">
+      </div>
+
+      <!-- Content -->
+      <div class="text-[#111] max-w-md text-center lg:text-left flex-1 min-w-0">
+        <div class="flex items-center gap-3 justify-center lg:justify-start mb-3">
+          <div
+            class="w-10 h-10 bg-[#440edf] rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/20">
+            <ion-icon name="map-outline" class="text-xl text-[#d2e823]"></ion-icon>
+          </div>
+          <h1 class="text-3xl font-extrabold tracking-tight text-[#440edf]">MAPI</h1>
+        </div>
+
+        <p class="text-[15px] leading-relaxed text-[#555] mb-6">
+          Turn any place on Earth into a stunning, print-ready map poster.
+          Pick a city, choose a palette, and download a high-res art print — all in your browser.
+        </p>
+
+        <p class="text-[10px] font-semibold tracking-[2px] uppercase text-[#999] mb-2">Quick start with a city</p>
+        <div class="flex gap-3 mb-6 justify-center lg:justify-start flex-nowrap">
+          <button class="intro-city-btn postcard" data-city="Tokyo" data-lat="35.6762" data-lon="139.6503">
+            <div class="postcard-map" id="minimap-tokyo"></div>
+            <div class="postcard-body">
+              <span class="postcard-city">Tokyo</span>
+              <span class="postcard-country">Japan</span>
+            </div>
+            <div class="postcard-pin">
+              <ion-icon name="location"></ion-icon>
+            </div>
+          </button>
+          <button class="intro-city-btn postcard" data-city="Paris" data-lat="48.8566" data-lon="2.3522">
+            <div class="postcard-map" id="minimap-paris"></div>
+            <div class="postcard-body">
+              <span class="postcard-city">Paris</span>
+              <span class="postcard-country">France</span>
+            </div>
+            <div class="postcard-pin">
+              <ion-icon name="location"></ion-icon>
+            </div>
+          </button>
+          <button class="intro-city-btn postcard" data-city="New York" data-lat="40.7128" data-lon="-74.0060">
+            <div class="postcard-map" id="minimap-newyork"></div>
+            <div class="postcard-body">
+              <span class="postcard-city">New York</span>
+              <span class="postcard-country">USA</span>
+            </div>
+            <div class="postcard-pin">
+              <ion-icon name="location"></ion-icon>
+            </div>
+          </button>
+        </div>
+
+        <button id="skipIntro"
+          class="group cursor-pointer bg-[#440edf] text-white font-semibold px-7 py-2.5 rounded-full text-sm transition-all duration-300 hover:bg-[#3308b8] hover:shadow-lg hover:shadow-purple-500/30 hover:scale-105 active:scale-95">
+          Explore freely
+          <span class="inline-block transition-transform duration-300 group-hover:translate-x-1">&rarr;</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <header class="px-6 py-2 bg-[#440edf] text-[#d2e823]">
     <div class="flex items-center justify-between">
       <a href="#" class="flex items-center gap-2 font-bold text-lg text-[#d2e823]">
