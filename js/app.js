@@ -327,7 +327,57 @@ const WORLD_CITIES = {
     'Christchurch': 'The Garden City'
 };
 
-const DEFAULT_SUBTITLE = 'A Beautiful Place to Explore';
+const APP_LANG = document.documentElement.lang?.toLowerCase().startsWith('es') ? 'es' : 'en';
+const I18N = {
+    en: {
+        defaultSubtitle: 'A Beautiful Place to Explore',
+        statusUpdatingMapStyle: 'Updating map style…',
+        statusMapStyleUpdated: 'Map style updated.',
+        statusSearchingCity: 'Searching city…',
+        statusNoResults: 'No results found for that place.',
+        statusLocationUpdated: 'Location updated.',
+        statusSearchCityError: 'Error searching city.',
+        statusRenderingPoster: 'Rendering high-resolution poster… this may take a moment.',
+        statusPosterDownloaded: 'Poster downloaded ({width} × {height} px @ ~{dpi} DPI, {sizeMB}MB).',
+        statusDownloadError: 'Error: {message}. Try a smaller size or refresh.',
+        statusLoadingCity: 'Loading city location…',
+        statusCityLoaded: 'City loaded.',
+        statusLoadCityError: 'Error loading city, using default location.',
+        toggleShowAll: 'Show all',
+        toggleShowLess: 'Show less',
+        errGeocodingFailed: 'Geocoding failed',
+        errCanvasRenderingFailed: 'Canvas rendering failed',
+        errCreateImageFailed: 'Failed to create image'
+    },
+    es: {
+        defaultSubtitle: 'Un lugar hermoso para explorar',
+        statusUpdatingMapStyle: 'Actualizando estilo del mapa…',
+        statusMapStyleUpdated: 'Estilo del mapa actualizado.',
+        statusSearchingCity: 'Buscando ciudad…',
+        statusNoResults: 'No se encontraron resultados para ese lugar.',
+        statusLocationUpdated: 'Ubicación actualizada.',
+        statusSearchCityError: 'Error al buscar la ciudad.',
+        statusRenderingPoster: 'Renderizando póster en alta resolución… esto puede tardar un momento.',
+        statusPosterDownloaded: 'Póster descargado ({width} × {height} px a ~{dpi} DPI, {sizeMB}MB).',
+        statusDownloadError: 'Error: {message}. Prueba un tamaño menor o recarga la página.',
+        statusLoadingCity: 'Cargando ubicación de la ciudad…',
+        statusCityLoaded: 'Ciudad cargada.',
+        statusLoadCityError: 'Error al cargar la ciudad; se usará la ubicación predeterminada.',
+        toggleShowAll: 'Mostrar todos',
+        toggleShowLess: 'Mostrar menos',
+        errGeocodingFailed: 'Falló la geocodificación',
+        errCanvasRenderingFailed: 'Falló el renderizado del lienzo',
+        errCreateImageFailed: 'No se pudo crear la imagen'
+    }
+};
+
+function t(key, vars = {}) {
+    const dict = I18N[APP_LANG] || I18N.en;
+    const template = dict[key] || I18N.en[key] || key;
+    return template.replace(/\{(\w+)\}/g, (_, name) => String(vars[name] ?? `{${name}}`));
+}
+
+const DEFAULT_SUBTITLE = t('defaultSubtitle');
 
 // Print sizes in inches for DPI calculation
 const PRINT_SIZES = {
@@ -466,7 +516,7 @@ function generateThemesGrid() {
 
         swatch.addEventListener('click', () => {
             elements.styleSelect.value = name;
-            setStatus("Updating map style…");
+            setStatus(t('statusUpdatingMapStyle'));
             changeMapStyle(name);
             updateSelectedThemePreview(name);
         });
@@ -644,7 +694,7 @@ function changeMapStyle(styleKey) {
     currentStyle = styleKey;
     map = initMap([lng, lat], zoom, styleKey);
     setupMapEvents();
-    map.once("load", () => setStatus("Map style updated."));
+    map.once("load", () => setStatus(t('statusMapStyleUpdated')));
 }
 
 // === GEOCODING ===
@@ -670,15 +720,15 @@ async function searchCity(name) {
     if (!name) return;
 
     try {
-        setStatus("Searching city…");
+        setStatus(t('statusSearchingCity'));
         const url = `https://api.maptiler.com/geocoding/${encodeURIComponent(name)}.json?key=${MAPTILER_KEY}`;
         const res = await fetch(url);
 
-        if (!res.ok) throw new Error("Geocoding failed");
+        if (!res.ok) throw new Error(t('errGeocodingFailed'));
 
         const data = await res.json();
         if (!data.features?.length) {
-            setStatus("No results found for that place.", true);
+            setStatus(t('statusNoResults'), true);
             return;
         }
 
@@ -692,10 +742,10 @@ async function searchCity(name) {
 
         updateLabels();
         updateFooter(lat, lon);
-        setStatus("Location updated.");
+        setStatus(t('statusLocationUpdated'));
     } catch (err) {
         console.error(err);
-        setStatus("Error searching city.", true);
+        setStatus(t('statusSearchCityError'), true);
     }
 }
 
@@ -704,7 +754,7 @@ async function downloadPoster() {
     if (isDownloading) return;
     isDownloading = true;
 
-    setStatus("Rendering high-resolution poster… this may take a moment.");
+    setStatus(t('statusRenderingPoster'));
 
     try {
         await document.fonts.ready;
@@ -741,9 +791,9 @@ async function downloadPoster() {
         mapContainer.removeChild(tempImg);
         mapCanvas.style.visibility = "visible";
 
-        if (!canvas?.width || !canvas?.height) throw new Error("Canvas rendering failed");
+        if (!canvas?.width || !canvas?.height) throw new Error(t('errCanvasRenderingFailed'));
 
-        const blob = await new Promise((res, rej) => canvas.toBlob(b => b ? res(b) : rej(new Error("Failed to create image")), "image/png", 1.0));
+        const blob = await new Promise((res, rej) => canvas.toBlob(b => b ? res(b) : rej(new Error(t('errCreateImageFailed'))), "image/png", 1.0));
         const url = URL.createObjectURL(blob);
         const cityName = elements.cityTitle.textContent.replace(/\s+/g, "_").toLowerCase() || "city";
 
@@ -753,10 +803,10 @@ async function downloadPoster() {
         const sizeMB = (blob.size / 1048576).toFixed(1);
         const effectiveWidth = isLandscape ? (printSize?.height || 36) : (printSize?.width || 24);
         const dpi = Math.round(canvas.width / effectiveWidth);
-        setStatus(`Poster downloaded (${canvas.width} × ${canvas.height} px @ ~${dpi} DPI, ${sizeMB}MB).`);
+        setStatus(t('statusPosterDownloaded', { width: canvas.width, height: canvas.height, dpi, sizeMB }));
     } catch (err) {
         console.error("Download error:", err);
-        setStatus(`Error: ${err.message}. Try a smaller size or refresh.`, true);
+        setStatus(t('statusDownloadError', { message: err.message }), true);
     } finally {
         isDownloading = false;
     }
@@ -776,15 +826,16 @@ function setupEventListeners() {
     elements.zoomDecrement.addEventListener("click", () => setZoom(parseFloat(elements.zoomInput.value) - 0.5));
 
     elements.styleSelect.addEventListener("change", () => {
-        setStatus("Updating map style…");
+        setStatus(t('statusUpdatingMapStyle'));
         const style = elements.styleSelect.value;
         changeMapStyle(style);
         updateSelectedThemePreview(style);
     });
 
+    elements.toggleThemesGrid.textContent = t('toggleShowAll');
     elements.toggleThemesGrid.addEventListener("click", () => {
         const collapsed = elements.themesGrid.classList.toggle('collapsed');
-        elements.toggleThemesGrid.textContent = collapsed ? 'Show all' : 'Show less';
+        elements.toggleThemesGrid.textContent = collapsed ? t('toggleShowAll') : t('toggleShowLess');
     });
 
     elements.posterStyleSelect.addEventListener("change", () => {
@@ -1312,7 +1363,7 @@ function setupIntroModal() {
                 elements.subtitleInput.value = getCitySubtitle(cityName);
                 updateLabels();
                 updateFooter(lat, lon);
-                setStatus('Location updated.');
+                setStatus(t('statusLocationUpdated'));
             }
         }, { once: true });
     }
@@ -1356,19 +1407,19 @@ async function init() {
 
     if (cityParam) {
         try {
-            setStatus("Loading city location…");
+            setStatus(t('statusLoadingCity'));
             const res = await fetch(`https://api.maptiler.com/geocoding/${encodeURIComponent(cityParam)}.json?key=${MAPTILER_KEY}`);
             if (res.ok) {
                 const data = await res.json();
                 if (data.features?.length) {
                     initializeApp(data.features[0].center, 12, cityParam);
-                    map.once('load', () => setStatus("City loaded."));
+                    map.once('load', () => setStatus(t('statusCityLoaded')));
                     return;
                 }
             }
         } catch (err) {
             console.error("Error loading city:", err);
-            setStatus("Error loading city, using default location.", true);
+            setStatus(t('statusLoadCityError'), true);
         }
     }
 

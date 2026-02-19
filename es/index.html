@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
   <meta charset="UTF-8" />
-  <title> Map Poster Generator</title>
+  <title> Generador de Pósters de Mapas</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- MapLibre GL -->
@@ -24,7 +24,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- Custom Styles -->
-  <link href="css/styles.css" rel="stylesheet" />
+  <link href="../css/styles.css" rel="stylesheet" />
 </head>
 
 <body class="bg-[#440edf] text-[#111] font-sans m-0 h-screen overflow-hidden">
@@ -54,11 +54,12 @@
         </div>
 
         <p class="text-[15px] leading-relaxed text-[#555] mb-6">
-          Turn any place on Earth into a stunning, print-ready map poster.
-          Pick a city, choose a palette, and download a high-res art print — all in your browser.
+          Convierte cualquier lugar del mundo en un póster de mapa espectacular y listo para imprimir.
+          Elige una ciudad, selecciona una paleta y descarga una impresión artística en alta resolución, todo desde tu
+          navegador.
         </p>
 
-        <p class="text-[10px] font-semibold tracking-[2px] uppercase text-[#999] mb-2">Quick start with a city</p>
+        <p class="text-[10px] font-semibold tracking-[2px] uppercase text-[#999] mb-2">Inicio rápido con una ciudad</p>
         <!-- add horizontal scroll for mobile devices -->
         <div
           class="intro-postcards-row flex gap-3 mb-6 justify-start lg:justify-start flex-nowrap overflow-x-auto md:overflow-x-hidden overflow-y-hidden w-full max-w-full px-1 py-3">
@@ -86,7 +87,7 @@
             <div class="postcard-map" id="minimap-newyork"></div>
             <div class="postcard-body">
               <span class="postcard-city">New York</span>
-              <span class="postcard-country">USA</span>
+              <span class="postcard-country">EE. UU.</span>
             </div>
             <div class="postcard-pin">
               <ion-icon name="location"></ion-icon>
@@ -95,9 +96,8 @@
         </div>
 
         <button id="skipIntro"
-          class="group cursor-pointer bg-[#440edf] text-white font-semibold px-7 py-2.5 rounded-full text-sm transition-all duration-300 hover:bg-[#3308b8] hover:shadow-lg hover:shadow-purple-500/30 hover:scale-105 active:scale-95">
-          Explore
-          <span class="inline-block transition-transform duration-300 group-hover:translate-x-1">&rarr;</span>
+          class="group cursor-pointer bg-[#440edf] text-white font-semibold px-7 py-2.5 rounded-full text-sm transition-all duration-300 hover:bg-[#3308b8] hover:shadow-lg hover:shadow-purple-500/30 hover:scale-105 active:scale-95">Explorar<span
+            class="inline-block transition-transform duration-300 group-hover:translate-x-1">&rarr;</span>
         </button>
       </div>
     </div>
@@ -111,22 +111,21 @@
         </div>
         MAPI
       </a>
-      <p class="m-0 text-md tracking-wide opacity-90 hidden md:block"> Map Posters Generator</p>
+      <p class="m-0 text-md tracking-wide opacity-90 hidden md:block"> Generador de pósters de mapas</p>
       <div class="flex items-center gap-2">
-        <button id="panelToggleBtn" type="button" aria-label="Toggle controls panel" aria-expanded="false"
+        <button id="panelToggleBtn" type="button" aria-label="Mostrar u ocultar panel de controles"
+          aria-expanded="false"
           class="cursor-pointer rounded-xl border border-[#d2e823]/50 px-3 py-2.5 text-[13px] font-semibold transition-all duration-200 bg-[#440edf] text-[#d2e823] hover:bg-[#d2e823] hover:text-[#000]">
           <ion-icon name="options-outline" class="text-base"></ion-icon>
         </button>
-        <a href="es/index.html"
+        <a href="../"
           class="cursor-pointer rounded-xl border border-[#d2e823]/50 px-3 py-2.5 text-[13px] font-semibold transition-all duration-200 bg-[#440edf] text-[#d2e823] hover:bg-[#d2e823] hover:text-[#000]">
-          ES
+          EN
         </a>
         <button
           class="cursor-pointer rounded-xl border border-transparent px-5 py-2.5 text-[13px] font-semibold transition-all duration-200 bg-[#d2e823] text-[#000] hover:bg-[#440edf] hover:text-[#d2e823] hover:border-[#d2e823] hover:shadow-lg flex items-center gap-2"
           id="downloadBtn">
-          <ion-icon name="download-outline" class="text-base"></ion-icon>
-          Download
-        </button>
+          <ion-icon name="download-outline" class="text-base"></ion-icon>Descargar</button>
       </div>
     </div>
   </header>
@@ -136,7 +135,7 @@
     <section id="controls"
       class="w-[320px] bg-[#fafafa] p-4 h-full overflow-y-auto shrink-0 max-[900px]:w-full max-[900px]:h-auto">
       <div class="mobile-panel-header">
-        <button id="panelCloseBtn" type="button" aria-label="Close controls panel">
+        <button id="panelCloseBtn" type="button" aria-label="Cerrar panel de controles">
           <ion-icon name="close-outline"></ion-icon>
         </button>
       </div>
@@ -145,17 +144,17 @@
       <div class="mb-6">
         <div class="flex items-center gap-2 mb-2">
           <div class="w-1 h-4 bg-[#440edf] rounded-full"></div>
-          <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">Location</span>
+          <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">Ubicación</span>
         </div>
 
         <div class="space-y-2">
           <div>
-            <label for="cityInput" class="block text-[11px] font-medium text-[#666] mb-1">City / Place</label>
+            <label for="cityInput" class="block text-[11px] font-medium text-[#666] mb-1">Ciudad / Lugar</label>
             <div class="relative">
-              <input id="cityInput" type="text" placeholder="Search for a city..."
+              <input id="cityInput" type="text" placeholder="Buscar una ciudad..."
                 class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20"
                 style="padding-right: 2.6rem;" />
-              <button id="citySearchBtn" type="button" aria-label="Search city"
+              <button id="citySearchBtn" type="button" aria-label="Buscar ciudad"
                 class="absolute rounded-lg text-[#666] text-base transition-colors duration-200 hover:text-[#440edf]"
                 style="right: 0.25rem; top: 50%; width: 2rem; height: 2rem; transform: translateY(-50%); display: flex; align-items: center; justify-content: center;">
                 <ion-icon name="search-outline"></ion-icon>
@@ -165,7 +164,7 @@
 
           <div>
             <div class="flex items-center justify-between mb-1">
-              <label for="zoomInput" class="text-[11px] font-medium text-[#666]">Zoom</label>
+              <label for="zoomInput" class="text-[11px] font-medium text-[#666]">Acercamiento</label>
               <span id="zoomValue" class="text-[11px] font-semibold text-[#440edf]">13.0</span>
             </div>
             <div class="flex items-center gap-2">
@@ -192,23 +191,23 @@
       <div class="mb-6">
         <div class="flex items-center gap-2 mb-2">
           <div class="w-1 h-4 bg-[#440edf] rounded-full"></div>
-          <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">Poster Style</span>
+          <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">Estilo del póster</span>
         </div>
 
         <div class="space-y-2">
           <div>
-            <label for="posterStyleSelect" class="block text-[11px] font-medium text-[#666] mb-1">Layout</label>
+            <label for="posterStyleSelect" class="block text-[11px] font-medium text-[#666] mb-1">Diseño</label>
             <select id="posterStyleSelect"
               class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20 cursor-pointer">
-              <option value="minimal" selected>Minimal Luxury</option>
-              <option value="vertical">Vertical Edge</option>
-              <option value="corner">Corner Grid</option>
-              <option value="oversized">Oversized Drama</option>
+              <option value="minimal" selected>Lujo minimalista</option>
+              <option value="vertical">Borde vertical</option>
+              <option value="corner">Cuadrícula en esquina</option>
+              <option value="oversized">Formato impactante</option>
             </select>
           </div>
 
           <div>
-            <label for="sizeSelect" class="block text-[11px] font-medium text-[#666] mb-1">Print Size</label>
+            <label for="sizeSelect" class="block text-[11px] font-medium text-[#666] mb-1">Tamaño de impresión</label>
             <select id="sizeSelect"
               class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20 cursor-pointer">
               <option value="a1">A1 — 23.4 × 33.1 in / 59.4 × 84.1 cm</option>
@@ -222,7 +221,7 @@
           </div>
 
           <div>
-            <label for="styleSelect" class="block text-[11px] font-medium text-[#666] mb-1">Color Theme</label>
+            <label for="styleSelect" class="block text-[11px] font-medium text-[#666] mb-1">Tema de color</label>
 
             <!-- Selected Theme Preview -->
             <div id="selectedThemePreview" class="mb-2 p-2 bg-white rounded-lg shadow-sm">
@@ -234,15 +233,15 @@
                   <div class="flex gap-2 mt-1.5">
                     <div class="flex items-center gap-1">
                       <span id="selectedBgColor" class="color-dot"></span>
-                      <span class="text-[9px] text-[#888]">Background</span>
+                      <span class="text-[9px] text-[#888]">Fondo</span>
                     </div>
                     <div class="flex items-center gap-1">
                       <span id="selectedRoadsColor" class="color-dot"></span>
-                      <span class="text-[9px] text-[#888]">Roads</span>
+                      <span class="text-[9px] text-[#888]">Calles</span>
                     </div>
                     <div class="flex items-center gap-1">
                       <span id="selectedWaterColor" class="color-dot"></span>
-                      <span class="text-[9px] text-[#888]">Water</span>
+                      <span class="text-[9px] text-[#888]">Agua</span>
                     </div>
                   </div>
                 </div>
@@ -252,10 +251,10 @@
             <!-- All Themes Grid -->
             <div class="mb-2">
               <div class="flex items-center justify-between mb-1">
-                <span class="text-[10px] font-medium text-[#888]">All Themes</span>
+                <span class="text-[10px] font-medium text-[#888]">Todos los temas</span>
                 <button id="toggleThemesGrid"
-                  class="text-[10px] text-[#440edf] hover:underline cursor-pointer bg-transparent border-none">Show
-                  all</button>
+                  class="text-[10px] text-[#440edf] hover:underline cursor-pointer bg-transparent border-none">Mostrar
+                  todos</button>
               </div>
               <div id="themesGrid" class="themes-grid collapsed"></div>
             </div>
@@ -428,12 +427,12 @@
       <div class="mb-6">
         <div class="flex items-center gap-2 mb-2">
           <div class="w-1 h-4 bg-[#440edf] rounded-full"></div>
-          <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">Options</span>
+          <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">Opciones</span>
         </div>
 
         <div class="flex items-center gap-3 p-2 bg-white rounded-lg shadow-sm">
           <div class="flex items-center gap-2">
-            <span class="text-[12px] font-medium text-[#555]">Landscape</span>
+            <span class="text-[12px] font-medium text-[#555]">Horizontal</span>
             <div
               class="toggle-switch relative w-11 h-6 bg-[#e0e0e0] rounded-full cursor-pointer transition-colors duration-300 after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:w-[18px] after:h-[18px] after:bg-white after:rounded-full after:transition-transform after:duration-300 after:shadow-sm [&.active]:bg-[#440edf] [&.active]:after:translate-x-5"
               id="orientationToggle"></div>
@@ -442,7 +441,7 @@
           <div class="w-px h-6 bg-[#e0e0e0]"></div>
 
           <div class="flex items-center gap-2">
-            <span class="text-[12px] font-medium text-[#555]">Labels</span>
+            <span class="text-[12px] font-medium text-[#555]">Etiquetas</span>
             <div
               class="toggle-switch active relative w-11 h-6 bg-[#e0e0e0] rounded-full cursor-pointer transition-colors duration-300 after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:w-[18px] after:h-[18px] after:bg-white after:rounded-full after:transition-transform after:duration-300 after:shadow-sm [&.active]:bg-[#440edf] [&.active]:after:translate-x-5"
               id="labelsToggle"></div>
@@ -454,36 +453,37 @@
       <div id="labelFields" class="mb-4">
         <div class="flex items-center gap-2 mb-2">
           <div class="w-1 h-4 bg-[#440edf] rounded-full"></div>
-          <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">Labels</span>
+          <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">Etiquetas</span>
         </div>
 
         <div class="space-y-2">
           <div>
-            <label for="titleInput" class="block text-[11px] font-medium text-[#666] mb-1">Title</label>
-            <input id="titleInput" type="text" placeholder="City name" value="HAVANA"
+            <label for="titleInput" class="block text-[11px] font-medium text-[#666] mb-1">Título</label>
+            <input id="titleInput" type="text" placeholder="Nombre de la ciudad" value="HAVANA"
               class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20" />
           </div>
 
           <div>
-            <label for="subtitleInput" class="block text-[11px] font-medium text-[#666] mb-1">Subtitle</label>
-            <input id="subtitleInput" type="text" placeholder="Optional tagline" value="The Pearl of the Antilles"
+            <label for="subtitleInput" class="block text-[11px] font-medium text-[#666] mb-1">Subtítulo</label>
+            <input id="subtitleInput" type="text" placeholder="Subtítulo opcional" value="La perla de las Antillas"
               class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20" />
           </div>
 
           <div>
-            <label for="taglineInput" class="block text-[11px] font-medium text-[#666] mb-1">Tagline</label>
+            <label for="taglineInput" class="block text-[11px] font-medium text-[#666] mb-1">Lema</label>
             <input id="taglineInput" type="text" placeholder="40.712° N — 74.006° W" value=""
               class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20" />
           </div>
 
           <div>
-            <label for="labelColorInput" class="block text-[11px] font-medium text-[#666] mb-1">Label Color</label>
+            <label for="labelColorInput" class="block text-[11px] font-medium text-[#666] mb-1">Color de
+              etiqueta</label>
             <div class="flex items-center gap-2">
               <input id="labelColorInput" type="color" value="#000000"
                 class="w-10 h-10 rounded-lg border-0 bg-white shadow-sm cursor-pointer p-0.5 transition-all duration-200 hover:shadow-md" />
               <input id="labelColorHex" type="text" value="#000000" placeholder="#000000"
                 class="flex-1 px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20 font-mono" />
-              <button id="labelColorAuto" type="button" title="Auto (based on background)"
+              <button id="labelColorAuto" type="button" title="Auto (según el fondo)"
                 class="flex items-center justify-center w-10 h-10 rounded-lg bg-white shadow-sm text-[#666] text-base transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95">
                 <ion-icon name="color-wand-outline"></ion-icon>
               </button>
@@ -507,7 +507,7 @@
         <div id="mapContainer"></div>
         <div id="posterFooter">
           <div id="cityTitle">HAVANA</div>
-          <div id="citySubtitle">The Pearl of the Antilles</div>
+          <div id="citySubtitle">La perla de las Antillas</div>
           <div id="coordinates">23.114° N — 82.367° W</div>
         </div>
       </div>
@@ -515,7 +515,7 @@
   </div>
 
   <!-- App Script -->
-  <script src="js/app.js"></script>
+  <script src="../js/app.js"></script>
 </body>
 
 </html>
