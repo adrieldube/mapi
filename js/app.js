@@ -393,6 +393,86 @@ const PRINT_SIZES = {
 const TARGET_DPI = 600;
 const INITIAL_CENTER = [139.6503, 35.6762]; // Tokyo
 const INITIAL_ZOOM = 13;
+const GLOBE_CITY_COORDS_CACHE_KEY = 'mapi_globe_city_coords_v1';
+const GLOBE_COORD_BATCH_SIZE = 8;
+const GLOBE_MARKER_SEED_CITIES = [
+    { name: 'Tokyo', lat: 35.6762, lon: 139.6503 },
+    { name: 'Paris', lat: 48.8566, lon: 2.3522 },
+    { name: 'New York', lat: 40.7128, lon: -74.006 }
+];
+
+function readGlobeCityCoordsCache() {
+    try {
+        const raw = localStorage.getItem(GLOBE_CITY_COORDS_CACHE_KEY);
+        if (!raw) return {};
+        const parsed = JSON.parse(raw);
+        return parsed && typeof parsed === 'object' ? parsed : {};
+    } catch {
+        return {};
+    }
+}
+
+function writeGlobeCityCoordsCache(cache) {
+    try {
+        localStorage.setItem(GLOBE_CITY_COORDS_CACHE_KEY, JSON.stringify(cache));
+    } catch {
+        // Ignore storage write failures (quota/private mode).
+    }
+}
+
+async function geocodeCityCoordinate(cityName) {
+    try {
+        const url = `https://api.maptiler.com/geocoding/${encodeURIComponent(cityName)}.json?key=${MAPTILER_KEY}&limit=1`;
+        const res = await fetch(url);
+        if (!res.ok) return null;
+        const data = await res.json();
+        const first = data?.features?.[0];
+        if (!first?.center || first.center.length < 2) return null;
+
+        const lon = Number(first.center[0]);
+        const lat = Number(first.center[1]);
+        if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+
+        return { lat, lon };
+    } catch {
+        return null;
+    }
+}
+
+async function loadGlobeCityCoordinates() {
+    const cityNames = Object.keys(WORLD_CITIES);
+    const cityOrder = new Map(cityNames.map((name, idx) => [name, idx]));
+    const cache = readGlobeCityCoordsCache();
+
+    const resolved = [];
+    const missing = [];
+    cityNames.forEach(name => {
+        const coords = cache[name];
+        if (coords && Number.isFinite(coords.lat) && Number.isFinite(coords.lon)) {
+            resolved.push({ name, lat: coords.lat, lon: coords.lon });
+        } else {
+            missing.push(name);
+        }
+    });
+
+    if (missing.length > 0) {
+        let cursor = 0;
+        const workerCount = Math.min(GLOBE_COORD_BATCH_SIZE, missing.length);
+        const workers = Array.from({ length: workerCount }, async () => {
+            while (cursor < missing.length) {
+                const cityName = missing[cursor++];
+                const coords = await geocodeCityCoordinate(cityName);
+                if (!coords) continue;
+                cache[cityName] = coords;
+                resolved.push({ name: cityName, lat: coords.lat, lon: coords.lon });
+            }
+        });
+        await Promise.all(workers);
+        writeGlobeCityCoordsCache(cache);
+    }
+
+    return resolved.sort((a, b) => cityOrder.get(a.name) - cityOrder.get(b.name));
+}
 
 // === DOM ELEMENTS ===
 const elements = {
@@ -1107,50 +1187,119 @@ function initGlobe() {
     globeGroup.add(glowMesh);
 
     // --- City markers ---
-    const cities = [
-        { name: 'Tokyo', lat: 35.6762, lon: 139.6503 },
-        { name: 'Paris', lat: 48.8566, lon: 2.3522 },
-        { name: 'New York', lat: 40.7128, lon: -74.006 }
-    ];
-
     const markerGroup = new THREE.Group();
     globeGroup.add(markerGroup);
     const MARKER_ACCENT = '#d2e823';
+    const markerColor = new THREE.Color(MARKER_ACCENT);
+    const clickableDots = [];
+    const markerEntries = [];
+    const markerByCity = new Map();
+    let globeRadius = radius;
 
-    cities.forEach(city => {
+    function getCityPosition(city, currentRadius) {
         const phi = (90 - city.lat) * Math.PI / 180;
         const theta = (city.lon + 180) * Math.PI / 180;
-        const x = -(radius * 1.01) * Math.sin(phi) * Math.cos(theta);
-        const y = (radius * 1.01) * Math.cos(phi);
-        const z = (radius * 1.01) * Math.sin(phi) * Math.sin(theta);
+        return {
+            x: -(currentRadius * 1.01) * Math.sin(phi) * Math.cos(theta),
+            y: (currentRadius * 1.01) * Math.cos(phi),
+            z: (currentRadius * 1.01) * Math.sin(phi) * Math.sin(theta)
+        };
+    }
 
-        const markerGeo = new THREE.SphereGeometry(3, 12, 12);
-        const markerMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(MARKER_ACCENT) });
-        const marker = new THREE.Mesh(markerGeo, markerMat);
-        marker.position.set(x, y, z);
-        markerGroup.add(marker);
+    function resizeCityMarker(entry, currentRadius) {
+        const { city, dot, pulse } = entry;
+        const { x, y, z } = getCityPosition(city, currentRadius);
 
-        const pulseGeo = new THREE.RingGeometry(4.5, 6, 24);
-        const pulseMat = new THREE.MeshBasicMaterial({
-            color: new THREE.Color(MARKER_ACCENT),
-            transparent: true,
-            opacity: 0.5,
-            side: THREE.DoubleSide
-        });
-        const pulse = new THREE.Mesh(pulseGeo, pulseMat);
+        dot.geometry.dispose();
+        dot.geometry = new THREE.SphereGeometry(Math.max(2, currentRadius * 0.012), 12, 12);
+        dot.position.set(x, y, z);
+
+        pulse.geometry.dispose();
+        const ringInner = Math.max(3, currentRadius * 0.02);
+        const ringOuter = Math.max(4, currentRadius * 0.027);
+        pulse.geometry = new THREE.RingGeometry(ringInner, ringOuter, 24);
         pulse.position.set(x, y, z);
         pulse.lookAt(0, 0, 0);
+    }
+
+    function addCityMarker(city) {
+        if (!city || markerByCity.has(city.name)) return;
+
+        const dot = new THREE.Mesh(
+            new THREE.SphereGeometry(Math.max(2, globeRadius * 0.012), 12, 12),
+            new THREE.MeshBasicMaterial({ color: markerColor })
+        );
+        dot.userData = {
+            cityName: city.name,
+            lat: city.lat,
+            lon: city.lon
+        };
+        markerGroup.add(dot);
+        clickableDots.push(dot);
+
+        const pulse = new THREE.Mesh(
+            new THREE.RingGeometry(Math.max(3, globeRadius * 0.02), Math.max(4, globeRadius * 0.027), 24),
+            new THREE.MeshBasicMaterial({
+                color: markerColor,
+                transparent: true,
+                opacity: 0.5,
+                side: THREE.DoubleSide
+            })
+        );
         pulse.userData = { baseScale: 1 };
         markerGroup.add(pulse);
-    });
+
+        const entry = { city, dot, pulse };
+        markerEntries.push(entry);
+        markerByCity.set(city.name, entry);
+        resizeCityMarker(entry, globeRadius);
+    }
+
+    function resizeAllCityMarkers(currentRadius) {
+        markerEntries.forEach(entry => resizeCityMarker(entry, currentRadius));
+    }
+
+    // Seed immediately so the globe is interactive before full geocoding completes.
+    GLOBE_MARKER_SEED_CITIES.forEach(addCityMarker);
+
+    loadGlobeCityCoordinates()
+        .then(cities => {
+            cities.forEach(addCityMarker);
+        })
+        .catch(err => {
+            console.warn('Failed to load full globe city set:', err);
+        });
 
     // --- Mouse interaction ---
     let isDragging = false;
     let previousMouse = { x: 0, y: 0 };
     let rotationSpeed = { x: 0, y: 0 };
+    let hasMovedDuringDrag = false;
+    const raycaster = new THREE.Raycaster();
+    const pointer = new THREE.Vector2();
+    const dragThreshold = 3;
+
+    const getPointerFromEvent = evt => {
+        const rect = renderer.domElement.getBoundingClientRect();
+        pointer.x = ((evt.clientX - rect.left) / rect.width) * 2 - 1;
+        pointer.y = -((evt.clientY - rect.top) / rect.height) * 2 + 1;
+    };
+
+    const getCityFromEvent = evt => {
+        getPointerFromEvent(evt);
+        raycaster.setFromCamera(pointer, camera);
+        const intersects = raycaster.intersectObjects(clickableDots, false);
+        return intersects.length ? intersects[0].object.userData : null;
+    };
+
+    let onCitySelect = null;
+    const setCitySelectHandler = handler => {
+        onCitySelect = handler;
+    };
 
     container.addEventListener('mousedown', e => {
         isDragging = true;
+        hasMovedDuringDrag = false;
         previousMouse = { x: e.clientX, y: e.clientY };
         rotationSpeed = { x: 0, y: 0 };
     });
@@ -1162,13 +1311,18 @@ function initGlobe() {
         globeGroup.rotation.y += dx * 0.005;
         globeGroup.rotation.x += dy * 0.005;
         rotationSpeed = { x: dy * 0.005, y: dx * 0.005 };
+        if (Math.abs(dx) > dragThreshold || Math.abs(dy) > dragThreshold) {
+            hasMovedDuringDrag = true;
+        }
         previousMouse = { x: e.clientX, y: e.clientY };
     });
 
-    window.addEventListener('mouseup', () => { isDragging = false; });
+    const onWindowMouseUp = () => { isDragging = false; };
+    window.addEventListener('mouseup', onWindowMouseUp);
 
     container.addEventListener('touchstart', e => {
         isDragging = true;
+        hasMovedDuringDrag = false;
         previousMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
         rotationSpeed = { x: 0, y: 0 };
     }, { passive: true });
@@ -1180,10 +1334,21 @@ function initGlobe() {
         globeGroup.rotation.y += dx * 0.005;
         globeGroup.rotation.x += dy * 0.005;
         rotationSpeed = { x: dy * 0.005, y: dx * 0.005 };
+        if (Math.abs(dx) > dragThreshold || Math.abs(dy) > dragThreshold) {
+            hasMovedDuringDrag = true;
+        }
         previousMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
     }, { passive: true });
 
     container.addEventListener('touchend', () => { isDragging = false; }, { passive: true });
+
+    const onDotClick = e => {
+        if (hasMovedDuringDrag || !onCitySelect) return;
+        const city = getCityFromEvent(e);
+        if (!city) return;
+        onCitySelect(city.cityName, city.lat, city.lon);
+    };
+    renderer.domElement.addEventListener('click', onDotClick);
 
     // --- Animation loop ---
     let time = 0;
@@ -1233,12 +1398,11 @@ function initGlobe() {
         }
 
         // Pulse city markers
-        markerGroup.children.forEach((child, i) => {
-            if (child.userData.baseScale !== undefined) {
-                const scale = 1 + 0.3 * Math.sin(time * 2 + i);
-                child.scale.set(scale, scale, scale);
-                child.material.opacity = 0.3 + 0.4 * Math.abs(Math.sin(time * 2 + i));
-            }
+        markerEntries.forEach((entry, i) => {
+            const pulse = entry.pulse;
+            const scale = 1 + 0.3 * Math.sin(time * 2 + i);
+            pulse.scale.set(scale, scale, scale);
+            pulse.material.opacity = 0.3 + 0.4 * Math.abs(Math.sin(time * 2 + i));
         });
 
         renderer.render(scene, camera);
@@ -1258,6 +1422,7 @@ function initGlobe() {
             if (newWidth === 0 || newHeight === 0) return;
 
             const newRadius = Math.min(newWidth, newHeight) * 0.4;
+            globeRadius = newRadius;
 
             // Update renderer
             renderer.setSize(newWidth, newHeight);
@@ -1276,47 +1441,33 @@ function initGlobe() {
             glowMesh.geometry.dispose();
             glowMesh.geometry = new THREE.SphereGeometry(newRadius * 1.04, 64, 64);
 
-            // Reposition city markers
-            let markerIdx = 0;
-            cities.forEach(city => {
-                const phi = (90 - city.lat) * Math.PI / 180;
-                const theta = (city.lon + 180) * Math.PI / 180;
-                const x = -(newRadius * 1.01) * Math.sin(phi) * Math.cos(theta);
-                const y = (newRadius * 1.01) * Math.cos(phi);
-                const z = (newRadius * 1.01) * Math.sin(phi) * Math.sin(theta);
-
-                // Dot marker
-                const dot = markerGroup.children[markerIdx];
-                if (dot) {
-                    dot.geometry.dispose();
-                    dot.geometry = new THREE.SphereGeometry(Math.max(2, newRadius * 0.025), 12, 12);
-                    dot.position.set(x, y, z);
-                }
-                markerIdx++;
-
-                // Pulse ring
-                const ring = markerGroup.children[markerIdx];
-                if (ring) {
-                    ring.geometry.dispose();
-                    const ringInner = Math.max(3, newRadius * 0.037);
-                    const ringOuter = Math.max(4, newRadius * 0.05);
-                    ring.geometry = new THREE.RingGeometry(ringInner, ringOuter, 24);
-                    ring.position.set(x, y, z);
-                    ring.lookAt(0, 0, 0);
-                }
-                markerIdx++;
-            });
+            resizeAllCityMarkers(newRadius);
         }, 100); // debounce 100ms
     });
     resizeObserver.observe(container);
 
     // Cleanup function
-    return () => {
-        cancelAnimationFrame(animId);
-        resizeObserver.disconnect();
-        clearTimeout(resizeTimeout);
-        renderer.dispose();
-        container.innerHTML = '';
+    return {
+        setCitySelectHandler,
+        destroy: () => {
+            cancelAnimationFrame(animId);
+            resizeObserver.disconnect();
+            clearTimeout(resizeTimeout);
+            window.removeEventListener('mouseup', onWindowMouseUp);
+            renderer.domElement.removeEventListener('click', onDotClick);
+            markerEntries.forEach(entry => {
+                entry.dot.geometry.dispose();
+                entry.dot.material.dispose();
+                entry.pulse.geometry.dispose();
+                entry.pulse.material.dispose();
+            });
+            earth.geometry.dispose();
+            earth.material.dispose();
+            glowMesh.geometry.dispose();
+            glowMesh.material.dispose();
+            renderer.dispose();
+            container.innerHTML = '';
+        }
     };
 }
 
@@ -1325,7 +1476,7 @@ function setupIntroModal() {
     const modal = document.getElementById('introModal');
     if (!modal) return;
 
-    const cleanupGlobe = initGlobe();
+    const globe = initGlobe();
 
     // Render mini MapLibre maps in each postcard
     const miniMaps = [];
@@ -1353,7 +1504,7 @@ function setupIntroModal() {
         modal.classList.add('closing');
         modal.addEventListener('animationend', () => {
             modal.remove();
-            if (cleanupGlobe) cleanupGlobe();
+            globe?.destroy?.();
             miniMaps.forEach(m => m.remove());
 
             if (cityName && lat !== undefined && lon !== undefined) {
@@ -1367,6 +1518,10 @@ function setupIntroModal() {
             }
         }, { once: true });
     }
+
+    globe?.setCitySelectHandler?.((cityName, lat, lon) => {
+        closeModal(cityName, lat, lon);
+    });
 
     // City buttons
     document.querySelectorAll('.intro-city-btn').forEach(btn => {
