@@ -339,6 +339,7 @@ const I18N = {
         statusSearchCityError: 'Error searching city.',
         statusRenderingPoster: 'Rendering high-resolution poster… this may take a moment.',
         statusPosterDownloaded: 'Poster downloaded ({width} × {height} px @ ~{dpi} DPI, {sizeMB}MB).',
+        statusPosterOpenedIOS: 'Poster opened in a new tab ({width} × {height} px @ ~{dpi} DPI, {sizeMB}MB). Use Share to save the image.',
         statusDownloadError: 'Error: {message}. Try a smaller size or refresh.',
         statusLoadingCity: 'Loading city location…',
         statusCityLoaded: 'City loaded.',
@@ -347,7 +348,8 @@ const I18N = {
         toggleShowLess: 'Show less',
         errGeocodingFailed: 'Geocoding failed',
         errCanvasRenderingFailed: 'Canvas rendering failed',
-        errCreateImageFailed: 'Failed to create image'
+        errCreateImageFailed: 'Failed to create image',
+        errPopupBlocked: 'Popup blocked. Please allow popups and try again.'
     },
     es: {
         defaultSubtitle: 'Un lugar hermoso para explorar',
@@ -359,6 +361,7 @@ const I18N = {
         statusSearchCityError: 'Error al buscar la ciudad.',
         statusRenderingPoster: 'Renderizando póster en alta resolución… esto puede tardar un momento.',
         statusPosterDownloaded: 'Póster descargado ({width} × {height} px a ~{dpi} DPI, {sizeMB}MB).',
+        statusPosterOpenedIOS: 'Póster abierto en una nueva pestaña ({width} × {height} px a ~{dpi} DPI, {sizeMB}MB). Usa Compartir para guardar la imagen.',
         statusDownloadError: 'Error: {message}. Prueba un tamaño menor o recarga la página.',
         statusLoadingCity: 'Cargando ubicación de la ciudad…',
         statusCityLoaded: 'Ciudad cargada.',
@@ -367,7 +370,8 @@ const I18N = {
         toggleShowLess: 'Mostrar menos',
         errGeocodingFailed: 'Falló la geocodificación',
         errCanvasRenderingFailed: 'Falló el renderizado del lienzo',
-        errCreateImageFailed: 'No se pudo crear la imagen'
+        errCreateImageFailed: 'No se pudo crear la imagen',
+        errPopupBlocked: 'El bloqueador impidió abrir la pestaña. Permite ventanas emergentes y vuelve a intentarlo.'
     }
 };
 
@@ -836,7 +840,14 @@ async function downloadPoster() {
 
     setStatus(t('statusRenderingPoster'));
 
+    const ua = navigator.userAgent || "";
+    const platform = navigator.platform || "";
+    const isIOS = /iPad|iPhone|iPod/i.test(ua) || (platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    const iosPreviewWindow = isIOS ? window.open("", "_blank") : null;
+
     try {
+        if (isIOS && !iosPreviewWindow) throw new Error(t('errPopupBlocked'));
+
         await document.fonts.ready;
         const selectedSize = elements.sizeSelect.value;
         const printSize = PRINT_SIZES[selectedSize];
@@ -850,41 +861,72 @@ async function downloadPoster() {
 
         await new Promise(r => setTimeout(r, 100));
 
-        // Temporary image replacement for WebGL context to fix html2canvas issues
+        let cleanupSnapshot = () => {};
+        let canvas;
         const mapCanvas = map.getCanvas();
-        const tempImg = document.createElement("img");
-        tempImg.src = mapCanvas.toDataURL();
-        Object.assign(tempImg.style, {
-            position: "absolute", left: "0", top: "0", width: "100%", height: "100%", zIndex: "0"
-        });
-
         const mapContainer = document.getElementById("mapContainer");
-        mapContainer.appendChild(tempImg);
-        mapCanvas.style.visibility = "hidden";
+        try {
+            // Temporary image replacement for WebGL context to fix html2canvas issues
+            const tempImg = document.createElement("img");
+            tempImg.src = mapCanvas.toDataURL();
+            Object.assign(tempImg.style, {
+                position: "absolute", left: "0", top: "0", width: "100%", height: "100%", zIndex: "0"
+            });
 
-        const canvas = await html2canvas(elements.poster, {
-            useCORS: true, scale, logging: false, backgroundColor: null,
-            imageTimeout: 15000, width: w, height: h
-        });
+            mapContainer.appendChild(tempImg);
+            mapCanvas.style.visibility = "hidden";
+            cleanupSnapshot = () => {
+                if (tempImg.parentNode === mapContainer) mapContainer.removeChild(tempImg);
+                mapCanvas.style.visibility = "visible";
+            };
 
-        // Cleanup
-        mapContainer.removeChild(tempImg);
-        mapCanvas.style.visibility = "visible";
+            canvas = await html2canvas(elements.poster, {
+                useCORS: true, scale, logging: false, backgroundColor: null,
+                imageTimeout: 15000, width: w, height: h
+            });
+        } finally {
+            cleanupSnapshot();
+        }
 
         if (!canvas?.width || !canvas?.height) throw new Error(t('errCanvasRenderingFailed'));
 
-        const blob = await new Promise((res, rej) => canvas.toBlob(b => b ? res(b) : rej(new Error(t('errCreateImageFailed'))), "image/png", 1.0));
+        const blob = await new Promise((res, rej) => {
+            if (typeof canvas.toBlob === "function") {
+                canvas.toBlob(b => b ? res(b) : rej(new Error(t('errCreateImageFailed'))), "image/png", 1.0);
+                return;
+            }
+            try {
+                fetch(canvas.toDataURL("image/png", 1.0))
+                    .then(r => r.blob())
+                    .then(res)
+                    .catch(() => rej(new Error(t('errCreateImageFailed'))));
+            } catch {
+                rej(new Error(t('errCreateImageFailed')));
+            }
+        });
         const url = URL.createObjectURL(blob);
         const cityName = elements.cityTitle.textContent.replace(/\s+/g, "_").toLowerCase() || "city";
+        const fileName = `${cityName}_${selectedSize}_600dpi_${Date.now()}.png`;
 
-        Object.assign(document.createElement("a"), { href: url, download: `${cityName}_${selectedSize}_600dpi_${Date.now()}.png` }).click();
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        if (isIOS) {
+            iosPreviewWindow.location.href = url;
+        } else {
+            const anchor = document.createElement("a");
+            anchor.href = url;
+            anchor.download = fileName;
+            anchor.rel = "noopener";
+            anchor.click();
+        }
+        setTimeout(() => URL.revokeObjectURL(url), isIOS ? 60000 : 1000);
 
         const sizeMB = (blob.size / 1048576).toFixed(1);
         const effectiveWidth = isLandscape ? (printSize?.height || 36) : (printSize?.width || 24);
         const dpi = Math.round(canvas.width / effectiveWidth);
-        setStatus(t('statusPosterDownloaded', { width: canvas.width, height: canvas.height, dpi, sizeMB }));
+        setStatus(t(isIOS ? 'statusPosterOpenedIOS' : 'statusPosterDownloaded', {
+            width: canvas.width, height: canvas.height, dpi, sizeMB
+        }));
     } catch (err) {
+        if (iosPreviewWindow && !iosPreviewWindow.closed) iosPreviewWindow.close();
         console.error("Download error:", err);
         setStatus(t('statusDownloadError', { message: err.message }), true);
     } finally {
