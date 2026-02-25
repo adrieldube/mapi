@@ -667,6 +667,12 @@ function formatCoordinates(lat, lon) {
 
 // === MAP STYLE ===
 function createMapStyle(palette) {
+    // Zoom-interpolated line width helper using exponential base 1.4 (standard cartographic curve)
+    const w = (z8, z10, z12, z14, z16) => [
+        'interpolate', ['exponential', 1.4], ['zoom'],
+        8, z8, 10, z10, 12, z12, 14, z14, 16, z16
+    ];
+
     return {
         version: 8,
         sources: {
@@ -681,10 +687,40 @@ function createMapStyle(palette) {
             { id: 'landcover', type: 'fill', source: 'openmaptiles', 'source-layer': 'landcover', filter: ['==', 'class', 'wood'], paint: { 'fill-color': palette.bg, 'fill-opacity': 0.4 } },
             { id: 'park', type: 'fill', source: 'openmaptiles', 'source-layer': 'park', paint: { 'fill-color': palette.bg, 'fill-opacity': 0.3 } },
             { id: 'water', type: 'fill', source: 'openmaptiles', 'source-layer': 'water', paint: { 'fill-color': palette.water } },
-            { id: 'highway_major', type: 'line', source: 'openmaptiles', 'source-layer': 'transportation', filter: ['in', 'class', 'motorway', 'trunk', 'primary'], paint: { 'line-color': palette.roads, 'line-width': 3 } },
-            { id: 'highway_minor', type: 'line', source: 'openmaptiles', 'source-layer': 'transportation', filter: ['in', 'class', 'secondary', 'tertiary'], paint: { 'line-color': palette.roads, 'line-width': 2 } },
-            { id: 'highway_other', type: 'line', source: 'openmaptiles', 'source-layer': 'transportation', filter: ['in', 'class', 'minor', 'service', 'track'], paint: { 'line-color': palette.roads, 'line-width': 1, 'line-opacity': 0.6 } },
-            { id: 'railway', type: 'line', source: 'openmaptiles', 'source-layer': 'transportation', filter: ['==', 'class', 'rail'], paint: { 'line-color': palette.roads, 'line-width': 1, 'line-opacity': 0.4 } },
+            // Rivers & canals — adds fine hydrographic detail to prints
+            {
+                id: 'waterway', type: 'line', source: 'openmaptiles', 'source-layer': 'waterway',
+                layout: { 'line-cap': 'round', 'line-join': 'round' },
+                paint: { 'line-color': palette.water, 'line-width': w(0.4, 0.8, 1.5, 2.5, 3.5), 'line-opacity': 0.85 }
+            },
+            // Motorways / trunks / primary — thickest, most prominent
+            {
+                id: 'highway_major', type: 'line', source: 'openmaptiles', 'source-layer': 'transportation',
+                filter: ['in', 'class', 'motorway', 'trunk', 'primary'],
+                layout: { 'line-cap': 'round', 'line-join': 'round' },
+                paint: { 'line-color': palette.roads, 'line-width': w(0.8, 1.5, 2.5, 3.5, 5.0) }
+            },
+            // Secondary / tertiary — medium weight
+            {
+                id: 'highway_minor', type: 'line', source: 'openmaptiles', 'source-layer': 'transportation',
+                filter: ['in', 'class', 'secondary', 'tertiary'],
+                layout: { 'line-cap': 'round', 'line-join': 'round' },
+                paint: { 'line-color': palette.roads, 'line-width': w(0.4, 0.9, 1.6, 2.4, 3.5) }
+            },
+            // Minor / service / tracks — hairline at low zoom, readable at street level
+            {
+                id: 'highway_other', type: 'line', source: 'openmaptiles', 'source-layer': 'transportation',
+                filter: ['in', 'class', 'minor', 'service', 'track'],
+                layout: { 'line-cap': 'round', 'line-join': 'round' },
+                paint: { 'line-color': palette.roads, 'line-width': w(0.2, 0.4, 0.9, 1.4, 2.2), 'line-opacity': 0.65 }
+            },
+            // Rail — dashed appearance via dash-array; scales independently
+            {
+                id: 'railway', type: 'line', source: 'openmaptiles', 'source-layer': 'transportation',
+                filter: ['==', 'class', 'rail'],
+                layout: { 'line-cap': 'butt', 'line-join': 'miter' },
+                paint: { 'line-color': palette.roads, 'line-width': w(0.3, 0.6, 1.0, 1.4, 1.8), 'line-opacity': 0.45, 'line-dasharray': [3, 2] }
+            },
             { id: 'building', type: 'fill', source: 'openmaptiles', 'source-layer': 'building', paint: { 'fill-color': palette.roads, 'fill-opacity': 0.3 } }
         ]
     };
@@ -778,7 +814,7 @@ function updateLabels() {
 // === MAP FUNCTIONS ===
 function updateRoadVisibility() {
     const zoom = map.getZoom();
-    const visibility = zoom <= 9 ? 'none' : 'visible';
+    const visibility = zoom >= 5 ? 'visible' : 'none';
     const roadLayers = ['highway_major', 'highway_minor', 'highway_other', 'railway'];
 
     roadLayers.forEach(layerId => {
