@@ -746,6 +746,8 @@ function updateLabelColor(color) {
     labelColorAuto = false;
     applyTextColor(color);
     elements.labelColorAuto.classList.replace('text-[#440edf]', 'text-[#666]');
+    localStorage.setItem('mapi_label_color_auto', 'false');
+    localStorage.setItem('mapi_custom_label_color', color);
 }
 
 function setLabelColorAuto() {
@@ -753,6 +755,8 @@ function setLabelColorAuto() {
     customLabelColor = null;
     updatePosterColors(PALETTES[currentStyle]);
     elements.labelColorAuto.classList.replace('text-[#666]', 'text-[#440edf]');
+    localStorage.setItem('mapi_label_color_auto', 'true');
+    localStorage.removeItem('mapi_custom_label_color');
 }
 
 function updateFooter(lat, lon) {
@@ -858,6 +862,7 @@ function setupMapEvents() {
     map.on("load", () => {
         onMapUpdate();
         updatePosterColors(PALETTES[currentStyle]);
+        map.resize();
     });
     map.on("moveend", onMapUpdate);
     map.on("zoomend", () => {
@@ -1060,12 +1065,14 @@ function setupEventListeners() {
         isLandscape = !isLandscape;
         elements.orientationToggle.classList.toggle("active", isLandscape);
         elements.poster.classList.toggle("landscape", isLandscape);
+        localStorage.setItem('mapi_landscape', isLandscape);
         setTimeout(() => map.resize(), 350);
     });
 
     elements.labelsToggle.addEventListener("click", () => {
         labelsEnabled = !labelsEnabled;
         elements.labelsToggle.classList.toggle("active", labelsEnabled);
+        localStorage.setItem('mapi_labels_enabled', labelsEnabled);
         updateLabels();
     });
 
@@ -1671,6 +1678,31 @@ function initializeApp(center, zoom, cityName) {
         currentStyle = savedTheme;
         elements.styleSelect.value = savedTheme;
     }
+
+    // Restore labels toggle
+    const savedLabels = localStorage.getItem('mapi_labels_enabled');
+    if (savedLabels !== null) {
+        labelsEnabled = savedLabels === 'true';
+        elements.labelsToggle.classList.toggle("active", labelsEnabled);
+    }
+
+    // Restore landscape/orientation
+    const savedLandscape = localStorage.getItem('mapi_landscape');
+    if (savedLandscape !== null) {
+        isLandscape = savedLandscape === 'true';
+        elements.orientationToggle.classList.toggle("active", isLandscape);
+        elements.poster.classList.toggle("landscape", isLandscape);
+    }
+
+    // Restore label color
+    const savedLabelColorAuto = localStorage.getItem('mapi_label_color_auto');
+    const savedCustomLabelColor = localStorage.getItem('mapi_custom_label_color');
+    if (savedLabelColorAuto === 'false' && savedCustomLabelColor) {
+        customLabelColor = savedCustomLabelColor;
+        labelColorAuto = false;
+        elements.labelColorAuto.classList.replace('text-[#440edf]', 'text-[#666]');
+    }
+
     map = initMap(center, zoom, currentStyle);
     setupMapEvents();
     setupEventListeners();
