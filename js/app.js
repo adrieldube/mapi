@@ -849,12 +849,20 @@ function onMapUpdate() {
     updateRoadVisibility();
 }
 
+function saveStateToStorage(cityName, center) {
+    if (cityName) localStorage.setItem('mapi_city', cityName);
+    if (center) localStorage.setItem('mapi_city_center', JSON.stringify(center));
+}
+
 function setupMapEvents() {
     map.on("load", () => {
         onMapUpdate();
         updatePosterColors(PALETTES[currentStyle]);
     });
     map.on("moveend", onMapUpdate);
+    map.on("zoomend", () => {
+        localStorage.setItem('mapi_zoom', map.getZoom());
+    });
 }
 
 function changeMapStyle(styleKey) {
@@ -928,6 +936,7 @@ async function searchCity(name) {
         elements.titleInput.value = cityName.toUpperCase();
         elements.subtitleInput.value = getCitySubtitle(cityName);
 
+        saveStateToStorage(cityName, [lon, lat]);
         updateLabels();
         updateFooter(lat, lon);
         setStatus(t('statusLocationUpdated'));
@@ -1624,6 +1633,7 @@ function setupIntroModal() {
                 elements.cityInput.value = cityName;
                 elements.titleInput.value = cityName.toUpperCase();
                 elements.subtitleInput.value = getCitySubtitle(cityName);
+                saveStateToStorage(cityName, [lon, lat]);
                 updateLabels();
                 updateFooter(lat, lon);
                 setStatus(t('statusLocationUpdated'));
@@ -1692,6 +1702,22 @@ async function init() {
         } catch (err) {
             console.error("Error loading city:", err);
             setStatus(t('statusLoadCityError'), true);
+        }
+    }
+
+    // Restore last session state from localStorage
+    const savedCity = localStorage.getItem('mapi_city');
+    const savedCenter = localStorage.getItem('mapi_city_center');
+    const savedZoom = localStorage.getItem('mapi_zoom');
+
+    if (savedCity && savedCenter) {
+        try {
+            const center = JSON.parse(savedCenter);
+            const zoom = savedZoom ? parseFloat(savedZoom) : INITIAL_ZOOM;
+            initializeApp(center, zoom, savedCity);
+            return;
+        } catch {
+            // Ignore malformed saved state and fall through to default
         }
     }
 
