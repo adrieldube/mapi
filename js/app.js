@@ -696,11 +696,28 @@ function formatCoordinates(lat, lon) {
 
 // === MAP STYLE ===
 function createMapStyle(palette) {
-    // Zoom-interpolated line width helper using exponential base 1.4 (standard cartographic curve)
-    const w = (z8, z10, z12, z14, z16) => [
+    // Zoom-interpolated line width helper — covers z4 through z18 for full detail range
+    const w = (z4, z6, z8, z10, z12, z14, z16, z18) => [
         'interpolate', ['exponential', 1.4], ['zoom'],
-        8, z8, 10, z10, 12, z12, 14, z14, 16, z16
+        4, z4, 6, z6, 8, z8, 10, z10, 12, z12, 14, z14, 16, z16, 18, z18
     ];
+
+    // Derive extra palette shades from existing palette colors
+    // Semi-transparent road color for casings / landuse fills
+    const roadsAlpha = (opacity) => {
+        const hex = palette.roads.replace('#', '');
+        const r = parseInt(hex.substr(0, 2), 16);
+        const g = parseInt(hex.substr(2, 2), 16);
+        const b = parseInt(hex.substr(4, 2), 16);
+        return `rgba(${r},${g},${b},${opacity})`;
+    };
+    const waterAlpha = (opacity) => {
+        const hex = palette.water.replace('#', '');
+        const r = parseInt(hex.substr(0, 2), 16);
+        const g = parseInt(hex.substr(2, 2), 16);
+        const b = parseInt(hex.substr(4, 2), 16);
+        return `rgba(${r},${g},${b},${opacity})`;
+    };
 
     return {
         version: 8,
@@ -712,45 +729,230 @@ function createMapStyle(palette) {
         },
         glyphs: `https://api.maptiler.com/fonts/{fontstack}/{range}.pbf?key=${MAPTILER_KEY}`,
         layers: [
+            // ── Background ────────────────────────────────────────────────
             { id: 'background', type: 'background', paint: { 'background-color': palette.bg } },
-            { id: 'landcover', type: 'fill', source: 'openmaptiles', 'source-layer': 'landcover', filter: ['==', 'class', 'wood'], paint: { 'fill-color': palette.bg, 'fill-opacity': 0.4 } },
-            { id: 'park', type: 'fill', source: 'openmaptiles', 'source-layer': 'park', paint: { 'fill-color': palette.bg, 'fill-opacity': 0.3 } },
+
+            // ── Landcover (broad area fills) ──────────────────────────────
+            // Farmland / crop fields — very subtle tint, visible at z6+
+            {
+                id: 'landcover_farmland', type: 'fill', source: 'openmaptiles', 'source-layer': 'landcover',
+                filter: ['in', 'class', 'farmland', 'crop'],
+                paint: { 'fill-color': roadsAlpha(0.04), 'fill-opacity': 1 }
+            },
+            // Grass / meadow / heath
+            {
+                id: 'landcover_grass', type: 'fill', source: 'openmaptiles', 'source-layer': 'landcover',
+                filter: ['in', 'class', 'grass', 'meadow', 'heath'],
+                paint: { 'fill-color': roadsAlpha(0.06), 'fill-opacity': 1 }
+            },
+            // Scrub / shrub
+            {
+                id: 'landcover_scrub', type: 'fill', source: 'openmaptiles', 'source-layer': 'landcover',
+                filter: ['in', 'class', 'scrub', 'shrub'],
+                paint: { 'fill-color': roadsAlpha(0.07), 'fill-opacity': 1 }
+            },
+            // Sand / beach / bare rock
+            {
+                id: 'landcover_sand', type: 'fill', source: 'openmaptiles', 'source-layer': 'landcover',
+                filter: ['in', 'class', 'sand', 'beach', 'bare_rock', 'rock'],
+                paint: { 'fill-color': roadsAlpha(0.08), 'fill-opacity': 1 }
+            },
+            // Ice / glacier
+            {
+                id: 'landcover_ice', type: 'fill', source: 'openmaptiles', 'source-layer': 'landcover',
+                filter: ['in', 'class', 'ice', 'glacier', 'snow'],
+                paint: { 'fill-color': waterAlpha(0.22), 'fill-opacity': 1 }
+            },
+            // Wetland / marsh
+            {
+                id: 'landcover_wetland', type: 'fill', source: 'openmaptiles', 'source-layer': 'landcover',
+                filter: ['in', 'class', 'wetland', 'marsh', 'swamp'],
+                paint: { 'fill-color': waterAlpha(0.15), 'fill-opacity': 1 }
+            },
+            // Wood / forest
+            {
+                id: 'landcover_wood', type: 'fill', source: 'openmaptiles', 'source-layer': 'landcover',
+                filter: ['==', 'class', 'wood'],
+                paint: { 'fill-color': roadsAlpha(0.10), 'fill-opacity': 1 }
+            },
+
+            // ── Landuse (human activity zones) ───────────────────────────
+            // Parks & greenery
+            { id: 'park', type: 'fill', source: 'openmaptiles', 'source-layer': 'park', paint: { 'fill-color': roadsAlpha(0.06), 'fill-opacity': 1 } },
+            // Residential areas — very faint, adds texture at mid zoom
+            {
+                id: 'landuse_residential', type: 'fill', source: 'openmaptiles', 'source-layer': 'landuse',
+                filter: ['in', 'class', 'residential', 'suburb'],
+                paint: { 'fill-color': roadsAlpha(0.04), 'fill-opacity': 1 }
+            },
+            // Commercial / retail
+            {
+                id: 'landuse_commercial', type: 'fill', source: 'openmaptiles', 'source-layer': 'landuse',
+                filter: ['in', 'class', 'commercial', 'retail'],
+                paint: { 'fill-color': roadsAlpha(0.07), 'fill-opacity': 1 }
+            },
+            // Industrial / transit
+            {
+                id: 'landuse_industrial', type: 'fill', source: 'openmaptiles', 'source-layer': 'landuse',
+                filter: ['in', 'class', 'industrial', 'transit'],
+                paint: { 'fill-color': roadsAlpha(0.09), 'fill-opacity': 1 }
+            },
+            // Cemetery / military
+            {
+                id: 'landuse_special', type: 'fill', source: 'openmaptiles', 'source-layer': 'landuse',
+                filter: ['in', 'class', 'cemetery', 'military'],
+                paint: { 'fill-color': roadsAlpha(0.12), 'fill-opacity': 1 }
+            },
+
+            // ── Water ─────────────────────────────────────────────────────
             { id: 'water', type: 'fill', source: 'openmaptiles', 'source-layer': 'water', paint: { 'fill-color': palette.water } },
-            // Rivers & canals — adds fine hydrographic detail to prints
+            // Water outline for crisp shorelines
+            {
+                id: 'water_outline', type: 'line', source: 'openmaptiles', 'source-layer': 'water',
+                paint: { 'line-color': waterAlpha(0.55), 'line-width': 0.5 }
+            },
+            // Rivers & canals
             {
                 id: 'waterway', type: 'line', source: 'openmaptiles', 'source-layer': 'waterway',
                 layout: { 'line-cap': 'round', 'line-join': 'round' },
-                paint: { 'line-color': palette.water, 'line-width': w(0.4, 0.8, 1.5, 2.5, 3.5), 'line-opacity': 0.85 }
+                paint: { 'line-color': palette.water, 'line-width': w(0, 0.3, 0.6, 1.2, 2.0, 3.0, 4.0, 5.0), 'line-opacity': 0.85 }
+            },
+
+            // ── Administrative boundaries ─────────────────────────────────
+            // Country borders — visible at all zoom levels
+            {
+                id: 'boundary_country', type: 'line', source: 'openmaptiles', 'source-layer': 'boundary',
+                filter: ['==', 'admin_level', 2],
+                layout: { 'line-cap': 'round', 'line-join': 'round' },
+                paint: {
+                    'line-color': roadsAlpha(0.55),
+                    'line-width': ['interpolate', ['linear'], ['zoom'], 2, 0.5, 6, 0.8, 10, 1.2],
+                    'line-dasharray': [4, 3]
+                }
+            },
+            // State / province borders — appear at z6+
+            {
+                id: 'boundary_state', type: 'line', source: 'openmaptiles', 'source-layer': 'boundary',
+                filter: ['==', 'admin_level', 4],
+                minzoom: 6,
+                layout: { 'line-cap': 'round', 'line-join': 'round' },
+                paint: {
+                    'line-color': roadsAlpha(0.3),
+                    'line-width': ['interpolate', ['linear'], ['zoom'], 6, 0.4, 10, 0.7, 14, 1.0],
+                    'line-dasharray': [3, 4]
+                }
+            },
+
+            // ── Aeroway (airports, runways) ───────────────────────────────
+            {
+                id: 'aeroway_fill', type: 'fill', source: 'openmaptiles', 'source-layer': 'aeroway',
+                filter: ['in', 'class', 'runway', 'taxiway', 'apron'],
+                minzoom: 10,
+                paint: { 'fill-color': roadsAlpha(0.18), 'fill-opacity': 1 }
+            },
+            {
+                id: 'aeroway_runway', type: 'line', source: 'openmaptiles', 'source-layer': 'aeroway',
+                filter: ['==', 'class', 'runway'],
+                minzoom: 10,
+                layout: { 'line-cap': 'butt', 'line-join': 'miter' },
+                paint: { 'line-color': roadsAlpha(0.7), 'line-width': w(0, 0, 2, 6, 10, 16, 22, 28) }
+            },
+            {
+                id: 'aeroway_taxiway', type: 'line', source: 'openmaptiles', 'source-layer': 'aeroway',
+                filter: ['==', 'class', 'taxiway'],
+                minzoom: 11,
+                layout: { 'line-cap': 'butt', 'line-join': 'miter' },
+                paint: { 'line-color': roadsAlpha(0.45), 'line-width': w(0, 0, 0.5, 2, 4, 6, 8, 10) }
+            },
+
+            // ── Roads ─────────────────────────────────────────────────────
+            // Road casings (outer stroke) for motorways — gives embossed depth effect
+            {
+                id: 'highway_major_casing', type: 'line', source: 'openmaptiles', 'source-layer': 'transportation',
+                filter: ['in', 'class', 'motorway', 'trunk'],
+                minzoom: 8,
+                layout: { 'line-cap': 'round', 'line-join': 'round' },
+                paint: { 'line-color': roadsAlpha(0.18), 'line-width': w(0, 0, 2.0, 3.5, 5.5, 7.5, 10.0, 12.0), 'line-gap-width': 0 }
             },
             // Motorways / trunks / primary — thickest, most prominent
             {
                 id: 'highway_major', type: 'line', source: 'openmaptiles', 'source-layer': 'transportation',
                 filter: ['in', 'class', 'motorway', 'trunk', 'primary'],
                 layout: { 'line-cap': 'round', 'line-join': 'round' },
-                paint: { 'line-color': palette.roads, 'line-width': w(0.8, 1.5, 2.5, 3.5, 5.0) }
+                paint: { 'line-color': palette.roads, 'line-width': w(0.1, 0.4, 0.8, 1.8, 3.0, 4.5, 6.0, 7.5) }
             },
             // Secondary / tertiary — medium weight
             {
                 id: 'highway_minor', type: 'line', source: 'openmaptiles', 'source-layer': 'transportation',
                 filter: ['in', 'class', 'secondary', 'tertiary'],
+                minzoom: 7,
                 layout: { 'line-cap': 'round', 'line-join': 'round' },
-                paint: { 'line-color': palette.roads, 'line-width': w(0.4, 0.9, 1.6, 2.4, 3.5) }
+                paint: { 'line-color': palette.roads, 'line-width': w(0, 0.2, 0.5, 1.1, 1.8, 2.8, 4.0, 5.0) }
             },
             // Minor / service / tracks — hairline at low zoom, readable at street level
             {
                 id: 'highway_other', type: 'line', source: 'openmaptiles', 'source-layer': 'transportation',
                 filter: ['in', 'class', 'minor', 'service', 'track'],
+                minzoom: 11,
                 layout: { 'line-cap': 'round', 'line-join': 'round' },
-                paint: { 'line-color': palette.roads, 'line-width': w(0.2, 0.4, 0.9, 1.4, 2.2), 'line-opacity': 0.65 }
+                paint: { 'line-color': palette.roads, 'line-width': w(0, 0, 0.2, 0.5, 1.0, 1.6, 2.4, 3.0), 'line-opacity': 0.65 }
+            },
+            // Paths / footways / cycleways — show at high zoom for walkable detail
+            {
+                id: 'highway_path', type: 'line', source: 'openmaptiles', 'source-layer': 'transportation',
+                filter: ['in', 'class', 'path', 'footway', 'cycleway', 'pedestrian'],
+                minzoom: 13,
+                layout: { 'line-cap': 'round', 'line-join': 'round' },
+                paint: { 'line-color': roadsAlpha(0.45), 'line-width': w(0, 0, 0, 0, 0.5, 0.8, 1.2, 1.6), 'line-dasharray': [2, 2] }
+            },
+            // Bridges — slight emphasis to distinguish from regular roads
+            {
+                id: 'highway_bridge', type: 'line', source: 'openmaptiles', 'source-layer': 'transportation',
+                filter: ['==', 'brunnel', 'bridge'],
+                minzoom: 12,
+                layout: { 'line-cap': 'butt', 'line-join': 'miter' },
+                paint: { 'line-color': palette.roads, 'line-width': w(0, 0, 0.5, 1.5, 2.5, 4.0, 5.5, 7.0) }
+            },
+            // Ferry routes — dashed blue-ish line over water
+            {
+                id: 'ferry', type: 'line', source: 'openmaptiles', 'source-layer': 'transportation',
+                filter: ['==', 'class', 'ferry'],
+                minzoom: 8,
+                layout: { 'line-cap': 'round', 'line-join': 'round' },
+                paint: { 'line-color': waterAlpha(0.7), 'line-width': w(0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8, 2.0), 'line-dasharray': [4, 4] }
             },
             // Rail — dashed appearance via dash-array; scales independently
             {
                 id: 'railway', type: 'line', source: 'openmaptiles', 'source-layer': 'transportation',
-                filter: ['==', 'class', 'rail'],
+                filter: ['in', 'class', 'rail', 'transit'],
+                minzoom: 8,
                 layout: { 'line-cap': 'butt', 'line-join': 'miter' },
-                paint: { 'line-color': palette.roads, 'line-width': w(0.3, 0.6, 1.0, 1.4, 1.8), 'line-opacity': 0.45, 'line-dasharray': [3, 2] }
+                paint: { 'line-color': roadsAlpha(0.55), 'line-width': w(0, 0.2, 0.4, 0.8, 1.2, 1.6, 2.0, 2.4), 'line-dasharray': [3, 2] }
             },
-            { id: 'building', type: 'fill', source: 'openmaptiles', 'source-layer': 'building', paint: { 'fill-color': palette.roads, 'fill-opacity': 0.3 } }
+            // Subway / light rail / tram — thinner dash
+            {
+                id: 'transit_light', type: 'line', source: 'openmaptiles', 'source-layer': 'transportation',
+                filter: ['in', 'class', 'subway', 'light_rail', 'tram', 'monorail', 'narrow_gauge'],
+                minzoom: 11,
+                layout: { 'line-cap': 'butt', 'line-join': 'miter' },
+                paint: { 'line-color': roadsAlpha(0.4), 'line-width': w(0, 0, 0, 0.5, 0.9, 1.2, 1.5, 1.8), 'line-dasharray': [2, 3] }
+            },
+
+            // ── Piers & structures ────────────────────────────────────────
+            {
+                id: 'pier', type: 'fill', source: 'openmaptiles', 'source-layer': 'transportation',
+                filter: ['==', 'class', 'pier'],
+                minzoom: 13,
+                paint: { 'fill-color': roadsAlpha(0.25) }
+            },
+
+            // ── Buildings ─────────────────────────────────────────────────
+            { id: 'building', type: 'fill', source: 'openmaptiles', 'source-layer': 'building', minzoom: 12, paint: { 'fill-color': palette.roads, 'fill-opacity': 0.25 } },
+            {
+                id: 'building_outline', type: 'line', source: 'openmaptiles', 'source-layer': 'building',
+                minzoom: 14,
+                paint: { 'line-color': roadsAlpha(0.18), 'line-width': 0.4 }
+            }
         ]
     };
 }
@@ -847,13 +1049,34 @@ function updateLabels() {
 // === MAP FUNCTIONS ===
 function updateRoadVisibility() {
     const zoom = map.getZoom();
-    const visibility = zoom >= 5 ? 'visible' : 'none';
-    const roadLayers = ['highway_major', 'highway_minor', 'highway_other', 'railway'];
 
-    roadLayers.forEach(layerId => {
-        if (map.getLayer(layerId)) {
-            map.setLayoutProperty(layerId, 'visibility', visibility);
-        }
+    // Layers visible from zoom 6 (major roads and boundaries)
+    const z6Layers = ['highway_major', 'highway_major_casing', 'boundary_country', 'boundary_state', 'ferry'];
+    // Layers visible from zoom 7 (secondary roads)
+    const z7Layers = ['highway_minor'];
+    // Layers visible from zoom 8 (waterways, railway, aeroway)
+    const z8Layers = ['railway', 'aeroway_fill', 'aeroway_runway'];
+    // Layers visible from zoom 11 (minor roads, transit, taxiway)
+    const z11Layers = ['highway_other', 'transit_light', 'aeroway_taxiway'];
+    // Layers visible from zoom 12 (buildings, bridges)
+    const z12Layers = ['building', 'highway_bridge'];
+    // Layers visible from zoom 13 (paths, piers)
+    const z13Layers = ['highway_path', 'pier'];
+    // Layers visible from zoom 14 (building outlines)
+    const z14Layers = ['building_outline'];
+
+    const layerGroups = [
+        [z6Layers, 6], [z7Layers, 7], [z8Layers, 8],
+        [z11Layers, 11], [z12Layers, 12], [z13Layers, 13], [z14Layers, 14]
+    ];
+
+    layerGroups.forEach(([layers, minZoom]) => {
+        const visibility = zoom >= minZoom ? 'visible' : 'none';
+        layers.forEach(layerId => {
+            if (map.getLayer(layerId)) {
+                map.setLayoutProperty(layerId, 'visibility', visibility);
+            }
+        });
     });
 }
 
