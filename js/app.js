@@ -588,6 +588,35 @@ function setStatus(msg, isError = false) {
     elements.status.style.color = isError ? "#b00020" : "#111";
 }
 
+// === TOAST NOTIFICATION ===
+let _toastTimer = null;
+
+function showToast(msg, isError = false) {
+    const toast = document.getElementById('downloadToast');
+    const msgEl = document.getElementById('downloadToastMsg');
+    const icon = document.getElementById('downloadToastIcon');
+    const dismiss = document.getElementById('downloadToastDismiss');
+    if (!toast || !msgEl) return;
+
+    msgEl.textContent = msg;
+    icon.setAttribute('name', isError ? 'alert-circle-outline' : 'checkmark-circle-outline');
+    toast.className = isError ? 'toast-error visible' : 'toast-success visible';
+
+    clearTimeout(_toastTimer);
+    dismiss.onclick = hideToast;
+
+    if (!isError) {
+        _toastTimer = setTimeout(hideToast, 6000);
+    }
+}
+
+function hideToast() {
+    const toast = document.getElementById('downloadToast');
+    if (!toast) return;
+    toast.classList.remove('visible');
+    clearTimeout(_toastTimer);
+}
+
 // === THEME PREVIEW FUNCTIONS ===
 function createThemeSwatch(themeName, palette, isLarge = false) {
     const swatch = document.createElement('div');
@@ -1008,10 +1037,14 @@ async function downloadPoster() {
         const sizeMB = (blob.size / 1048576).toFixed(1);
         const effectiveWidth = isLandscape ? (printSize?.height || 36) : (printSize?.width || 24);
         const dpi = Math.round(canvas.width / effectiveWidth);
-        setStatus(t('statusPosterDownloaded', { width: canvas.width, height: canvas.height, dpi, sizeMB }));
+        const successMsg = t('statusPosterDownloaded', { width: canvas.width, height: canvas.height, dpi, sizeMB });
+        setStatus(successMsg);
+        showToast(successMsg);
     } catch (err) {
         console.error("Download error:", err);
-        setStatus(t('statusDownloadError', { message: err.message }), true);
+        const errorMsg = t('statusDownloadError', { message: err.message });
+        setStatus(errorMsg, true);
+        showToast(errorMsg, true);
     } finally {
         isDownloading = false;
     }
