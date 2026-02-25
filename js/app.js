@@ -745,6 +745,32 @@ function formatCoordinates(lat, lon) {
 
 // === MAP STYLE ===
 function createMapStyle(palette) {
+    const isDark = !isLightColor(palette.bg);
+    // On dark backgrounds, subtle alpha overlays are invisible — boost them
+    const alphaBoost = isDark ? 3.0 : 1.0;
+
+    // Ensure minimum contrast between bg and water/buildings on dark themes
+    const ensureContrast = (color, minDist) => {
+        if (!isDark) return color;
+        const parse = (hex) => {
+            const h = hex.replace('#', '');
+            return [parseInt(h.substr(0,2),16), parseInt(h.substr(2,2),16), parseInt(h.substr(4,2),16)];
+        };
+        const [br, bgr, bb] = parse(palette.bg);
+        const [cr, cg, cb] = parse(color);
+        const dist = Math.sqrt((br-cr)**2 + (bgr-cg)**2 + (bb-cb)**2);
+        if (dist >= minDist) return color;
+        // Lighten from bg by adding a uniform offset that guarantees minDist
+        const offset = Math.ceil(minDist / 1.73) + 1;
+        const nr = Math.min(255, br + offset);
+        const ng = Math.min(255, bgr + offset);
+        const nb = Math.min(255, bb + offset);
+        return '#' + [nr,ng,nb].map(v => v.toString(16).padStart(2, '0')).join('');
+    };
+
+    const waterColor = ensureContrast(palette.water, 35);
+    const buildingColor = palette.buildings ? ensureContrast(palette.buildings, 30) : null;
+
     // Zoom-interpolated line width helper — covers z4 through z18 for full detail range
     const w = (z4, z6, z8, z10, z12, z14, z16, z18) => [
         'interpolate', ['exponential', 1.4], ['zoom'],
@@ -758,14 +784,14 @@ function createMapStyle(palette) {
         const r = parseInt(hex.substr(0, 2), 16);
         const g = parseInt(hex.substr(2, 2), 16);
         const b = parseInt(hex.substr(4, 2), 16);
-        return `rgba(${r},${g},${b},${opacity})`;
+        return `rgba(${r},${g},${b},${Math.min(opacity * alphaBoost, 1)})`;
     };
     const waterAlpha = (opacity) => {
         const hex = palette.water.replace('#', '');
         const r = parseInt(hex.substr(0, 2), 16);
         const g = parseInt(hex.substr(2, 2), 16);
         const b = parseInt(hex.substr(4, 2), 16);
-        return `rgba(${r},${g},${b},${opacity})`;
+        return `rgba(${r},${g},${b},${Math.min(opacity * alphaBoost, 1)})`;
     };
 
     return {
@@ -854,7 +880,7 @@ function createMapStyle(palette) {
             },
 
             // ── Water ─────────────────────────────────────────────────────
-            { id: 'water', type: 'fill', source: 'openmaptiles', 'source-layer': 'water', paint: { 'fill-color': palette.water } },
+            { id: 'water', type: 'fill', source: 'openmaptiles', 'source-layer': 'water', paint: { 'fill-color': waterColor } },
             // Water outline for crisp shorelines
             {
                 id: 'water_outline', type: 'line', source: 'openmaptiles', 'source-layer': 'water',
@@ -864,7 +890,7 @@ function createMapStyle(palette) {
             {
                 id: 'waterway', type: 'line', source: 'openmaptiles', 'source-layer': 'waterway',
                 layout: { 'line-cap': 'round', 'line-join': 'round' },
-                paint: { 'line-color': palette.water, 'line-width': w(0, 0.3, 0.6, 1.2, 2.0, 3.0, 4.0, 5.0), 'line-opacity': 0.85 }
+                paint: { 'line-color': waterColor, 'line-width': w(0, 0.3, 0.6, 1.2, 2.0, 3.0, 4.0, 5.0), 'line-opacity': 0.85 }
             },
 
             // ── Administrative boundaries ─────────────────────────────────
@@ -996,11 +1022,11 @@ function createMapStyle(palette) {
             },
 
             // ── Buildings ─────────────────────────────────────────────────
-            { id: 'building', type: 'fill', source: 'openmaptiles', 'source-layer': 'building', minzoom: 12, paint: { 'fill-color': palette.buildings || palette.roads, 'fill-opacity': palette.buildings ? 1 : 0.25 } },
+            { id: 'building', type: 'fill', source: 'openmaptiles', 'source-layer': 'building', minzoom: 12, paint: { 'fill-color': buildingColor || palette.roads, 'fill-opacity': buildingColor ? 1 : 0.25 } },
             {
                 id: 'building_outline', type: 'line', source: 'openmaptiles', 'source-layer': 'building',
                 minzoom: 14,
-                paint: { 'line-color': palette.buildings ? roadsAlpha(0.3) : roadsAlpha(0.18), 'line-width': 0.4 }
+                paint: { 'line-color': buildingColor ? roadsAlpha(0.3) : roadsAlpha(0.18), 'line-width': 0.4 }
             }
         ]
     };
