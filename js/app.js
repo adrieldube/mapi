@@ -3,151 +3,183 @@
 const MAPTILER_KEY = "2Q7XT8l9Iqoe1Z9gbvHw";
 
 // === COLOR PALETTES ===
-// 100 curated color themes featuring 2025 design trends
+// 120+ curated color themes spanning diverse styles and aesthetics
 const PALETTES = {
-    // === CLASSIC MONOCHROME ===
-    'Pure Black & White': { bg: '#FFFFFF', roads: '#000000', water: '#E0E0E0' },
-    'Noir White & Black (Inverted)': { bg: '#0A0A0A', roads: '#FFFFFF', water: '#1A1A1A' },
-    'Ink Black & Paper White': { bg: '#F9F7F4', roads: '#1C1C1C', water: '#E8E6E3' },
-    'Warm Grey & Cream': { bg: '#FDF8F3', roads: '#5A5A5A', water: '#E0DCD4' },
-    'Graphite & Ivory': { bg: '#FFFFF0', roads: '#383838', water: '#E8E8E0' },
+    // === ESSENTIALS & MONOCHROME ===
+    'Pure Black & White': { bg: '#FFFFFF', roads: '#000000', water: '#E0E0E0', buildings: '#F5F5F5', parks: '#EAEAEA' },
+    'Noir (Dark Mode)': { bg: '#121212', roads: '#333333', water: '#000000', buildings: '#1A1A1A', parks: '#0A0A0A' },
+    'Graphite & Ivory': { bg: '#FFFFF0', roads: '#383838', water: '#E8E8E0', buildings: '#F2F2E4', parks: '#ECECE0' },
+    'Warm Gray': { bg: '#F5F0EB', roads: '#6B635B', water: '#DDD5CB', buildings: '#EAE3DA', parks: '#D4CCC2' },
+    'Cool Steel': { bg: '#EAEEF2', roads: '#4A5568', water: '#CBD5E0', buildings: '#E2E8F0', parks: '#D1D9E5' },
+    'Charcoal Chalk': { bg: '#2D2D2D', roads: '#D4D0C8', water: '#1F1F1F', buildings: '#3A3A3A', parks: '#252525' },
+    'High Contrast': { bg: '#000000', roads: '#FFFFFF', water: '#1A1A1A', buildings: '#0A0A0A', parks: '#111111' },
+    'Minimalism': { bg: '#FAFAFA', roads: '#2C2C2C', water: '#E8E8E8', buildings: '#F2F2F2', parks: '#ECECEC' },
 
-    // === 2025 PANTONE & TREND COLORS ===
-    'Mocha Mousse & Cream': { bg: '#FAF6F1', roads: '#A47764', water: '#D4C4B5' },
-    'Future Dusk & Soft Gold': { bg: '#FBF8F3', roads: '#6B5B7A', water: '#E8D5B7' },
-    'Romantic Pink & Charcoal': { bg: '#2D2D2D', roads: '#E8A0BF', water: '#3D3D3D' },
-    'Lush Lilac & Sage': { bg: '#E8F0E3', roads: '#9B7EDE', water: '#C5D5BC' },
-    'Digital Lavender & Noir': { bg: '#121212', roads: '#B4A7D6', water: '#1E1E1E' },
-    'Viva Magenta & Cream': { bg: '#FFF9F5', roads: '#BB2649', water: '#FFE0E8' },
-    'Apricot Crush & Teal': { bg: '#E8F4F3', roads: '#E89B6F', water: '#B8D8D6' },
-    'Peach Fuzz & Navy': { bg: '#1A2744', roads: '#FFBE98', water: '#253552' },
-    'Butter Yellow & Slate': { bg: '#4A5568', roads: '#F9E076', water: '#5A6578' },
-    'Quiet Luxury Taupe & Gold': { bg: '#F5F0E8', roads: '#8B7355', water: '#D4B896' },
+    // === PANTONE & DESIGN TRENDS ===
+    'Mocha Mousse': { bg: '#FAF6F1', roads: '#A47764', water: '#D4C4B5', buildings: '#EFE7DE', parks: '#CFC0AE' },
+    'Future Dusk': { bg: '#FBF8F3', roads: '#6B5B7A', water: '#E8D5B7', buildings: '#E8DFEC', parks: '#D3C4CD' },
+    'Digital Lavender': { bg: '#121212', roads: '#B4A7D6', water: '#1E1E1E', buildings: '#2A2A35', parks: '#252535' },
+    'Apricot Crush': { bg: '#E8F4F3', roads: '#E89B6F', water: '#B8D8D6', buildings: '#FEEFDF', parks: '#C3EBEB' },
+    'Peach Fuzz': { bg: '#FFF5ED', roads: '#FFBE98', water: '#FFDAC1', buildings: '#FFF0E5', parks: '#FFD1B3' },
+    'Butter Yellow': { bg: '#FFFDF5', roads: '#D4A843', water: '#F5EECC', buildings: '#FFF9E6', parks: '#EDE3A7' },
+    'Quietude Blue': { bg: '#F0F5FA', roads: '#6B8FA3', water: '#C5D9E8', buildings: '#E3EDF5', parks: '#B3CEDA' },
+    'Verdant Green': { bg: '#F2F7F0', roads: '#4A7C59', water: '#C8DCC0', buildings: '#E5EDE0', parks: '#A8C49B' },
 
-    // === EARTH & NATURE TONES ===
-    'Sage Green & Terracotta': { bg: '#E8E5D8', roads: '#C67B5C', water: '#A8B5A0' },
-    'Forest Green & Cream': { bg: '#F5F1E8', roads: '#2C5F4F', water: '#8BA888' },
-    'Emerald Green & Bone': { bg: '#F8F5F0', roads: '#047857', water: '#6EE7B7' },
-    'Olive & Sand': { bg: '#F5F0E1', roads: '#6B7B4C', water: '#D4C9A8' },
-    'Moss Green & Linen': { bg: '#FAF7F2', roads: '#4A6741', water: '#C5D4BC' },
-    'Eucalyptus & Warm White': { bg: '#FFFEF8', roads: '#5F8575', water: '#C9DED4' },
-    'Terracotta & Slate': { bg: '#3D4550', roads: '#D2691E', water: '#4D5560' },
-    'Clay & Sage': { bg: '#E5E8E0', roads: '#9E6B55', water: '#B8C4A8' },
-    'Rust Red & Ivory': { bg: '#FAF8F3', roads: '#B7410E', water: '#D4A574' },
-    'Ochre & Charcoal': { bg: '#2A2A2F', roads: '#CC7722', water: '#3A3A3F' },
-    'Desert Sand & Cactus': { bg: '#E8E0D0', roads: '#5D7B5F', water: '#C9B896' },
-    'Sandstone & Ocean': { bg: '#E8E4D8', roads: '#3D6B7D', water: '#A8C0C8' },
+    // === EARTH & NATURE ===
+    'Sage & Terracotta': { bg: '#E8E5D8', roads: '#C67B5C', water: '#A8B5A0', buildings: '#D8D4C8', parks: '#98A68F' },
+    'Deep Forest': { bg: '#2C3A32', roads: '#E8DFCA', water: '#1B241E', buildings: '#3B4D43', parks: '#223028' },
+    'Desert Sand': { bg: '#E8E0D0', roads: '#8C6C50', water: '#C9B896', buildings: '#DCD4C4', parks: '#C2B6A2' },
+    'Clay & Sage': { bg: '#E5E8E0', roads: '#9E6B55', water: '#B8C4A8', buildings: '#D2D6CB', parks: '#A4B492' },
+    'Moss & Stone': { bg: '#D4CFC4', roads: '#5B6B50', water: '#8E9880', buildings: '#C4BFB4', parks: '#7A8A6D' },
+    'Volcanic Ash': { bg: '#3A3535', roads: '#C8B8A0', water: '#2C2828', buildings: '#4A4545', parks: '#332F2F' },
+    'Birch & Lichen': { bg: '#F0ECE3', roads: '#7A8B6F', water: '#C8D4BA', buildings: '#E4E0D6', parks: '#A8B896' },
+    'Red Canyon': { bg: '#D4A574', roads: '#8B3A2A', water: '#6B8E8E', buildings: '#C49464', parks: '#9B7B52' },
+    'Bamboo Grove': { bg: '#F5F2E6', roads: '#8B9B5A', water: '#B8C8A8', buildings: '#EBE8DA', parks: '#9AAC6E' },
+    'Tundra': { bg: '#E0E4E8', roads: '#7B8890', water: '#B0BBC6', buildings: '#D0D4D8', parks: '#A0AAB2' },
 
     // === OCEANIC & COASTAL ===
-    'Deep Ocean Blue & Sand': { bg: '#F9F6F0', roads: '#2E5266', water: '#6E8898' },
-    'Deep Navy Blue & Blush': { bg: '#F8E8E8', roads: '#001F3F', water: '#E0C0C8' },
-    'Prussian Blue & Warm Grey': { bg: '#E8E4E0', roads: '#003153', water: '#C8C4C0' },
-    'Pacific Blue & Pearl': { bg: '#FBF9F7', roads: '#1C6EA4', water: '#8CB4D8' },
-    'Mediterranean Blue & Limestone': { bg: '#F5F3ED', roads: '#2E5984', water: '#9CBDD4' },
-    'Aegean Blue & Terracotta': { bg: '#E8D4C4', roads: '#1E4D6B', water: '#C8A898' },
-    'Teal Blue & Taupe': { bg: '#E6E1DC', roads: '#008B8B', water: '#B8A99A' },
-    'Turquoise Blue & Cream': { bg: '#FFF9F5', roads: '#00CED1', water: '#B3F0F1' },
-    'Aquamarine & Charcoal': { bg: '#2F3640', roads: '#7FFFD4', water: '#3F4650' },
-    'Coastal Mist & Driftwood': { bg: '#E8E4DC', roads: '#5C7A84', water: '#B8C8C8' },
+    'Deep Navy': { bg: '#0A1128', roads: '#D6E4F0', water: '#000000', buildings: '#131C38', parks: '#0F1832' },
+    'Mediterranean': { bg: '#F5F3ED', roads: '#2E5984', water: '#9CBDD4', buildings: '#E8E4D8', parks: '#C4D8DB' },
+    'Coastal Mist': { bg: '#E8E4DC', roads: '#5C7A84', water: '#B8C8C8', buildings: '#DEDACF', parks: '#A8B8B8' },
+    'Tropical Reef': { bg: '#0C2E3D', roads: '#48D1CC', water: '#062038', buildings: '#14384A', parks: '#0A2830' },
+    'Arctic Ocean': { bg: '#E8F0F5', roads: '#3A6B8C', water: '#A0C4D8', buildings: '#D8E5EE', parks: '#B5D0DE' },
+    'Abyssal': { bg: '#040810', roads: '#1E90FF', water: '#000408', buildings: '#0C1420', parks: '#081018' },
+    'Coral Lagoon': { bg: '#F0F8F8', roads: '#E87461', water: '#7BC8C8', buildings: '#E8F0F0', parks: '#A0D8D0' },
 
-    // === SOPHISTICATED NEUTRALS ===
-    'Midnight Navy & Gold': { bg: '#1A1A2E', roads: '#D4AF37', water: '#16213E' },
-    'Cobalt Blue & Cream': { bg: '#F7F4EF', roads: '#0047AB', water: '#7B9EC6' },
-    'Burgundy Red & Beige': { bg: '#EDE8E3', roads: '#800020', water: '#C19A6B' },
-    'Mocha Brown & Mint Green': { bg: '#E8F5E9', roads: '#6F4E37', water: '#A5D6A7' },
-    'Espresso & Cream': { bg: '#FBF8F3', roads: '#4A3728', water: '#C9B8A8' },
-    'Walnut & Parchment': { bg: '#F8F4E8', roads: '#5D4037', water: '#C8B896' },
-    'Caramel & Ivory': { bg: '#FFFFF5', roads: '#8B6914', water: '#E8D4A0' },
-    'Cognac & Linen': { bg: '#FAF7F0', roads: '#834333', water: '#D4B8A0' },
-
-    // === ROMANTIC & SOFT ===
-    'Blush Pink & Charcoal': { bg: '#F4E4E0', roads: '#3D3D3D', water: '#E8B4B8' },
-    'Lavender Purple & Slate': { bg: '#E8E4F3', roads: '#4A5568', water: '#A891D3' },
-    'Royal Purple & Cream': { bg: '#FAF9F6', roads: '#4B0082', water: '#E6D7FF' },
-    'Dusty Rose & Graphite': { bg: '#3A3A40', roads: '#D4A5A5', water: '#4A4A50' },
-    'Mauve & Warm Grey': { bg: '#E8E4E0', roads: '#915F6D', water: '#C8B8BC' },
-    'Lilac & Soft White': { bg: '#FEFCFF', roads: '#9B7BB8', water: '#E0D4EB' },
-    'Plum Purple & Cream': { bg: '#FFF8F0', roads: '#8E4585', water: '#E8D4E5' },
-    'Orchid Pink & Sage': { bg: '#E8EDE8', roads: '#DA70D6', water: '#C8D8C8' },
-    'Wisteria & Pearl': { bg: '#FAF8FC', roads: '#8B7DB8', water: '#D8D0E8' },
-    'Soft Coral & Navy': { bg: '#1C2536', roads: '#F08080', water: '#2C3546' },
-
-    // === BOLD & VIBRANT ===
-    'Electric Blue & White': { bg: '#FAFAFA', roads: '#0066FF', water: '#CCE0FF' },
-    'Hot Pink & White': { bg: '#FFFFFF', roads: '#FF1493', water: '#FFB6D9' },
-    'Fuchsia Pink & Black': { bg: '#0F0F0F', roads: '#FF00FF', water: '#1F1F1F' },
-    'Magenta Pink & Cream': { bg: '#FFF5F0', roads: '#C71585', water: '#F8BBE0' },
-    'Crimson Red & Ivory': { bg: '#FFFEF7', roads: '#8B0000', water: '#FFE5D9' },
-    'Vermillion Red & Ecru': { bg: '#F5F3EF', roads: '#E34234', water: '#FFD6CC' },
-    'Scarlet Red & Black': { bg: '#0D0D0D', roads: '#FF2400', water: '#1D1D1D' },
-    'Raspberry Pink & Mint': { bg: '#E8F8F0', roads: '#E30B5C', water: '#C0E8D8' },
-    'Rose Pink & Navy': { bg: '#1A2540', roads: '#FF007F', water: '#2A3550' },
-    'Burnt Orange & White': { bg: '#FFFFFF', roads: '#CC5500', water: '#FFE4CC' },
-    'Tangerine Orange & Teal': { bg: '#E0F0F0', roads: '#FF9500', water: '#B0D8D8' },
-    'Sunset Orange & Indigo': { bg: '#2E2E5C', roads: '#FF4500', water: '#3E3E6C' },
-    'Coral Red & Navy Blue': { bg: '#001F3F', roads: '#FF6B6B', water: '#0A2A4A' },
-    'Violet Purple & Ivory': { bg: '#FAF8F5', roads: '#8B00FF', water: '#E6D4FF' },
-    'Sapphire Blue & Gold': { bg: '#F8F0D8', roads: '#0F52BA', water: '#E8D8B0' },
-
-    // === NEON & CYBER ===
-    'Neon Green & Black': { bg: '#0D0D0D', roads: '#39FF14', water: '#1A331A' },
-    'Neon Cyan & Purple': { bg: '#1A0A2E', roads: '#00FFFF', water: '#2A1A3E' },
-    'Neon Orange & Black': { bg: '#0A0A0A', roads: '#FF6600', water: '#1A1510' },
-    'Lime Yellow & Charcoal': { bg: '#2A2A2A', roads: '#CCFF00', water: '#3A3A3A' },
-    'Electric Yellow & Violet': { bg: '#2D1B4E', roads: '#FFFF00', water: '#3D2B5E' },
-    'Cyber Purple & Black': { bg: '#0D0D12', roads: '#BF00FF', water: '#1A1A24' },
-    'Matrix Green & Black': { bg: '#050505', roads: '#00FF41', water: '#101510' },
-    'Synthwave Pink & Navy': { bg: '#0F0728', roads: '#FF6EC7', water: '#1A1238' },
-    'Electric Violet & Noir': { bg: '#0A0A0F', roads: '#8B5CF6', water: '#15151F' },
-    'Laser Blue & Midnight': { bg: '#0C1021', roads: '#00D4FF', water: '#161A31' },
+    // === UNIQUE VISUAL STYLES ===
+    'Blueprint': { bg: '#0D47A1', roads: '#FFFFFF', water: '#1565C0', buildings: '#1976D2', parks: '#1E88E5' },
+    'Cyberpunk 2077': { bg: '#0D0E15', roads: '#FCE205', water: '#05D5FA', buildings: '#2E1A47', parks: '#FF0055' },
+    'Synthwave': { bg: '#180A2D', roads: '#FF007F', water: '#4D0099', buildings: '#301350', parks: '#00F0FF' },
+    'Vaporwave': { bg: '#FFB6C1', roads: '#00FFFF', water: '#8A2BE2', buildings: '#FF69B4', parks: '#9370DB' },
+    'Matrix': { bg: '#000000', roads: '#00FF41', water: '#003B00', buildings: '#008F11', parks: '#005F00' },
+    'Golden Hour': { bg: '#FFDFBA', roads: '#FF8C00', water: '#FFB347', buildings: '#FFC8A2', parks: '#FFA07A' },
+    'Blood Moon': { bg: '#1A0505', roads: '#FF3333', water: '#400000', buildings: '#2D0A0A', parks: '#1F0000' },
+    'Infrared': { bg: '#1A0A10', roads: '#FF1744', water: '#330018', buildings: '#2A1420', parks: '#200A15' },
+    'X-Ray': { bg: '#000810', roads: '#00E5FF', water: '#001020', buildings: '#0A1828', parks: '#051418' },
+    'Thermal Vision': { bg: '#0D0040', roads: '#FF4500', water: '#1A0060', buildings: '#FFD700', parks: '#00FF00' },
+    'Satellite View': { bg: '#2A3C2A', roads: '#C8C0A8', water: '#1A3050', buildings: '#3A4A3A', parks: '#354535' },
+    'Watercolor': { bg: '#FBF8F0', roads: '#7B9BAC', water: '#A8C8D8', buildings: '#F0E8D8', parks: '#B8D0A8' },
+    'Ink Wash': { bg: '#F5F0E8', roads: '#2C2C2C', water: '#C8C0B0', buildings: '#E8E0D4', parks: '#D0C8B8' },
+    'Risograph': { bg: '#FFF5E6', roads: '#FF5470', water: '#0074D9', buildings: '#FFE0CC', parks: '#7FDBFF' },
+    'Duotone Magenta': { bg: '#1A0520', roads: '#FF00FF', water: '#0D0310', buildings: '#2A0A35', parks: '#200828' },
+    'Glitch': { bg: '#0A0A0A', roads: '#00FF88', water: '#FF0066', buildings: '#1A1A1A', parks: '#0066FF' },
 
     // === METALLIC & LUXE ===
-    'Amber Gold & Slate Grey': { bg: '#3A3A3A', roads: '#FFBF00', water: '#4A4A4A' },
-    'Rose Gold & Charcoal': { bg: '#2C2C2C', roads: '#B76E79', water: '#3C3C3C' },
-    'Champagne & Noir': { bg: '#1A1A1A', roads: '#F7E7CE', water: '#2A2A2A' },
-    'Bronze & Cream': { bg: '#FBF8F3', roads: '#CD7F32', water: '#E8D4BC' },
-    'Copper & Slate': { bg: '#3D4852', roads: '#B87333', water: '#4D5862' },
-    'Silver & Midnight': { bg: '#121620', roads: '#C0C0C0', water: '#1C2030' },
-    'Platinum & Obsidian': { bg: '#0F0F14', roads: '#E5E4E2', water: '#1A1A20' },
+    'Midnight & Gold': { bg: '#1A1A2E', roads: '#D4AF37', water: '#16213E', buildings: '#242442', parks: '#202035' },
+    'Silver & Obsidian': { bg: '#0F0F14', roads: '#E5E4E2', water: '#1A1A20', buildings: '#242430', parks: '#1F1F2A' },
+    'Copper & Slate': { bg: '#3D4852', roads: '#B87333', water: '#4D5862', buildings: '#505E6B', parks: '#45515C' },
+    'Rose Gold': { bg: '#FFF5F0', roads: '#B76E79', water: '#F0D5CC', buildings: '#FFE8E0', parks: '#E8C4BA' },
+    'Platinum': { bg: '#E8E8E8', roads: '#A0A0A0', water: '#C8C8C8', buildings: '#D8D8D8', parks: '#BEBEBE' },
+    'Black & Bronze': { bg: '#0A0A08', roads: '#CD7F32', water: '#141410', buildings: '#1E1E1A', parks: '#161612' },
+    'Emerald & Pearl': { bg: '#F8F8F0', roads: '#2E8B57', water: '#D8E8D0', buildings: '#F0F0E5', parks: '#C0D8B0' },
 
-    // === MINIMALIST JAPANESE ===
-    'Sumi Ink & Rice Paper': { bg: '#F5F3EE', roads: '#2C2C2C', water: '#D8D4C8' },
-    'Indigo & Bamboo': { bg: '#E8E4D0', roads: '#264653', water: '#D0CCB8' },
-    'Matcha & Ivory': { bg: '#FFFEF5', roads: '#7BA05B', water: '#D4E0C8' },
-    'Sakura & Charcoal': { bg: '#2E2E32', roads: '#FFB7C5', water: '#3E3E42' },
-    'Zen Stone & Mist': { bg: '#E4E8EC', roads: '#5C5C5C', water: '#C4CCD4' },
+    // === MINIMALIST & GLOBAL ===
+    'Tokyo Night': { bg: '#1A1B26', roads: '#DECAAA', water: '#24283B', buildings: '#292E42', parks: '#6A7268' },
+    'Nordic Ice': { bg: '#F0F4F8', roads: '#5B7C99', water: '#D4E0E8', buildings: '#E1E8F0', parks: '#C9D6DF' },
+    'Kyoto Matcha': { bg: '#FFFEF5', roads: '#587545', water: '#D4E0C8', buildings: '#F0EFE1', parks: '#AABF9B' },
+    'Havana Sunset': { bg: '#FFF0D4', roads: '#D2691E', water: '#FFD8A0', buildings: '#FFE4B8', parks: '#E8C888' },
+    'Marrakech Souk': { bg: '#F4E8D0', roads: '#C75B12', water: '#D4C098', buildings: '#E8D4B0', parks: '#B8A878' },
+    'Santorini': { bg: '#FFFFFF', roads: '#1E4D8C', water: '#4A90D9', buildings: '#F0F5FF', parks: '#D0E0F0' },
+    'Mumbai Monsoon': { bg: '#2A3540', roads: '#C8B890', water: '#1E2830', buildings: '#354550', parks: '#2C3840' },
+    'Reykjavik': { bg: '#E5EAF0', roads: '#4A5B6E', water: '#8AACCC', buildings: '#D5DAE0', parks: '#B0BBCC' },
+    'Nairobi Savanna': { bg: '#E8D8B4', roads: '#8B5E3C', water: '#7AA890', buildings: '#DCC8A0', parks: '#A8B878' },
+    'Seoul Neon': { bg: '#15151E', roads: '#E84393', water: '#0C0C14', buildings: '#20202C', parks: '#6C5CE7' },
 
-    // === SCANDINAVIAN MINIMAL ===
-    'Nordic Blue & White': { bg: '#FFFFFF', roads: '#5B7C99', water: '#D4E0E8' },
-    'Hygge Taupe & Cream': { bg: '#FBF9F6', roads: '#7D7167', water: '#D8D0C4' },
-    'Fjord Blue & Pearl': { bg: '#FAFBFC', roads: '#4A6FA5', water: '#B8CDE0' },
-    'Arctic Grey & Snow': { bg: '#FEFEFE', roads: '#6B7B8C', water: '#E0E8EC' },
-    'Birch & Stone': { bg: '#F0EDE8', roads: '#5D5852', water: '#C8C4BC' },
+    // === RETRO & VINTAGE ===
+    '70s Vintage': { bg: '#FDF1D6', roads: '#D97736', water: '#487A7B', buildings: '#EACD9E', parks: '#8E9B6C' },
+    'Art Deco': { bg: '#1E1E1E', roads: '#C9A227', water: '#2B2B2B', buildings: '#303030', parks: '#141414' },
+    '50s Diner': { bg: '#FFF0E0', roads: '#D24D4D', water: '#87CEEB', buildings: '#FFE0CC', parks: '#98D898' },
+    '80s Miami': { bg: '#1A0A2E', roads: '#FF6EC7', water: '#0044AA', buildings: '#2A1A3E', parks: '#00CED1' },
+    '90s Grunge': { bg: '#2C2824', roads: '#8B7D6B', water: '#1E1C18', buildings: '#3C3834', parks: '#34302C' },
+    'Victorian': { bg: '#F2E8D6', roads: '#5C3D2E', water: '#8E9E8C', buildings: '#E0D4C0', parks: '#7B8B70' },
+    'Art Nouveau': { bg: '#F5EEE0', roads: '#7B6B4A', water: '#8EAAAA', buildings: '#E8DEC8', parks: '#88A870' },
+    'Polaroid': { bg: '#FFF8E7', roads: '#8B7355', water: '#87ACBE', buildings: '#F5EED5', parks: '#A8B890' },
+    'Sepia': { bg: '#F0E6D2', roads: '#704214', water: '#C4A882', buildings: '#E4D8C0', parks: '#B8A888' },
 
-    // === TROPICAL & WARM ===
-    'Mango & Teal': { bg: '#E0F0F0', roads: '#F5A623', water: '#B0D4D4' },
-    'Palm Green & Coral': { bg: '#FFEBE5', roads: '#2D5A27', water: '#FFD4CC' },
-    'Papaya & Navy': { bg: '#1C2A44', roads: '#FF9966', water: '#2C3A54' },
-    'Hibiscus & White': { bg: '#FFFFFF', roads: '#E03C71', water: '#FFD4E4' },
-    'Ocean Breeze & Sand': { bg: '#F5EFE6', roads: '#3498DB', water: '#A8C8D8' },
+    // === CELESTIAL & SPACE ===
+    'Nebula': { bg: '#0C0118', roads: '#E870FF', water: '#1A0330', buildings: '#18082A', parks: '#4B0082' },
+    'Aurora Borealis': { bg: '#0A1628', roads: '#00FF88', water: '#061020', buildings: '#122040', parks: '#00CC66' },
+    'Moonlit': { bg: '#1C1F2E', roads: '#C8C8D8', water: '#141724', buildings: '#262A3C', parks: '#1E2230' },
+    'Solar Flare': { bg: '#1A0800', roads: '#FF6600', water: '#0E0400', buildings: '#2E1200', parks: '#200C00' },
+    'Starfield': { bg: '#05050A', roads: '#E8E4F0', water: '#0A0A15', buildings: '#10101C', parks: '#0C0C16' },
+    'Deep Space': { bg: '#000005', roads: '#4488FF', water: '#0A0A20', buildings: '#0C0C18', parks: '#080812' },
 
-    // === VINTAGE & RETRO ===
-    'Retro Mustard & Brown': { bg: '#3D2B1F', roads: '#D4A73A', water: '#4D3B2F' },
-    'Vintage Teal & Cream': { bg: '#FBF7F0', roads: '#367588', water: '#B8D4D8' },
-    '70s Avocado & Orange': { bg: '#FF7F50', roads: '#6B8E23', water: '#E06840' },
-    'Art Deco Gold & Black': { bg: '#0D0D0D', roads: '#C9A227', water: '#1D1D1D' },
-    'Mid-Century Coral & Navy': { bg: '#2C3E50', roads: '#E17055', water: '#3C4E60' },
+    // === PASTEL & SOFT ===
+    'Cotton Candy': { bg: '#FFF0F5', roads: '#FFB6C1', water: '#E0F0FF', buildings: '#FFF5F8', parks: '#E8F8E8' },
+    'Lavender Fields': { bg: '#F5F0FF', roads: '#9B8FBF', water: '#E0D8F0', buildings: '#EDE5FF', parks: '#D8D0F0' },
+    'Mint Cream': { bg: '#F0FFF5', roads: '#7EB8A0', water: '#D0F0E0', buildings: '#E8FFF0', parks: '#B8E8C8' },
+    'Peach Blossom': { bg: '#FFF5F0', roads: '#E88E7A', water: '#FFE0D0', buildings: '#FFEDE5', parks: '#FFD0C0' },
+    'Baby Blue': { bg: '#F0F8FF', roads: '#6CA0C8', water: '#D0E8FF', buildings: '#E5F0FF', parks: '#C0D8F0' },
 
-    // === SPECIAL EDITIONS ===
-    'Forest Green & White': { bg: '#FFFFFF', roads: '#1B4D3E', water: '#D4E8E0' },
-    'Mint Green & Chocolate Brown': { bg: '#2C1810', roads: '#98FF98', water: '#3C2820' },
-    'Jade Green & Black': { bg: '#0F0F0F', roads: '#00A86B', water: '#1F1F1F' },
-    'Aqua Blue & Charcoal': { bg: '#2B2B2B', roads: '#00FFBF', water: '#3B3B3B' },
-    'Peach Orange & Graphite': { bg: '#3E3E3E', roads: '#FFB07C', water: '#4E4E4E' },
-    'Lemon Yellow & Navy Blue': { bg: '#001529', roads: '#FFF44F', water: '#0A2539' },
-    'Royal Blue & Coral Orange': { bg: '#304085', roads: '#FFFFFF', water: '#de663a' },
-    'Bright Yellow & Teal Blue': { bg: '#37b4b8', roads: '#FFFFFF', water: '#eaf663' }
+    // === SEASONAL ===
+    'Autumn Harvest': { bg: '#F5E6D0', roads: '#B85C38', water: '#6B8E8E', buildings: '#ECDAB8', parks: '#A07848' },
+    'Spring Bloom': { bg: '#F8FFF0', roads: '#6A9B50', water: '#A0D0E0', buildings: '#F0FFE5', parks: '#80C060' },
+    'Summer Heat': { bg: '#FFF8E0', roads: '#E8803A', water: '#40B0D0', buildings: '#FFF0C8', parks: '#D0C060' },
+    'Cherry Blossom': { bg: '#FFF5F8', roads: '#CC7B8B', water: '#D8C0C8', buildings: '#FFECF0', parks: '#FFBBC8' },
+    'Monsoon': { bg: '#2C3C48', roads: '#90A8B8', water: '#1E2C38', buildings: '#3A4C5A', parks: '#2E4048' },
+
+    // === ARTISTIC MOVEMENTS ===
+    'Bauhaus': { bg: '#F5F5F0', roads: '#DD0000', water: '#0055AA', buildings: '#E8E8E2', parks: '#FFCC00' },
+    'De Stijl': { bg: '#FFFFFF', roads: '#000000', water: '#003DA5', buildings: '#F0F0F0', parks: '#FFD100' },
+    'Brutalist': { bg: '#C0B8A8', roads: '#585048', water: '#8C8478', buildings: '#A8A090', parks: '#908880' },
+    'Impressionist': { bg: '#F0EBE0', roads: '#6B7A8E', water: '#7CABC4', buildings: '#E2D8C8', parks: '#8BAA6B' },
+    'Pop Art': { bg: '#FFFF00', roads: '#FF0000', water: '#00BFFF', buildings: '#FF69B4', parks: '#00FF00' },
+    'Ukiyo-e': { bg: '#F0E8D0', roads: '#2B4C7E', water: '#5B8BA0', buildings: '#E0D4B8', parks: '#6B8B5E' },
+    'Gothic': { bg: '#0C0C10', roads: '#6E0A1E', water: '#080810', buildings: '#18181F', parks: '#101018' },
+
+    // === GEMSTONE & MINERAL ===
+    'Amethyst': { bg: '#1A0E28', roads: '#B48AFF', water: '#0E0818', buildings: '#261438', parks: '#1E0E30' },
+    'Ruby': { bg: '#1A0A0C', roads: '#E0115F', water: '#100508', buildings: '#2A1218', parks: '#1E0C10' },
+    'Sapphire': { bg: '#0A0E28', roads: '#0F52BA', water: '#060820', buildings: '#141838', parks: '#0E1230' },
+    'Jade': { bg: '#0C1C14', roads: '#00A86B', water: '#081410', buildings: '#142C20', parks: '#10241A' },
+    'Opal': { bg: '#F0F0F8', roads: '#A8B8D0', water: '#D0E0F0', buildings: '#E8E8F2', parks: '#C0D8E8' },
+    'Tiger Eye': { bg: '#2A1E10', roads: '#C49032', water: '#1E1408', buildings: '#382A18', parks: '#302010' },
+    'Turquoise': { bg: '#F0FAF8', roads: '#30D5C8', water: '#C0E8E4', buildings: '#E5F5F2', parks: '#A0D8D0' },
+
+    // === NEON & ELECTRIC ===
+    'Neon Tokyo': { bg: '#0A0014', roads: '#FF00FF', water: '#00001A', buildings: '#14082A', parks: '#00FFAA' },
+    'Electric Blue': { bg: '#00080F', roads: '#00BFFF', water: '#000410', buildings: '#0A1520', parks: '#001830' },
+    'Acid Green': { bg: '#0A0D00', roads: '#ADFF2F', water: '#060800', buildings: '#141A08', parks: '#0E1200' },
+    'Neon Coral': { bg: '#140808', roads: '#FF6F61', water: '#0A0404', buildings: '#201010', parks: '#180C0C' },
+    'UV Glow': { bg: '#08001A', roads: '#BB86FC', water: '#040010', buildings: '#120828', parks: '#0C0420' },
+    'Phosphor': { bg: '#001100', roads: '#33FF33', water: '#000800', buildings: '#002200', parks: '#001800' },
+
+    // === FOOD & BEVERAGE ===
+    'Espresso': { bg: '#3C2415', roads: '#D4A574', water: '#2A1A0E', buildings: '#4E3420', parks: '#3A2818' },
+    'Matcha Latte': { bg: '#F5F8F0', roads: '#7B8E5A', water: '#D8E4C8', buildings: '#EDF2E5', parks: '#B0C890' },
+    'Red Wine': { bg: '#1C0A14', roads: '#722F37', water: '#10060C', buildings: '#2A1220', parks: '#200E18' },
+    'Honey & Cream': { bg: '#FFF8E8', roads: '#DAA520', water: '#F5E8C8', buildings: '#FFF2D8', parks: '#E8D8A8' },
+    'Dark Chocolate': { bg: '#1E1412', roads: '#8B6348', water: '#140C0A', buildings: '#2C201C', parks: '#241A16' },
+    'Blueberry': { bg: '#0E0820', roads: '#4F5B93', water: '#080414', buildings: '#1A1030', parks: '#120C28' },
+
+    // === ABSTRACT & EXPERIMENTAL ===
+    'Negative Space': { bg: '#808080', roads: '#FFFFFF', water: '#606060', buildings: '#707070', parks: '#585858' },
+    'Inverted Earth': { bg: '#0055AA', roads: '#FFA500', water: '#228B22', buildings: '#1A6BC4', parks: '#B8860B' },
+    'Monochrome Red': { bg: '#200808', roads: '#FF4444', water: '#140404', buildings: '#300C0C', parks: '#280A0A' },
+    'Monochrome Blue': { bg: '#080820', roads: '#4488FF', water: '#040414', buildings: '#0C0C30', parks: '#0A0A28' },
+    'Paper & Ink': { bg: '#F5F0E0', roads: '#1A1A1A', water: '#D4CEB8', buildings: '#EBE5D0', parks: '#DDD8C4' },
+    'Dreamscape': { bg: '#1A0A30', roads: '#FF88CC', water: '#100520', buildings: '#28144A', parks: '#C888FF' },
+    'Phantom': { bg: '#0C0C14', roads: '#4A4A6A', water: '#06060C', buildings: '#16161E', parks: '#101018' }
 };
+
+const PALETTE_CATEGORIES = [
+    { label: 'Essentials & Monochrome', keys: ['Pure Black & White', 'Noir (Dark Mode)', 'Graphite & Ivory', 'Warm Gray', 'Cool Steel', 'Charcoal Chalk', 'High Contrast', 'Minimalism'] },
+    { label: 'Pantone & Design Trends', keys: ['Mocha Mousse', 'Future Dusk', 'Digital Lavender', 'Apricot Crush', 'Peach Fuzz', 'Butter Yellow', 'Quietude Blue', 'Verdant Green'] },
+    { label: 'Earth & Nature', keys: ['Sage & Terracotta', 'Deep Forest', 'Desert Sand', 'Clay & Sage', 'Moss & Stone', 'Volcanic Ash', 'Birch & Lichen', 'Red Canyon', 'Bamboo Grove', 'Tundra'] },
+    { label: 'Oceanic & Coastal', keys: ['Deep Navy', 'Mediterranean', 'Coastal Mist', 'Tropical Reef', 'Arctic Ocean', 'Abyssal', 'Coral Lagoon'] },
+    { label: 'Unique Visual Styles', keys: ['Blueprint', 'Cyberpunk 2077', 'Synthwave', 'Vaporwave', 'Matrix', 'Golden Hour', 'Blood Moon', 'Infrared', 'X-Ray', 'Thermal Vision', 'Satellite View', 'Watercolor', 'Ink Wash', 'Risograph', 'Duotone Magenta', 'Glitch'] },
+    { label: 'Metallic & Luxe', keys: ['Midnight & Gold', 'Silver & Obsidian', 'Copper & Slate', 'Rose Gold', 'Platinum', 'Black & Bronze', 'Emerald & Pearl'] },
+    { label: 'Minimalist & Global', keys: ['Tokyo Night', 'Nordic Ice', 'Kyoto Matcha', 'Havana Sunset', 'Marrakech Souk', 'Santorini', 'Mumbai Monsoon', 'Reykjavik', 'Nairobi Savanna', 'Seoul Neon'] },
+    { label: 'Retro & Vintage', keys: ['70s Vintage', 'Art Deco', '50s Diner', '80s Miami', '90s Grunge', 'Victorian', 'Art Nouveau', 'Polaroid', 'Sepia'] },
+    { label: 'Celestial & Space', keys: ['Nebula', 'Aurora Borealis', 'Moonlit', 'Solar Flare', 'Starfield', 'Deep Space'] },
+    { label: 'Pastel & Soft', keys: ['Cotton Candy', 'Lavender Fields', 'Mint Cream', 'Peach Blossom', 'Baby Blue'] },
+    { label: 'Seasonal', keys: ['Autumn Harvest', 'Spring Bloom', 'Summer Heat', 'Cherry Blossom', 'Monsoon'] },
+    { label: 'Artistic Movements', keys: ['Bauhaus', 'De Stijl', 'Brutalist', 'Impressionist', 'Pop Art', 'Ukiyo-e', 'Gothic'] },
+    { label: 'Gemstone & Mineral', keys: ['Amethyst', 'Ruby', 'Sapphire', 'Jade', 'Opal', 'Tiger Eye', 'Turquoise'] },
+    { label: 'Neon & Electric', keys: ['Neon Tokyo', 'Electric Blue', 'Acid Green', 'Neon Coral', 'UV Glow', 'Phosphor'] },
+    { label: 'Food & Beverage', keys: ['Espresso', 'Matcha Latte', 'Red Wine', 'Honey & Cream', 'Dark Chocolate', 'Blueberry'] },
+    { label: 'Abstract & Experimental', keys: ['Negative Space', 'Inverted Earth', 'Monochrome Red', 'Monochrome Blue', 'Paper & Ink', 'Dreamscape', 'Phantom'] },
+];
 
 // === TOP 150 CITIES WITH SUBTITLES ===
 const WORLD_CITIES = {
@@ -688,6 +720,23 @@ function generateThemesGrid() {
     });
 }
 
+function populateStyleSelect() {
+    elements.styleSelect.innerHTML = '';
+    PALETTE_CATEGORIES.forEach(({ label, keys }) => {
+        const group = document.createElement('optgroup');
+        group.label = label;
+        keys.forEach(name => {
+            if (!PALETTES[name]) return;
+            const option = document.createElement('option');
+            option.value = name;
+            option.textContent = name;
+            if (name === currentStyle) option.selected = true;
+            group.appendChild(option);
+        });
+        elements.styleSelect.appendChild(group);
+    });
+}
+
 function formatCoordinates(lat, lon) {
     const latDir = lat >= 0 ? "N" : "S";
     const lonDir = lon >= 0 ? "E" : "W";
@@ -778,7 +827,7 @@ function createMapStyle(palette) {
 
             // ── Landuse (human activity zones) ───────────────────────────
             // Parks & greenery
-            { id: 'park', type: 'fill', source: 'openmaptiles', 'source-layer': 'park', paint: { 'fill-color': roadsAlpha(0.06), 'fill-opacity': 1 } },
+            { id: 'park', type: 'fill', source: 'openmaptiles', 'source-layer': 'park', paint: { 'fill-color': palette.parks || roadsAlpha(0.06), 'fill-opacity': 1 } },
             // Residential areas — very faint, adds texture at mid zoom
             {
                 id: 'landuse_residential', type: 'fill', source: 'openmaptiles', 'source-layer': 'landuse',
@@ -947,11 +996,11 @@ function createMapStyle(palette) {
             },
 
             // ── Buildings ─────────────────────────────────────────────────
-            { id: 'building', type: 'fill', source: 'openmaptiles', 'source-layer': 'building', minzoom: 12, paint: { 'fill-color': palette.roads, 'fill-opacity': 0.25 } },
+            { id: 'building', type: 'fill', source: 'openmaptiles', 'source-layer': 'building', minzoom: 12, paint: { 'fill-color': palette.buildings || palette.roads, 'fill-opacity': palette.buildings ? 1 : 0.25 } },
             {
                 id: 'building_outline', type: 'line', source: 'openmaptiles', 'source-layer': 'building',
                 minzoom: 14,
-                paint: { 'line-color': roadsAlpha(0.18), 'line-width': 0.4 }
+                paint: { 'line-color': palette.buildings ? roadsAlpha(0.3) : roadsAlpha(0.18), 'line-width': 0.4 }
             }
         ]
     };
@@ -1967,6 +2016,7 @@ function initializeApp(center, zoom, cityName) {
     elements.titleInput.value = cityName.toUpperCase();
     elements.subtitleInput.value = getCitySubtitle(cityName);
     updateLabels();
+    populateStyleSelect();
     generateThemesGrid();
     updateSelectedThemePreview(currentStyle);
     setupIntroModal();
