@@ -566,6 +566,46 @@
     max-width: 1100px;
 }
 
+/* Large screen (iMac / 4K ≥ 1920px) — 40% larger poster canvas */
+@media (min-width: 1920px) {
+    #poster                          { max-width: 1680px; max-height: calc(100vh - 100px); }
+    #poster.landscape                { max-width: 2100px; }
+    #poster.size-24x36               { max-width: 1680px; }
+    #poster.size-24x36.landscape     { max-width: 2520px; }
+    #poster.size-a1                  { max-width: 1680px; }
+    #poster.size-a1.landscape        { max-width: 2380px; }
+    #poster.size-18x24               { max-width: 1400px; }
+    #poster.size-18x24.landscape     { max-width: 1820px; }
+    #poster.size-16x20               { max-width: 1330px; }
+    #poster.size-16x20.landscape     { max-width: 1680px; }
+    #poster.size-a2                  { max-width: 1400px; }
+    #poster.size-a2.landscape        { max-width: 1960px; }
+    #poster.size-a3                  { max-width: 1190px; }
+    #poster.size-a3.landscape        { max-width: 1680px; }
+    #poster.size-11x14               { max-width: 1190px; }
+    #poster.size-11x14.landscape     { max-width: 1540px; }
+}
+
+/* XL screen (5K iMac / 4K native ≥ 2560px) — 65% larger poster canvas */
+@media (min-width: 2560px) {
+    #poster                          { max-width: 1980px; max-height: calc(100vh - 80px); }
+    #poster.landscape                { max-width: 2480px; }
+    #poster.size-24x36               { max-width: 1980px; }
+    #poster.size-24x36.landscape     { max-width: 2970px; }
+    #poster.size-a1                  { max-width: 1980px; }
+    #poster.size-a1.landscape        { max-width: 2800px; }
+    #poster.size-18x24               { max-width: 1650px; }
+    #poster.size-18x24.landscape     { max-width: 2150px; }
+    #poster.size-16x20               { max-width: 1570px; }
+    #poster.size-16x20.landscape     { max-width: 1980px; }
+    #poster.size-a2                  { max-width: 1650px; }
+    #poster.size-a2.landscape        { max-width: 2310px; }
+    #poster.size-a3                  { max-width: 1400px; }
+    #poster.size-a3.landscape        { max-width: 1980px; }
+    #poster.size-11x14               { max-width: 1400px; }
+    #poster.size-11x14.landscape     { max-width: 1820px; }
+}
+
 /* Map Container */
 #mapContainer {
     width: 100%;
