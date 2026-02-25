@@ -47,7 +47,7 @@ const PALETTES = {
     'Coral Lagoon': { bg: '#F0F8F8', roads: '#E87461', water: '#7BC8C8', buildings: '#E8F0F0', parks: '#A0D8D0' },
 
     // === UNIQUE VISUAL STYLES ===
-    'Blueprint': { bg: '#0D47A1', roads: '#FFFFFF', water: '#1565C0', buildings: '#1976D2', parks: '#1E88E5' },
+    'Blueprint': { bg: '#0D47A1', roads: '#DDDDDD', water: '#1565C0', buildings: '#1976D2', parks: '#1E88E5' },
     'Cyberpunk 2077': { bg: '#0D0E15', roads: '#FCE205', water: '#05D5FA', buildings: '#2E1A47', parks: '#FF0055' },
     'Synthwave': { bg: '#180A2D', roads: '#FF007F', water: '#4D0099', buildings: '#301350', parks: '#00F0FF' },
     'Vaporwave': { bg: '#FFB6C1', roads: '#00FFFF', water: '#8A2BE2', buildings: '#FF69B4', parks: '#9370DB' },
@@ -754,18 +754,18 @@ function createMapStyle(palette) {
         if (!isDark) return color;
         const parse = (hex) => {
             const h = hex.replace('#', '');
-            return [parseInt(h.substr(0,2),16), parseInt(h.substr(2,2),16), parseInt(h.substr(4,2),16)];
+            return [parseInt(h.substr(0, 2), 16), parseInt(h.substr(2, 2), 16), parseInt(h.substr(4, 2), 16)];
         };
         const [br, bgr, bb] = parse(palette.bg);
         const [cr, cg, cb] = parse(color);
-        const dist = Math.sqrt((br-cr)**2 + (bgr-cg)**2 + (bb-cb)**2);
+        const dist = Math.sqrt((br - cr) ** 2 + (bgr - cg) ** 2 + (bb - cb) ** 2);
         if (dist >= minDist) return color;
         // Lighten from bg by adding a uniform offset that guarantees minDist
         const offset = Math.ceil(minDist / 1.73) + 1;
         const nr = Math.min(255, br + offset);
         const ng = Math.min(255, bgr + offset);
         const nb = Math.min(255, bb + offset);
-        return '#' + [nr,ng,nb].map(v => v.toString(16).padStart(2, '0')).join('');
+        return '#' + [nr, ng, nb].map(v => v.toString(16).padStart(2, '0')).join('');
     };
 
     const waterColor = ensureContrast(palette.water, 35);
