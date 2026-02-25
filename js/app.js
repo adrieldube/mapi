@@ -152,179 +152,225 @@ const PALETTES = {
 // === TOP 150 CITIES WITH SUBTITLES ===
 const WORLD_CITIES = {
     // Asia
-    'Tokyo': 'The Land of the Rising Sun',
-    'Delhi': 'The Heart of India',
-    'Shanghai': 'The Pearl of the Orient',
-    'Beijing': 'The Forbidden City',
-    'Mumbai': 'The City of Dreams',
-    'Osaka': 'The Nation\'s Kitchen',
-    'Dhaka': 'The City of Mosques',
-    'Karachi': 'The City of Lights',
-    'Kolkata': 'The City of Joy',
-    'Chengdu': 'The Land of Abundance',
-    'Guangzhou': 'The City of Flowers',
-    'Shenzhen': 'China\'s Silicon Valley',
-    'Jakarta': 'The Big Durian',
-    'Bangkok': 'The City of Angels',
-    'Seoul': 'The Soul of Asia',
-    'Ho Chi Minh City': 'The Pearl of the Far East',
-    'Singapore': 'The Lion City',
-    'Hong Kong': 'The Pearl of the Orient',
-    'Taipei': 'The Beautiful Island Capital',
-    'Manila': 'The Pearl of the Orient Seas',
-    'Kuala Lumpur': 'The Garden City of Lights',
-    'Hanoi': 'The City of the Rising Dragon',
-    'Riyadh': 'The Gardens of the Desert',
-    'Dubai': 'The City of Gold',
-    'Abu Dhabi': 'The Garden City',
-    'Doha': 'The Pearl of the Gulf',
-    'Tel Aviv': 'The White City',
-    'Jerusalem': 'The Holy City',
-    'Amman': 'The White City',
-    'Beirut': 'The Paris of the Middle East',
-    'Chennai': 'The Gateway to South India',
-    'Bangalore': 'The Silicon Valley of India',
-    'Hyderabad': 'The City of Pearls',
-    'Pune': 'The Oxford of the East',
-    'Jaipur': 'The Pink City',
-    'Ahmedabad': 'The Manchester of India',
-    'Kyoto': 'The Cultural Heart of Japan',
-    'Nagoya': 'The Heart of Japan',
-    'Fukuoka': 'The Gateway to Asia',
-    'Busan': 'The Maritime Capital',
-    'Yangon': 'The Garden City of the East',
+    'Tokyo': { en: 'The Land of the Rising Sun', es: 'La Tierra del Sol Naciente' },
+    'Delhi': { en: 'The Heart of India', es: 'El Corazón de la India' },
+    'Shanghai': { en: 'The Pearl of the Orient', es: 'La Perla de Oriente' },
+    'Beijing': { en: 'The Forbidden City', es: 'La Ciudad Prohibida' },
+    'Mumbai': { en: 'The City of Dreams', es: 'La Ciudad de los Sueños' },
+    'Osaka': { en: 'The Nation\'s Kitchen', es: 'La Cocina de la Nación' },
+    'Dhaka': { en: 'The City of Mosques', es: 'La Ciudad de las Mezquitas' },
+    'Karachi': { en: 'The City of Lights', es: 'La Ciudad de las Luces' },
+    'Kolkata': { en: 'The City of Joy', es: 'La Ciudad de la Alegría' },
+    'Chengdu': { en: 'The Land of Abundance', es: 'La Tierra de la Abundancia' },
+    'Guangzhou': { en: 'The City of Flowers', es: 'La Ciudad de las Flores' },
+    'Shenzhen': { en: 'China\'s Silicon Valley', es: 'El Silicon Valley de China' },
+    'Jakarta': { en: 'The Big Durian', es: 'El Gran Durián' },
+    'Bangkok': { en: 'The City of Angels', es: 'La Ciudad de los Ángeles' },
+    'Seoul': { en: 'The Soul of Asia', es: 'El Alma de Asia' },
+    'Ho Chi Minh City': { en: 'The Pearl of the Far East', es: 'La Perla del Lejano Oriente' },
+    'Singapore': { en: 'The Lion City', es: 'La Ciudad del León' },
+    'Hong Kong': { en: 'The Pearl of the Orient', es: 'La Perla de Oriente' },
+    'Taipei': { en: 'The Beautiful Island Capital', es: 'La Capital de la Bella Isla' },
+    'Manila': { en: 'The Pearl of the Orient Seas', es: 'La Perla de los Mares de Oriente' },
+    'Kuala Lumpur': { en: 'The Garden City of Lights', es: 'La Ciudad Jardín de las Luces' },
+    'Hanoi': { en: 'The City of the Rising Dragon', es: 'La Ciudad del Dragón Naciente' },
+    'Riyadh': { en: 'The Gardens of the Desert', es: 'Los Jardines del Desierto' },
+    'Dubai': { en: 'The City of Gold', es: 'La Ciudad del Oro' },
+    'Abu Dhabi': { en: 'The Garden City', es: 'La Ciudad Jardín' },
+    'Doha': { en: 'The Pearl of the Gulf', es: 'La Perla del Golfo' },
+    'Tel Aviv': { en: 'The White City', es: 'La Ciudad Blanca' },
+    'Jerusalem': { en: 'The Holy City', es: 'La Ciudad Santa' },
+    'Amman': { en: 'The White City', es: 'La Ciudad Blanca' },
+    'Beirut': { en: 'The Paris of the Middle East', es: 'El París de Oriente Medio' },
+    'Chennai': { en: 'The Gateway to South India', es: 'La Puerta al Sur de la India' },
+    'Bangalore': { en: 'The Silicon Valley of India', es: 'El Silicon Valley de la India' },
+    'Hyderabad': { en: 'The City of Pearls', es: 'La Ciudad de las Perlas' },
+    'Pune': { en: 'The Oxford of the East', es: 'El Oxford de Oriente' },
+    'Jaipur': { en: 'The Pink City', es: 'La Ciudad Rosa' },
+    'Ahmedabad': { en: 'The Manchester of India', es: 'El Mánchester de la India' },
+    'Kyoto': { en: 'The Cultural Heart of Japan', es: 'El Corazón Cultural de Japón' },
+    'Nagoya': { en: 'The Heart of Japan', es: 'El Corazón de Japón' },
+    'Fukuoka': { en: 'The Gateway to Asia', es: 'La Puerta a Asia' },
+    'Busan': { en: 'The Maritime Capital', es: 'La Capital Marítima' },
+    'Yangon': { en: 'The Garden City of the East', es: 'La Ciudad Jardín de Oriente' },
 
     // Europe
-    'London': 'The Big Smoke',
-    'Paris': 'The City of Light',
-    'Berlin': 'The City of Freedom',
-    'Madrid': 'The City That Never Sleeps',
-    'Rome': 'The Eternal City',
-    'Barcelona': 'The City of Counts',
-    'Vienna': 'The City of Music',
-    'Amsterdam': 'The Venice of the North',
-    'Prague': 'The City of a Hundred Spires',
-    'Brussels': 'The Capital of Europe',
-    'Munich': 'The Heart of Bavaria',
-    'Milan': 'The Fashion Capital',
-    'Dublin': 'The Fair City',
-    'Lisbon': 'The City of Seven Hills',
-    'Athens': 'The Cradle of Civilization',
-    'Stockholm': 'The Venice of the North',
-    'Copenhagen': 'The City of Spires',
-    'Oslo': 'The Tiger City',
-    'Helsinki': 'The Daughter of the Baltic',
-    'Zurich': 'The Little Big City',
-    'Geneva': 'The Peace Capital',
-    'Budapest': 'The Pearl of the Danube',
-    'Warsaw': 'The Phoenix City',
-    'Krakow': 'The Cultural Capital',
-    'Venice': 'The Floating City',
-    'Florence': 'The Cradle of the Renaissance',
-    'Naples': 'The City of the Sun',
-    'Edinburgh': 'The Athens of the North',
-    'Manchester': 'The Rainy City',
-    'Liverpool': 'The Pool of Life',
-    'Glasgow': 'The Dear Green Place',
-    'Marseille': 'The Gateway to the South',
-    'Lyon': 'The Capital of Gastronomy',
-    'Nice': 'The Queen of the Riviera',
-    'Seville': 'The Pearl of Andalusia',
-    'Valencia': 'The City of Arts and Sciences',
-    'Bilbao': 'The Botxo',
-    'Porto': 'The Unvanquished City',
-    'Hamburg': 'The Gateway to the World',
-    'Frankfurt': 'The Mainhattan',
-    'Cologne': 'The Cathedral City',
-    'Düsseldorf': 'The Little Paris',
-    'Rotterdam': 'The Gateway to Europe',
-    'Antwerp': 'The Diamond City',
-    'Moscow': 'The Third Rome',
-    'St. Petersburg': 'The Venice of the North',
-    'Istanbul': 'Where East Meets West',
+    'London': { en: 'The Big Smoke', es: 'La Gran Nube' },
+    'Paris': { en: 'The City of Light', es: 'La Ciudad de la Luz' },
+    'Berlin': { en: 'The City of Freedom', es: 'La Ciudad de la Libertad' },
+    'Madrid': { en: 'The City That Never Sleeps', es: 'La Ciudad que Nunca Duerme' },
+    'Rome': { en: 'The Eternal City', es: 'La Ciudad Eterna' },
+    'Barcelona': { en: 'The City of Counts', es: 'La Ciudad de los Condes' },
+    'Vienna': { en: 'The City of Music', es: 'La Ciudad de la Música' },
+    'Amsterdam': { en: 'The Venice of the North', es: 'La Venecia del Norte' },
+    'Prague': { en: 'The City of a Hundred Spires', es: 'La Ciudad de las Cien Torres' },
+    'Brussels': { en: 'The Capital of Europe', es: 'La Capital de Europa' },
+    'Munich': { en: 'The Heart of Bavaria', es: 'El Corazón de Baviera' },
+    'Milan': { en: 'The Fashion Capital', es: 'La Capital de la Moda' },
+    'Dublin': { en: 'The Fair City', es: 'La Ciudad Justa' },
+    'Lisbon': { en: 'The City of Seven Hills', es: 'La Ciudad de las Siete Colinas' },
+    'Athens': { en: 'The Cradle of Civilization', es: 'La Cuna de la Civilización' },
+    'Stockholm': { en: 'The Venice of the North', es: 'La Venecia del Norte' },
+    'Copenhagen': { en: 'The City of Spires', es: 'La Ciudad de las Torres' },
+    'Oslo': { en: 'The Tiger City', es: 'La Ciudad del Tigre' },
+    'Helsinki': { en: 'The Daughter of the Baltic', es: 'La Hija del Báltico' },
+    'Zurich': { en: 'The Little Big City', es: 'La Pequeña Gran Ciudad' },
+    'Geneva': { en: 'The Peace Capital', es: 'La Capital de la Paz' },
+    'Budapest': { en: 'The Pearl of the Danube', es: 'La Perla del Danubio' },
+    'Warsaw': { en: 'The Phoenix City', es: 'La Ciudad Fénix' },
+    'Krakow': { en: 'The Cultural Capital', es: 'La Capital Cultural' },
+    'Venice': { en: 'The Floating City', es: 'La Ciudad Flotante' },
+    'Florence': { en: 'The Cradle of the Renaissance', es: 'La Cuna del Renacimiento' },
+    'Naples': { en: 'The City of the Sun', es: 'La Ciudad del Sol' },
+    'Edinburgh': { en: 'The Athens of the North', es: 'La Atenas del Norte' },
+    'Manchester': { en: 'The Rainy City', es: 'La Ciudad Lluviosa' },
+    'Liverpool': { en: 'The Pool of Life', es: 'El Charco de la Vida' },
+    'Glasgow': { en: 'The Dear Green Place', es: 'El Querido Lugar Verde' },
+    'Marseille': { en: 'The Gateway to the South', es: 'La Puerta al Sur' },
+    'Lyon': { en: 'The Capital of Gastronomy', es: 'La Capital de la Gastronomía' },
+    'Nice': { en: 'The Queen of the Riviera', es: 'La Reina de la Riviera' },
+    'Seville': { en: 'The Pearl of Andalusia', es: 'La Perla de Andalucía' },
+    'Valencia': { en: 'The City of Arts and Sciences', es: 'La Ciudad de las Artes y las Ciencias' },
+    'Bilbao': { en: 'The Botxo', es: 'El Botxo' },
+    'Porto': { en: 'The Unvanquished City', es: 'La Ciudad Invicta' },
+    'Hamburg': { en: 'The Gateway to the World', es: 'La Puerta al Mundo' },
+    'Frankfurt': { en: 'The Mainhattan', es: 'El Mainhattan' },
+    'Cologne': { en: 'The Cathedral City', es: 'La Ciudad de la Catedral' },
+    'Düsseldorf': { en: 'The Little Paris', es: 'El Pequeño París' },
+    'Rotterdam': { en: 'The Gateway to Europe', es: 'La Puerta a Europa' },
+    'Antwerp': { en: 'The Diamond City', es: 'La Ciudad del Diamante' },
+    'Moscow': { en: 'The Third Rome', es: 'La Tercera Roma' },
+    'St. Petersburg': { en: 'The Venice of the North', es: 'La Venecia del Norte' },
+    'Istanbul': { en: 'Where East Meets West', es: 'Donde el Este se Encuentra con el Oeste' },
 
     // North America
-    'New York': 'The Big Apple',
-    'Los Angeles': 'The City of Angels',
-    'Chicago': 'The Windy City',
-    'Houston': 'Space City',
-    'Phoenix': 'The Valley of the Sun',
-    'Philadelphia': 'The City of Brotherly Love',
-    'San Antonio': 'The Alamo City',
-    'San Diego': 'America\'s Finest City',
-    'Dallas': 'The Big D',
-    'San Francisco': 'The Golden Gate City',
-    'Seattle': 'The Emerald City',
-    'Denver': 'The Mile High City',
-    'Boston': 'The Cradle of Liberty',
-    'Austin': 'The Live Music Capital',
-    'Nashville': 'Music City',
-    'Portland': 'The City of Roses',
-    'Las Vegas': 'Sin City',
-    'Miami': 'The Magic City',
-    'Atlanta': 'The City Too Busy to Hate',
-    'New Orleans': 'The Big Easy',
-    'Washington': 'The Nation\'s Capital',
-    'Detroit': 'The Motor City',
-    'Minneapolis': 'The City of Lakes',
-    'San Jose': 'The Capital of Silicon Valley',
-    'Baltimore': 'Charm City',
-    'Toronto': 'The Six',
-    'Montreal': 'The City of Saints',
-    'Vancouver': 'The Hollywood of the North',
-    'Calgary': 'The Stampede City',
-    'Ottawa': 'The Capital of Canada',
-    'Quebec City': 'The Gibraltar of America',
-    'Mexico City': 'The City of Palaces',
-    'Guadalajara': 'The Pearl of the West',
-    'Monterrey': 'The Sultana del Norte',
-    'Tijuana': 'The Gateway to Mexico',
-    'Cancun': 'The Mexican Caribbean',
+    'New York': { en: 'The Big Apple', es: 'La Gran Manzana' },
+    'Los Angeles': { en: 'The City of Angels', es: 'La Ciudad de los Ángeles' },
+    'Chicago': { en: 'The Windy City', es: 'La Ciudad del Viento' },
+    'Houston': { en: 'Space City', es: 'La Ciudad del Espacio' },
+    'Phoenix': { en: 'The Valley of the Sun', es: 'El Valle del Sol' },
+    'Philadelphia': { en: 'The City of Brotherly Love', es: 'La Ciudad del Amor Fraternal' },
+    'San Antonio': { en: 'The Alamo City', es: 'La Ciudad del Álamo' },
+    'San Diego': { en: 'America\'s Finest City', es: 'La Ciudad más Fina de América' },
+    'Dallas': { en: 'The Big D', es: 'La Gran D' },
+    'San Francisco': { en: 'The Golden Gate City', es: 'La Ciudad del Golden Gate' },
+    'Seattle': { en: 'The Emerald City', es: 'La Ciudad Esmeralda' },
+    'Denver': { en: 'The Mile High City', es: 'La Ciudad a una Milla de Altura' },
+    'Boston': { en: 'The Cradle of Liberty', es: 'La Cuna de la Libertad' },
+    'Austin': { en: 'The Live Music Capital', es: 'La Capital Mundial de la Música en Vivo' },
+    'Nashville': { en: 'Music City', es: 'La Ciudad de la Música' },
+    'Portland': { en: 'The City of Roses', es: 'La Ciudad de las Rosas' },
+    'Las Vegas': { en: 'Sin City', es: 'La Ciudad del Pecado' },
+    'Miami': { en: 'The Magic City', es: 'La Ciudad Mágica' },
+    'Atlanta': { en: 'The City Too Busy to Hate', es: 'La Ciudad Demasiado Ocupada para Odiar' },
+    'New Orleans': { en: 'The Big Easy', es: 'La Gran Facilidad' },
+    'Washington': { en: 'The Nation\'s Capital', es: 'La Capital de la Nación' },
+    'Detroit': { en: 'The Motor City', es: 'La Ciudad del Motor' },
+    'Minneapolis': { en: 'The City of Lakes', es: 'La Ciudad de los Lagos' },
+    'San Jose': { en: 'The Capital of Silicon Valley', es: 'La Capital del Silicon Valley' },
+    'Baltimore': { en: 'Charm City', es: 'La Ciudad con Encanto' },
+    'Toronto': { en: 'The Six', es: 'El Seis' },
+    'Montreal': { en: 'The City of Saints', es: 'La Ciudad de los Santos' },
+    'Vancouver': { en: 'The Hollywood of the North', es: 'El Hollywood del Norte' },
+    'Calgary': { en: 'The Stampede City', es: 'La Ciudad del Rodeo' },
+    'Ottawa': { en: 'The Capital of Canada', es: 'La Capital de Canadá' },
+    'Quebec City': { en: 'The Gibraltar of America', es: 'El Gibraltar de América' },
+    'Mexico City': { en: 'The City of Palaces', es: 'La Ciudad de los Palacios' },
+    'Guadalajara': { en: 'The Pearl of the West', es: 'La Perla del Occidente' },
+    'Monterrey': { en: 'The Sultana del Norte', es: 'La Sultana del Norte' },
+    'Tijuana': { en: 'The Gateway to Mexico', es: 'La Puerta a México' },
+    'Cancun': { en: 'The Mexican Caribbean', es: 'El Caribe Mexicano' },
 
     // South America
-    'São Paulo': 'The Concrete Jungle',
-    'Rio de Janeiro': 'The Marvelous City',
-    'Buenos Aires': 'The Paris of South America',
-    'Lima': 'The City of Kings',
-    'Bogotá': 'The Athens of South America',
-    'Santiago': 'The Jewel of the Andes',
-    'Caracas': 'The Sultana of the Avila',
-    'Medellín': 'The City of Eternal Spring',
-    'Quito': 'The Light of America',
-    'Montevideo': 'The Switzerland of America',
-    'Cartagena': 'The Heroic City',
-    'Cusco': 'The Navel of the World',
-    'Havana': 'The Pearl of the Antilles',
-    'San Juan': 'The Walled City',
+    'São Paulo': { en: 'The Concrete Jungle', es: 'La Jungla de Concreto' },
+    'Rio de Janeiro': { en: 'The Marvelous City', es: 'La Ciudad Maravillosa' },
+    'Buenos Aires': { en: 'The Paris of South America', es: 'El París de Sudamérica' },
+    'Lima': { en: 'The City of Kings', es: 'La Ciudad de los Reyes' },
+    'Bogotá': { en: 'The Athens of South America', es: 'La Atenas de Sudamérica' },
+    'Santiago': { en: 'The Jewel of the Andes', es: 'La Joya de los Andes' },
+    'Caracas': { en: 'The Sultana of the Avila', es: 'La Sultana del Ávila' },
+    'Medellín': { en: 'The City of Eternal Spring', es: 'La Ciudad de la Eterna Primavera' },
+    'Quito': { en: 'The Light of America', es: 'La Luz de América' },
+    'Montevideo': { en: 'The Switzerland of America', es: 'La Suiza de América' },
+    'Cartagena': { en: 'The Heroic City', es: 'La Ciudad Heroica' },
+    'Cusco': { en: 'The Navel of the World', es: 'El Ombligo del Mundo' },
+    'Havana': { en: 'The Pearl of the Antilles', es: 'La Perla de las Antillas' },
+    'San Juan': { en: 'The Walled City', es: 'La Ciudad Amurallada' },
 
     // Africa
-    'Cairo': 'The City of a Thousand Minarets',
-    'Lagos': 'The Giant of Africa',
-    'Johannesburg': 'The City of Gold',
-    'Cape Town': 'The Mother City',
-    'Nairobi': 'The Green City in the Sun',
-    'Casablanca': 'The White City',
-    'Marrakech': 'The Red City',
-    'Addis Ababa': 'The New Flower',
-    'Accra': 'The Gateway to West Africa',
-    'Dar es Salaam': 'The Haven of Peace',
-    'Tunis': 'The Olive Tree Capital',
-    'Algiers': 'The White City',
-    'Kigali': 'The Land of a Thousand Hills',
-    'Dakar': 'The Gateway to Africa',
-    'Abuja': 'The Centre of Unity',
+    'Cairo': { en: 'The City of a Thousand Minarets', es: 'La Ciudad de los Mil Minaretes' },
+    'Lagos': { en: 'The Giant of Africa', es: 'El Gigante de África' },
+    'Johannesburg': { en: 'The City of Gold', es: 'La Ciudad del Oro' },
+    'Cape Town': { en: 'The Mother City', es: 'La Ciudad Madre' },
+    'Nairobi': { en: 'The Green City in the Sun', es: 'La Ciudad Verde bajo el Sol' },
+    'Casablanca': { en: 'The White City', es: 'La Ciudad Blanca' },
+    'Marrakech': { en: 'The Red City', es: 'La Ciudad Roja' },
+    'Addis Ababa': { en: 'The New Flower', es: 'La Flor Nueva' },
+    'Accra': { en: 'The Gateway to West Africa', es: 'La Puerta a África Occidental' },
+    'Dar es Salaam': { en: 'The Haven of Peace', es: 'El Puerto de la Paz' },
+    'Tunis': { en: 'The Olive Tree Capital', es: 'La Capital del Olivo' },
+    'Algiers': { en: 'The White City', es: 'La Ciudad Blanca' },
+    'Kigali': { en: 'The Land of a Thousand Hills', es: 'La Tierra de las Mil Colinas' },
+    'Dakar': { en: 'The Gateway to Africa', es: 'La Puerta a África' },
+    'Abuja': { en: 'The Centre of Unity', es: 'El Centro de la Unidad' },
 
     // Oceania
-    'Sydney': 'The Harbour City',
-    'Melbourne': 'The Garden City',
-    'Brisbane': 'The River City',
-    'Perth': 'The City of Light',
-    'Auckland': 'The City of Sails',
-    'Wellington': 'The Windy City',
-    'Adelaide': 'The City of Churches',
-    'Gold Coast': 'The Surfers Paradise',
-    'Canberra': 'The Bush Capital',
-    'Christchurch': 'The Garden City'
+    'Sydney': { en: 'The Harbour City', es: 'La Ciudad del Puerto' },
+    'Melbourne': { en: 'The Garden City', es: 'La Ciudad Jardín' },
+    'Brisbane': { en: 'The River City', es: 'La Ciudad del Río' },
+    'Perth': { en: 'The City of Light', es: 'La Ciudad de la Luz' },
+    'Auckland': { en: 'The City of Sails', es: 'La Ciudad de las Velas' },
+    'Wellington': { en: 'The Windy City', es: 'La Ciudad Ventosa' },
+    'Adelaide': { en: 'The City of Churches', es: 'La Ciudad de las Iglesias' },
+    'Gold Coast': { en: 'The Surfers Paradise', es: 'El Paraíso de los Surfistas' },
+    'Canberra': { en: 'The Bush Capital', es: 'La Capital del Monte' },
+    'Christchurch': { en: 'The Garden City', es: 'La Ciudad Jardín' }
+};
+
+// Maps lowercase Spanish city names → WORLD_CITIES key (for cities whose Spanish name differs from English)
+const CITY_ALIASES_ES = {
+    // Asia
+    'tokio': 'Tokyo',
+    'pekín': 'Beijing', 'pekin': 'Beijing',
+    'seúl': 'Seoul', 'seul': 'Seoul',
+    'singapur': 'Singapore',
+    'taipéi': 'Taipei',
+    'hanói': 'Hanoi',
+    'rangún': 'Yangon', 'rangun': 'Yangon',
+    'ciudad ho chi minh': 'Ho Chi Minh City',
+    'doha': 'Doha',
+    'jerusalén': 'Jerusalem', 'jerusalen': 'Jerusalem',
+    // Europe
+    'roma': 'Rome',
+    'florencia': 'Florence',
+    'venecia': 'Venice',
+    'viena': 'Vienna',
+    'lisboa': 'Lisbon',
+    'atenas': 'Athens',
+    'praga': 'Prague',
+    'bruselas': 'Brussels',
+    'ginebra': 'Geneva',
+    'copenhague': 'Copenhagen',
+    'varsovia': 'Warsaw',
+    'cracovia': 'Krakow',
+    'moscú': 'Moscow', 'moscu': 'Moscow',
+    'san petersburgo': 'St. Petersburg',
+    'estambul': 'Istanbul',
+    'nápoles': 'Naples', 'napoles': 'Naples',
+    'edimburgo': 'Edinburgh',
+    'colonia': 'Cologne',
+    'hamburgo': 'Hamburg',
+    'múnich': 'Munich',
+    'el cairo': 'Cairo',
+    // North America
+    'nueva york': 'New York',
+    'nueva orleans': 'New Orleans',
+    'ciudad de méxico': 'Mexico City', 'ciudad de mexico': 'Mexico City',
+    'ciudad de quebec': 'Quebec City',
+    // South America
+    'río de janeiro': 'Rio de Janeiro', 'rio de janeiro': 'Rio de Janeiro',
+    // Africa
+    'ciudad del cabo': 'Cape Town',
 };
 
 const APP_LANG = document.documentElement.lang?.toLowerCase().startsWith('es') ? 'es' : 'en';
@@ -422,7 +468,7 @@ function writeGlobeCityCoordsCache(cache) {
 
 async function geocodeCityCoordinate(cityName) {
     try {
-        const url = `https://api.maptiler.com/geocoding/${encodeURIComponent(cityName)}.json?key=${MAPTILER_KEY}&limit=1`;
+        const url = `https://api.maptiler.com/geocoding/${encodeURIComponent(cityName)}.json?key=${MAPTILER_KEY}&limit=1&language=${APP_LANG}`;
         const res = await fetch(url);
         if (!res.ok) return null;
         const data = await res.json();
@@ -778,19 +824,37 @@ function changeMapStyle(styleKey) {
 }
 
 // === GEOCODING ===
-function getCitySubtitle(cityName) {
-    const lowerName = cityName.toLowerCase();
+function normalize(str) {
+    return str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
 
-    // First pass: exact match
+function getCitySubtitle(cityName) {
+    const normName = normalize(cityName);
+
+    const getSubtitle = (entry) => entry[APP_LANG] || entry.en;
+
+    // Spanish alias check: resolve Spanish name → English WORLD_CITIES key
+    // Uses normalized comparison so accented inputs (e.g. "París", "Múnich") match too
+    if (APP_LANG === 'es') {
+        const sortedAliases = Object.keys(CITY_ALIASES_ES).sort((a, b) => b.length - a.length);
+        for (const alias of sortedAliases) {
+            if (normName === normalize(alias) || normName.includes(normalize(alias))) {
+                const key = CITY_ALIASES_ES[alias];
+                if (WORLD_CITIES[key]) return getSubtitle(WORLD_CITIES[key]);
+            }
+        }
+    }
+
+    // First pass: exact match (accent-insensitive)
     for (const [city, subtitle] of Object.entries(WORLD_CITIES)) {
-        if (city.toLowerCase() === lowerName) return subtitle;
+        if (normalize(city) === normName) return getSubtitle(subtitle);
     }
 
     // Second pass: input contains a full city name (e.g. "New York City" → "New York")
     // Sort by name length descending so longer (more specific) names match first
     const sortedEntries = Object.entries(WORLD_CITIES).sort((a, b) => b[0].length - a[0].length);
     for (const [city, subtitle] of sortedEntries) {
-        if (lowerName.includes(city.toLowerCase())) return subtitle;
+        if (normName.includes(normalize(city))) return getSubtitle(subtitle);
     }
 
     return DEFAULT_SUBTITLE;
@@ -801,7 +865,7 @@ async function searchCity(name) {
 
     try {
         setStatus(t('statusSearchingCity'));
-        const url = `https://api.maptiler.com/geocoding/${encodeURIComponent(name)}.json?key=${MAPTILER_KEY}`;
+        const url = `https://api.maptiler.com/geocoding/${encodeURIComponent(name)}.json?key=${MAPTILER_KEY}&language=${APP_LANG}`;
         const res = await fetch(url);
 
         if (!res.ok) throw new Error(t('errGeocodingFailed'));
@@ -845,7 +909,7 @@ async function downloadPoster() {
         let scale = 3;
         if (printSize) {
             const [tw, th] = isLandscape ? [printSize.height, printSize.width] : [printSize.width, printSize.height];
-            scale = Math.min(Math.max(tw * TARGET_DPI / w, th * TARGET_DPI / h), 16384 / Math.max(w, h), 12);
+            scale = Math.min(Math.max(tw * TARGET_DPI / w, th * TARGET_DPI / h), 16384 / Math.max(w, h));
         }
 
         await new Promise(r => setTimeout(r, 100));
@@ -862,22 +926,25 @@ async function downloadPoster() {
         mapContainer.appendChild(tempImg);
         mapCanvas.style.visibility = "hidden";
 
-        const canvas = await html2canvas(elements.poster, {
-            useCORS: true, scale, logging: false, backgroundColor: null,
-            imageTimeout: 15000, width: w, height: h
-        });
-
-        // Cleanup
-        mapContainer.removeChild(tempImg);
-        mapCanvas.style.visibility = "visible";
+        let canvas;
+        try {
+            canvas = await html2canvas(elements.poster, {
+                useCORS: true, scale, logging: false, backgroundColor: null,
+                imageTimeout: 15000, width: w, height: h
+            });
+        } finally {
+            // Always restore the map, even if html2canvas throws
+            mapContainer.removeChild(tempImg);
+            mapCanvas.style.visibility = "visible";
+        }
 
         if (!canvas?.width || !canvas?.height) throw new Error(t('errCanvasRenderingFailed'));
 
         const blob = await new Promise((res, rej) => canvas.toBlob(b => b ? res(b) : rej(new Error(t('errCreateImageFailed'))), "image/png", 1.0));
         const url = URL.createObjectURL(blob);
-        const cityName = elements.cityTitle.textContent.replace(/\s+/g, "_").toLowerCase() || "city";
+        const cityName = elements.cityTitle?.textContent?.replace(/\s+/g, "_").toLowerCase() || "city";
 
-        Object.assign(document.createElement("a"), { href: url, download: `${cityName}_${selectedSize}_600dpi_${Date.now()}.png` }).click();
+        Object.assign(document.createElement("a"), { href: url, download: `${cityName}_${selectedSize}_${Date.now()}.png` }).click();
         setTimeout(() => URL.revokeObjectURL(url), 1000);
 
         const sizeMB = (blob.size / 1048576).toFixed(1);
@@ -1563,7 +1630,7 @@ async function init() {
     if (cityParam) {
         try {
             setStatus(t('statusLoadingCity'));
-            const res = await fetch(`https://api.maptiler.com/geocoding/${encodeURIComponent(cityParam)}.json?key=${MAPTILER_KEY}`);
+            const res = await fetch(`https://api.maptiler.com/geocoding/${encodeURIComponent(cityParam)}.json?key=${MAPTILER_KEY}&language=${APP_LANG}`);
             if (res.ok) {
                 const data = await res.json();
                 if (data.features?.length) {
@@ -1578,7 +1645,9 @@ async function init() {
         }
     }
 
-    initializeApp(INITIAL_CENTER, INITIAL_ZOOM, "Tokyo");
+    const defaultCity = APP_LANG === 'es' ? 'Tokio' : 'Tokyo';
+
+    initializeApp(INITIAL_CENTER, INITIAL_ZOOM, defaultCity);
 }
 
 // Start the app
