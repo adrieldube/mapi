@@ -151,366 +151,367 @@
       </div>
       <div class="controls-body">
 
-      <!-- Location Section -->
-      <div class="mb-6">
-        <div class="flex items-center gap-2 mb-2">
-          <div class="w-1 h-4 bg-[#440edf] rounded-full"></div>
-          <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">Ubicación</span>
-        </div>
-
-        <div class="space-y-2">
-          <div>
-            <label for="cityInput" class="block text-[11px] font-medium text-[#666] mb-1">Ciudad / Lugar</label>
-            <div class="relative">
-              <input id="cityInput" type="text" placeholder="Buscar una ciudad..."
-                class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20"
-                style="padding-right: 2.6rem;" />
-              <button id="citySearchBtn" type="button" aria-label="Buscar ciudad"
-                class="absolute rounded-lg text-[#666] text-base transition-colors duration-200 hover:text-[#440edf]"
-                style="right: 0.25rem; top: 50%; width: 2rem; height: 2rem; transform: translateY(-50%); display: flex; align-items: center; justify-content: center;">
-                <ion-icon name="search-outline"></ion-icon>
-              </button>
-            </div>
+        <!-- Location Section -->
+        <div class="mb-6">
+          <div class="flex items-center gap-2 mb-2">
+            <div class="w-1 h-4 bg-[#440edf] rounded-full"></div>
+            <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">Ubicación</span>
           </div>
 
-          <div>
-            <div class="flex items-center justify-between mb-1">
-              <label for="zoomInput" class="text-[11px] font-medium text-[#666]">Acercamiento</label>
-              <span id="zoomValue" class="text-[11px] font-semibold text-[#440edf]">13.0</span>
+          <div class="space-y-2">
+            <div>
+              <label for="cityInput" class="block text-[11px] font-medium text-[#666] mb-1">Ciudad / Lugar</label>
+              <div class="relative">
+                <input id="cityInput" type="text" placeholder="Buscar una ciudad..."
+                  class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20"
+                  style="padding-right: 2.6rem;" />
+                <button id="citySearchBtn" type="button" aria-label="Buscar ciudad"
+                  class="absolute rounded-lg text-[#666] text-base transition-colors duration-200 hover:text-[#440edf]"
+                  style="right: 0.25rem; top: 50%; width: 2rem; height: 2rem; transform: translateY(-50%); display: flex; align-items: center; justify-content: center;">
+                  <ion-icon name="search-outline"></ion-icon>
+                </button>
+              </div>
             </div>
-            <div class="flex items-center gap-2">
-              <button type="button" id="zoomDecrement"
-                class="flex items-center justify-center w-8 h-8 rounded-lg bg-white shadow-sm text-[#666] text-base transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95">
-                <ion-icon name="remove-outline"></ion-icon>
-              </button>
-              <div class="flex-1">
-                <input id="zoomInput" type="range" min="1" max="20" step="0.1" value="13"
-                  class="w-full h-1.5 appearance-none bg-[#e5e5e5] rounded-full cursor-pointer
+
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label for="zoomInput" class="text-[11px] font-medium text-[#666]">Acercamiento</label>
+                <span id="zoomValue" class="text-[11px] font-semibold text-[#440edf]">13.0</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <button type="button" id="zoomDecrement"
+                  class="flex items-center justify-center w-8 h-8 rounded-lg bg-white shadow-sm text-[#666] text-base transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95">
+                  <ion-icon name="remove-outline"></ion-icon>
+                </button>
+                <div class="flex-1">
+                  <input id="zoomInput" type="range" min="1" max="20" step="0.1" value="13"
+                    class="w-full h-1.5 appearance-none bg-[#e5e5e5] rounded-full cursor-pointer
                     [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#440edf] [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb]:duration-200 [&::-webkit-slider-thumb]:hover:scale-110 [&::-webkit-slider-thumb]:shadow-md
                     [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-[#440edf] [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:transition-transform [&::-moz-range-thumb]:duration-200 [&::-moz-range-thumb]:hover:scale-110 [&::-moz-range-thumb]:shadow-md" />
+                </div>
+                <button type="button" id="zoomIncrement"
+                  class="flex items-center justify-center w-8 h-8 rounded-lg bg-white shadow-sm text-[#666] text-base transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95">
+                  <ion-icon name="add-outline"></ion-icon>
+                </button>
               </div>
-              <button type="button" id="zoomIncrement"
-                class="flex items-center justify-center w-8 h-8 rounded-lg bg-white shadow-sm text-[#666] text-base transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95">
-                <ion-icon name="add-outline"></ion-icon>
-              </button>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Poster Style Section -->
-      <div class="mb-6">
-        <div class="flex items-center gap-2 mb-2">
-          <div class="w-1 h-4 bg-[#440edf] rounded-full"></div>
-          <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">Estilo del póster</span>
-        </div>
-
-        <div class="space-y-2">
-          <div>
-            <label for="posterStyleSelect" class="block text-[11px] font-medium text-[#666] mb-1">Diseño</label>
-            <select id="posterStyleSelect"
-              class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20 cursor-pointer">
-              <option value="minimal" selected>Lujo minimalista</option>
-              <option value="vertical">Borde vertical</option>
-              <option value="corner">Cuadrícula en esquina</option>
-              <option value="oversized">Formato impactante</option>
-            </select>
+        <!-- Poster Style Section -->
+        <div class="mb-6">
+          <div class="flex items-center gap-2 mb-2">
+            <div class="w-1 h-4 bg-[#440edf] rounded-full"></div>
+            <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">Estilo del póster</span>
           </div>
 
-          <div>
-            <label for="sizeSelect" class="block text-[11px] font-medium text-[#666] mb-1">Tamaño de impresión</label>
-            <select id="sizeSelect"
-              class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20 cursor-pointer">
-              <option value="a1">A1 — 23.4 × 33.1 in / 59.4 × 84.1 cm</option>
-              <option value="a2">A2 — 16.5 × 23.4 in / 42 × 59.4 cm</option>
-              <option value="a3">A3 — 11.7 × 16.5 in / 29.7 × 42 cm</option>
-              <option value="24x36" selected>24 × 36 in / 61 × 91.4 cm</option>
-              <option value="18x24">18 × 24 in / 45.7 × 61 cm</option>
-              <option value="16x20">16 × 20 in / 40.6 × 50.8 cm</option>
-              <option value="11x14">11 × 14 in / 27.9 × 35.6 cm</option>
-            </select>
-          </div>
+          <div class="space-y-2">
+            <div>
+              <label for="posterStyleSelect" class="block text-[11px] font-medium text-[#666] mb-1">Diseño</label>
+              <select id="posterStyleSelect"
+                class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20 cursor-pointer">
+                <option value="minimal" selected>Lujo minimalista</option>
+                <option value="vertical">Borde vertical</option>
+                <option value="corner">Cuadrícula en esquina</option>
+                <option value="oversized">Formato impactante</option>
+              </select>
+            </div>
 
-          <div>
-            <label for="styleSelect" class="block text-[11px] font-medium text-[#666] mb-1">Tema de color</label>
+            <div>
+              <label for="sizeSelect" class="block text-[11px] font-medium text-[#666] mb-1">Tamaño de impresión</label>
+              <select id="sizeSelect"
+                class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20 cursor-pointer">
+                <option value="a1">A1 — 23.4 × 33.1 in / 59.4 × 84.1 cm</option>
+                <option value="a2">A2 — 16.5 × 23.4 in / 42 × 59.4 cm</option>
+                <option value="a3">A3 — 11.7 × 16.5 in / 29.7 × 42 cm</option>
+                <option value="24x36" selected>24 × 36 in / 61 × 91.4 cm</option>
+                <option value="18x24">18 × 24 in / 45.7 × 61 cm</option>
+                <option value="16x20">16 × 20 in / 40.6 × 50.8 cm</option>
+                <option value="11x14">11 × 14 in / 27.9 × 35.6 cm</option>
+              </select>
+            </div>
 
-            <!-- Selected Theme Preview -->
-            <div id="selectedThemePreview" class="mb-2 p-2 bg-white rounded-lg shadow-sm">
-              <div class="flex items-center gap-3">
-                <div id="selectedThemeSwatch" class="theme-swatch-large"></div>
-                <div class="flex-1 min-w-0">
-                  <div id="selectedThemeName" class="text-[12px] font-semibold text-[#333] truncate">Pure Black & White
-                  </div>
-                  <div class="flex gap-2 mt-1.5">
-                    <div class="flex items-center gap-1">
-                      <span id="selectedBgColor" class="color-dot"></span>
-                      <span class="text-[9px] text-[#888]">Fondo</span>
+            <div>
+              <label for="styleSelect" class="block text-[11px] font-medium text-[#666] mb-1">Tema de color</label>
+
+              <!-- Selected Theme Preview -->
+              <div id="selectedThemePreview" class="mb-2 p-2 bg-white rounded-lg shadow-sm">
+                <div class="flex items-center gap-3">
+                  <div id="selectedThemeSwatch" class="theme-swatch-large"></div>
+                  <div class="flex-1 min-w-0">
+                    <div id="selectedThemeName" class="text-[12px] font-semibold text-[#333] truncate">
+                      Pure Black & White
                     </div>
-                    <div class="flex items-center gap-1">
-                      <span id="selectedRoadsColor" class="color-dot"></span>
-                      <span class="text-[9px] text-[#888]">Calles</span>
-                    </div>
-                    <div class="flex items-center gap-1">
-                      <span id="selectedWaterColor" class="color-dot"></span>
-                      <span class="text-[9px] text-[#888]">Agua</span>
+                    <div class="flex gap-2 mt-1.5">
+                      <div class="flex items-center gap-1">
+                        <span id="selectedBgColor" class="color-dot"></span>
+                        <span class="text-[9px] text-[#888]">Fondo</span>
+                      </div>
+                      <div class="flex items-center gap-1">
+                        <span id="selectedRoadsColor" class="color-dot"></span>
+                        <span class="text-[9px] text-[#888]">Calles</span>
+                      </div>
+                      <div class="flex items-center gap-1">
+                        <span id="selectedWaterColor" class="color-dot"></span>
+                        <span class="text-[9px] text-[#888]">Agua</span>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <!-- All Themes Grid -->
-            <div class="mb-2">
-              <div class="flex items-center justify-between mb-1">
-                <span class="text-[10px] font-medium text-[#888]">Todos los temas</span>
-                <button id="toggleThemesGrid"
-                  class="text-[10px] text-[#440edf] hover:underline cursor-pointer bg-transparent border-none">Mostrar
-                  todos</button>
+              <!-- All Themes Grid -->
+              <div class="mb-2">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-[10px] font-medium text-[#888]">Todos los temas</span>
+                  <button id="toggleThemesGrid"
+                    class="text-[10px] text-[#440edf] hover:underline cursor-pointer bg-transparent border-none">Mostrar
+                    todos</button>
+                </div>
+                <div id="themesGrid" class="themes-grid collapsed"></div>
               </div>
-              <div id="themesGrid" class="themes-grid collapsed"></div>
+
+              <select id="styleSelect"
+                class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20 cursor-pointer">
+                <!-- Classic Monochrome -->
+                <optgroup label="Classic Monochrome">
+                  <option value="Pure Black & White" selected>Pure Black & White</option>
+                  <option value="Noir White & Black (Inverted)">Noir White & Black (Inverted)</option>
+                  <option value="Ink Black & Paper White">Ink Black & Paper White</option>
+                  <option value="Warm Grey & Cream">Warm Grey & Cream</option>
+                  <option value="Graphite & Ivory">Graphite & Ivory</option>
+                </optgroup>
+                <!-- 2025 Pantone & Trend Colors -->
+                <optgroup label="2025 Trends">
+                  <option value="Mocha Mousse & Cream">Mocha Mousse & Cream</option>
+                  <option value="Future Dusk & Soft Gold">Future Dusk & Soft Gold</option>
+                  <option value="Romantic Pink & Charcoal">Romantic Pink & Charcoal</option>
+                  <option value="Lush Lilac & Sage">Lush Lilac & Sage</option>
+                  <option value="Digital Lavender & Noir">Digital Lavender & Noir</option>
+                  <option value="Viva Magenta & Cream">Viva Magenta & Cream</option>
+                  <option value="Apricot Crush & Teal">Apricot Crush & Teal</option>
+                  <option value="Peach Fuzz & Navy">Peach Fuzz & Navy</option>
+                  <option value="Butter Yellow & Slate">Butter Yellow & Slate</option>
+                  <option value="Quiet Luxury Taupe & Gold">Quiet Luxury Taupe & Gold</option>
+                </optgroup>
+                <!-- Earth & Nature Tones -->
+                <optgroup label="Earth & Nature">
+                  <option value="Sage Green & Terracotta">Sage Green & Terracotta</option>
+                  <option value="Forest Green & Cream">Forest Green & Cream</option>
+                  <option value="Emerald Green & Bone">Emerald Green & Bone</option>
+                  <option value="Olive & Sand">Olive & Sand</option>
+                  <option value="Moss Green & Linen">Moss Green & Linen</option>
+                  <option value="Eucalyptus & Warm White">Eucalyptus & Warm White</option>
+                  <option value="Terracotta & Slate">Terracotta & Slate</option>
+                  <option value="Clay & Sage">Clay & Sage</option>
+                  <option value="Rust Red & Ivory">Rust Red & Ivory</option>
+                  <option value="Ochre & Charcoal">Ochre & Charcoal</option>
+                  <option value="Desert Sand & Cactus">Desert Sand & Cactus</option>
+                  <option value="Sandstone & Ocean">Sandstone & Ocean</option>
+                </optgroup>
+                <!-- Oceanic & Coastal -->
+                <optgroup label="Oceanic & Coastal">
+                  <option value="Deep Ocean Blue & Sand">Deep Ocean Blue & Sand</option>
+                  <option value="Deep Navy Blue & Blush">Deep Navy Blue & Blush</option>
+                  <option value="Prussian Blue & Warm Grey">Prussian Blue & Warm Grey</option>
+                  <option value="Pacific Blue & Pearl">Pacific Blue & Pearl</option>
+                  <option value="Mediterranean Blue & Limestone">Mediterranean Blue & Limestone</option>
+                  <option value="Aegean Blue & Terracotta">Aegean Blue & Terracotta</option>
+                  <option value="Teal Blue & Taupe">Teal Blue & Taupe</option>
+                  <option value="Turquoise Blue & Cream">Turquoise Blue & Cream</option>
+                  <option value="Aquamarine & Charcoal">Aquamarine & Charcoal</option>
+                  <option value="Coastal Mist & Driftwood">Coastal Mist & Driftwood</option>
+                </optgroup>
+                <!-- Sophisticated Neutrals -->
+                <optgroup label="Sophisticated Neutrals">
+                  <option value="Midnight Navy & Gold">Midnight Navy & Gold</option>
+                  <option value="Cobalt Blue & Cream">Cobalt Blue & Cream</option>
+                  <option value="Burgundy Red & Beige">Burgundy Red & Beige</option>
+                  <option value="Mocha Brown & Mint Green">Mocha Brown & Mint Green</option>
+                  <option value="Espresso & Cream">Espresso & Cream</option>
+                  <option value="Walnut & Parchment">Walnut & Parchment</option>
+                  <option value="Caramel & Ivory">Caramel & Ivory</option>
+                  <option value="Cognac & Linen">Cognac & Linen</option>
+                </optgroup>
+                <!-- Romantic & Soft -->
+                <optgroup label="Romantic & Soft">
+                  <option value="Blush Pink & Charcoal">Blush Pink & Charcoal</option>
+                  <option value="Lavender Purple & Slate">Lavender Purple & Slate</option>
+                  <option value="Royal Purple & Cream">Royal Purple & Cream</option>
+                  <option value="Dusty Rose & Graphite">Dusty Rose & Graphite</option>
+                  <option value="Mauve & Warm Grey">Mauve & Warm Grey</option>
+                  <option value="Lilac & Soft White">Lilac & Soft White</option>
+                  <option value="Plum Purple & Cream">Plum Purple & Cream</option>
+                  <option value="Orchid Pink & Sage">Orchid Pink & Sage</option>
+                  <option value="Wisteria & Pearl">Wisteria & Pearl</option>
+                  <option value="Soft Coral & Navy">Soft Coral & Navy</option>
+                </optgroup>
+                <!-- Bold & Vibrant -->
+                <optgroup label="Bold & Vibrant">
+                  <option value="Electric Blue & White">Electric Blue & White</option>
+                  <option value="Hot Pink & White">Hot Pink & White</option>
+                  <option value="Fuchsia Pink & Black">Fuchsia Pink & Black</option>
+                  <option value="Magenta Pink & Cream">Magenta Pink & Cream</option>
+                  <option value="Crimson Red & Ivory">Crimson Red & Ivory</option>
+                  <option value="Vermillion Red & Ecru">Vermillion Red & Ecru</option>
+                  <option value="Scarlet Red & Black">Scarlet Red & Black</option>
+                  <option value="Raspberry Pink & Mint">Raspberry Pink & Mint</option>
+                  <option value="Rose Pink & Navy">Rose Pink & Navy</option>
+                  <option value="Burnt Orange & White">Burnt Orange & White</option>
+                  <option value="Tangerine Orange & Teal">Tangerine Orange & Teal</option>
+                  <option value="Sunset Orange & Indigo">Sunset Orange & Indigo</option>
+                  <option value="Coral Red & Navy Blue">Coral Red & Navy Blue</option>
+                  <option value="Violet Purple & Ivory">Violet Purple & Ivory</option>
+                  <option value="Sapphire Blue & Gold">Sapphire Blue & Gold</option>
+                </optgroup>
+                <!-- Neon & Cyber -->
+                <optgroup label="Neon & Cyber">
+                  <option value="Neon Green & Black">Neon Green & Black</option>
+                  <option value="Neon Cyan & Purple">Neon Cyan & Purple</option>
+                  <option value="Neon Orange & Black">Neon Orange & Black</option>
+                  <option value="Lime Yellow & Charcoal">Lime Yellow & Charcoal</option>
+                  <option value="Electric Yellow & Violet">Electric Yellow & Violet</option>
+                  <option value="Cyber Purple & Black">Cyber Purple & Black</option>
+                  <option value="Matrix Green & Black">Matrix Green & Black</option>
+                  <option value="Synthwave Pink & Navy">Synthwave Pink & Navy</option>
+                  <option value="Electric Violet & Noir">Electric Violet & Noir</option>
+                  <option value="Laser Blue & Midnight">Laser Blue & Midnight</option>
+                </optgroup>
+                <!-- Metallic & Luxe -->
+                <optgroup label="Metallic & Luxe">
+                  <option value="Amber Gold & Slate Grey">Amber Gold & Slate Grey</option>
+                  <option value="Rose Gold & Charcoal">Rose Gold & Charcoal</option>
+                  <option value="Champagne & Noir">Champagne & Noir</option>
+                  <option value="Bronze & Cream">Bronze & Cream</option>
+                  <option value="Copper & Slate">Copper & Slate</option>
+                  <option value="Silver & Midnight">Silver & Midnight</option>
+                  <option value="Platinum & Obsidian">Platinum & Obsidian</option>
+                </optgroup>
+                <!-- Minimalist Japanese -->
+                <optgroup label="Minimalist Japanese">
+                  <option value="Sumi Ink & Rice Paper">Sumi Ink & Rice Paper</option>
+                  <option value="Indigo & Bamboo">Indigo & Bamboo</option>
+                  <option value="Matcha & Ivory">Matcha & Ivory</option>
+                  <option value="Sakura & Charcoal">Sakura & Charcoal</option>
+                  <option value="Zen Stone & Mist">Zen Stone & Mist</option>
+                </optgroup>
+                <!-- Scandinavian Minimal -->
+                <optgroup label="Scandinavian Minimal">
+                  <option value="Nordic Blue & White">Nordic Blue & White</option>
+                  <option value="Hygge Taupe & Cream">Hygge Taupe & Cream</option>
+                  <option value="Fjord Blue & Pearl">Fjord Blue & Pearl</option>
+                  <option value="Arctic Grey & Snow">Arctic Grey & Snow</option>
+                  <option value="Birch & Stone">Birch & Stone</option>
+                </optgroup>
+                <!-- Tropical & Warm -->
+                <optgroup label="Tropical & Warm">
+                  <option value="Mango & Teal">Mango & Teal</option>
+                  <option value="Palm Green & Coral">Palm Green & Coral</option>
+                  <option value="Papaya & Navy">Papaya & Navy</option>
+                  <option value="Hibiscus & White">Hibiscus & White</option>
+                  <option value="Ocean Breeze & Sand">Ocean Breeze & Sand</option>
+                </optgroup>
+                <!-- Vintage & Retro -->
+                <optgroup label="Vintage & Retro">
+                  <option value="Retro Mustard & Brown">Retro Mustard & Brown</option>
+                  <option value="Vintage Teal & Cream">Vintage Teal & Cream</option>
+                  <option value="70s Avocado & Orange">70s Avocado & Orange</option>
+                  <option value="Art Deco Gold & Black">Art Deco Gold & Black</option>
+                  <option value="Mid-Century Coral & Navy">Mid-Century Coral & Navy</option>
+                </optgroup>
+                <!-- Special Editions -->
+                <optgroup label="Special Editions">
+                  <option value="Forest Green & White">Forest Green & White</option>
+                  <option value="Mint Green & Chocolate Brown">Mint Green & Chocolate Brown</option>
+                  <option value="Jade Green & Black">Jade Green & Black</option>
+                  <option value="Aqua Blue & Charcoal">Aqua Blue & Charcoal</option>
+                  <option value="Peach Orange & Graphite">Peach Orange & Graphite</option>
+                  <option value="Lemon Yellow & Navy Blue">Lemon Yellow & Navy Blue</option>
+                  <option value="Royal Blue & Coral Orange">Royal Blue & Coral Orange</option>
+                  <option value="Bright Yellow & Teal Blue">Bright Yellow & Teal Blue</option>
+                </optgroup>
+              </select>
             </div>
-
-            <select id="styleSelect"
-              class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20 cursor-pointer">
-              <!-- Classic Monochrome -->
-              <optgroup label="Classic Monochrome">
-                <option value="Pure Black & White" selected>Pure Black & White</option>
-                <option value="Noir White & Black (Inverted)">Noir White & Black (Inverted)</option>
-                <option value="Ink Black & Paper White">Ink Black & Paper White</option>
-                <option value="Warm Grey & Cream">Warm Grey & Cream</option>
-                <option value="Graphite & Ivory">Graphite & Ivory</option>
-              </optgroup>
-              <!-- 2025 Pantone & Trend Colors -->
-              <optgroup label="2025 Trends">
-                <option value="Mocha Mousse & Cream">Mocha Mousse & Cream</option>
-                <option value="Future Dusk & Soft Gold">Future Dusk & Soft Gold</option>
-                <option value="Romantic Pink & Charcoal">Romantic Pink & Charcoal</option>
-                <option value="Lush Lilac & Sage">Lush Lilac & Sage</option>
-                <option value="Digital Lavender & Noir">Digital Lavender & Noir</option>
-                <option value="Viva Magenta & Cream">Viva Magenta & Cream</option>
-                <option value="Apricot Crush & Teal">Apricot Crush & Teal</option>
-                <option value="Peach Fuzz & Navy">Peach Fuzz & Navy</option>
-                <option value="Butter Yellow & Slate">Butter Yellow & Slate</option>
-                <option value="Quiet Luxury Taupe & Gold">Quiet Luxury Taupe & Gold</option>
-              </optgroup>
-              <!-- Earth & Nature Tones -->
-              <optgroup label="Earth & Nature">
-                <option value="Sage Green & Terracotta">Sage Green & Terracotta</option>
-                <option value="Forest Green & Cream">Forest Green & Cream</option>
-                <option value="Emerald Green & Bone">Emerald Green & Bone</option>
-                <option value="Olive & Sand">Olive & Sand</option>
-                <option value="Moss Green & Linen">Moss Green & Linen</option>
-                <option value="Eucalyptus & Warm White">Eucalyptus & Warm White</option>
-                <option value="Terracotta & Slate">Terracotta & Slate</option>
-                <option value="Clay & Sage">Clay & Sage</option>
-                <option value="Rust Red & Ivory">Rust Red & Ivory</option>
-                <option value="Ochre & Charcoal">Ochre & Charcoal</option>
-                <option value="Desert Sand & Cactus">Desert Sand & Cactus</option>
-                <option value="Sandstone & Ocean">Sandstone & Ocean</option>
-              </optgroup>
-              <!-- Oceanic & Coastal -->
-              <optgroup label="Oceanic & Coastal">
-                <option value="Deep Ocean Blue & Sand">Deep Ocean Blue & Sand</option>
-                <option value="Deep Navy Blue & Blush">Deep Navy Blue & Blush</option>
-                <option value="Prussian Blue & Warm Grey">Prussian Blue & Warm Grey</option>
-                <option value="Pacific Blue & Pearl">Pacific Blue & Pearl</option>
-                <option value="Mediterranean Blue & Limestone">Mediterranean Blue & Limestone</option>
-                <option value="Aegean Blue & Terracotta">Aegean Blue & Terracotta</option>
-                <option value="Teal Blue & Taupe">Teal Blue & Taupe</option>
-                <option value="Turquoise Blue & Cream">Turquoise Blue & Cream</option>
-                <option value="Aquamarine & Charcoal">Aquamarine & Charcoal</option>
-                <option value="Coastal Mist & Driftwood">Coastal Mist & Driftwood</option>
-              </optgroup>
-              <!-- Sophisticated Neutrals -->
-              <optgroup label="Sophisticated Neutrals">
-                <option value="Midnight Navy & Gold">Midnight Navy & Gold</option>
-                <option value="Cobalt Blue & Cream">Cobalt Blue & Cream</option>
-                <option value="Burgundy Red & Beige">Burgundy Red & Beige</option>
-                <option value="Mocha Brown & Mint Green">Mocha Brown & Mint Green</option>
-                <option value="Espresso & Cream">Espresso & Cream</option>
-                <option value="Walnut & Parchment">Walnut & Parchment</option>
-                <option value="Caramel & Ivory">Caramel & Ivory</option>
-                <option value="Cognac & Linen">Cognac & Linen</option>
-              </optgroup>
-              <!-- Romantic & Soft -->
-              <optgroup label="Romantic & Soft">
-                <option value="Blush Pink & Charcoal">Blush Pink & Charcoal</option>
-                <option value="Lavender Purple & Slate">Lavender Purple & Slate</option>
-                <option value="Royal Purple & Cream">Royal Purple & Cream</option>
-                <option value="Dusty Rose & Graphite">Dusty Rose & Graphite</option>
-                <option value="Mauve & Warm Grey">Mauve & Warm Grey</option>
-                <option value="Lilac & Soft White">Lilac & Soft White</option>
-                <option value="Plum Purple & Cream">Plum Purple & Cream</option>
-                <option value="Orchid Pink & Sage">Orchid Pink & Sage</option>
-                <option value="Wisteria & Pearl">Wisteria & Pearl</option>
-                <option value="Soft Coral & Navy">Soft Coral & Navy</option>
-              </optgroup>
-              <!-- Bold & Vibrant -->
-              <optgroup label="Bold & Vibrant">
-                <option value="Electric Blue & White">Electric Blue & White</option>
-                <option value="Hot Pink & White">Hot Pink & White</option>
-                <option value="Fuchsia Pink & Black">Fuchsia Pink & Black</option>
-                <option value="Magenta Pink & Cream">Magenta Pink & Cream</option>
-                <option value="Crimson Red & Ivory">Crimson Red & Ivory</option>
-                <option value="Vermillion Red & Ecru">Vermillion Red & Ecru</option>
-                <option value="Scarlet Red & Black">Scarlet Red & Black</option>
-                <option value="Raspberry Pink & Mint">Raspberry Pink & Mint</option>
-                <option value="Rose Pink & Navy">Rose Pink & Navy</option>
-                <option value="Burnt Orange & White">Burnt Orange & White</option>
-                <option value="Tangerine Orange & Teal">Tangerine Orange & Teal</option>
-                <option value="Sunset Orange & Indigo">Sunset Orange & Indigo</option>
-                <option value="Coral Red & Navy Blue">Coral Red & Navy Blue</option>
-                <option value="Violet Purple & Ivory">Violet Purple & Ivory</option>
-                <option value="Sapphire Blue & Gold">Sapphire Blue & Gold</option>
-              </optgroup>
-              <!-- Neon & Cyber -->
-              <optgroup label="Neon & Cyber">
-                <option value="Neon Green & Black">Neon Green & Black</option>
-                <option value="Neon Cyan & Purple">Neon Cyan & Purple</option>
-                <option value="Neon Orange & Black">Neon Orange & Black</option>
-                <option value="Lime Yellow & Charcoal">Lime Yellow & Charcoal</option>
-                <option value="Electric Yellow & Violet">Electric Yellow & Violet</option>
-                <option value="Cyber Purple & Black">Cyber Purple & Black</option>
-                <option value="Matrix Green & Black">Matrix Green & Black</option>
-                <option value="Synthwave Pink & Navy">Synthwave Pink & Navy</option>
-                <option value="Electric Violet & Noir">Electric Violet & Noir</option>
-                <option value="Laser Blue & Midnight">Laser Blue & Midnight</option>
-              </optgroup>
-              <!-- Metallic & Luxe -->
-              <optgroup label="Metallic & Luxe">
-                <option value="Amber Gold & Slate Grey">Amber Gold & Slate Grey</option>
-                <option value="Rose Gold & Charcoal">Rose Gold & Charcoal</option>
-                <option value="Champagne & Noir">Champagne & Noir</option>
-                <option value="Bronze & Cream">Bronze & Cream</option>
-                <option value="Copper & Slate">Copper & Slate</option>
-                <option value="Silver & Midnight">Silver & Midnight</option>
-                <option value="Platinum & Obsidian">Platinum & Obsidian</option>
-              </optgroup>
-              <!-- Minimalist Japanese -->
-              <optgroup label="Minimalist Japanese">
-                <option value="Sumi Ink & Rice Paper">Sumi Ink & Rice Paper</option>
-                <option value="Indigo & Bamboo">Indigo & Bamboo</option>
-                <option value="Matcha & Ivory">Matcha & Ivory</option>
-                <option value="Sakura & Charcoal">Sakura & Charcoal</option>
-                <option value="Zen Stone & Mist">Zen Stone & Mist</option>
-              </optgroup>
-              <!-- Scandinavian Minimal -->
-              <optgroup label="Scandinavian Minimal">
-                <option value="Nordic Blue & White">Nordic Blue & White</option>
-                <option value="Hygge Taupe & Cream">Hygge Taupe & Cream</option>
-                <option value="Fjord Blue & Pearl">Fjord Blue & Pearl</option>
-                <option value="Arctic Grey & Snow">Arctic Grey & Snow</option>
-                <option value="Birch & Stone">Birch & Stone</option>
-              </optgroup>
-              <!-- Tropical & Warm -->
-              <optgroup label="Tropical & Warm">
-                <option value="Mango & Teal">Mango & Teal</option>
-                <option value="Palm Green & Coral">Palm Green & Coral</option>
-                <option value="Papaya & Navy">Papaya & Navy</option>
-                <option value="Hibiscus & White">Hibiscus & White</option>
-                <option value="Ocean Breeze & Sand">Ocean Breeze & Sand</option>
-              </optgroup>
-              <!-- Vintage & Retro -->
-              <optgroup label="Vintage & Retro">
-                <option value="Retro Mustard & Brown">Retro Mustard & Brown</option>
-                <option value="Vintage Teal & Cream">Vintage Teal & Cream</option>
-                <option value="70s Avocado & Orange">70s Avocado & Orange</option>
-                <option value="Art Deco Gold & Black">Art Deco Gold & Black</option>
-                <option value="Mid-Century Coral & Navy">Mid-Century Coral & Navy</option>
-              </optgroup>
-              <!-- Special Editions -->
-              <optgroup label="Special Editions">
-                <option value="Forest Green & White">Forest Green & White</option>
-                <option value="Mint Green & Chocolate Brown">Mint Green & Chocolate Brown</option>
-                <option value="Jade Green & Black">Jade Green & Black</option>
-                <option value="Aqua Blue & Charcoal">Aqua Blue & Charcoal</option>
-                <option value="Peach Orange & Graphite">Peach Orange & Graphite</option>
-                <option value="Lemon Yellow & Navy Blue">Lemon Yellow & Navy Blue</option>
-                <option value="Royal Blue & Coral Orange">Royal Blue & Coral Orange</option>
-                <option value="Bright Yellow & Teal Blue">Bright Yellow & Teal Blue</option>
-              </optgroup>
-            </select>
           </div>
         </div>
-      </div>
 
-      <!-- Options Section -->
-      <div class="mb-6">
-        <div class="flex items-center gap-2 mb-2">
-          <div class="w-1 h-4 bg-[#440edf] rounded-full"></div>
-          <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">Opciones</span>
-        </div>
-
-        <div class="flex items-center gap-3 p-2 bg-white rounded-lg shadow-sm">
-          <div class="flex items-center gap-2">
-            <span class="text-[12px] font-medium text-[#555]">Horizontal</span>
-            <div
-              class="toggle-switch relative w-11 h-6 bg-[#e0e0e0] rounded-full cursor-pointer transition-colors duration-300 after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:w-[18px] after:h-[18px] after:bg-white after:rounded-full after:transition-transform after:duration-300 after:shadow-sm [&.active]:bg-[#440edf] [&.active]:after:translate-x-5"
-              id="orientationToggle"></div>
+        <!-- Options Section -->
+        <div class="mb-6">
+          <div class="flex items-center gap-2 mb-2">
+            <div class="w-1 h-4 bg-[#440edf] rounded-full"></div>
+            <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">Opciones</span>
           </div>
 
-          <div class="w-px h-6 bg-[#e0e0e0]"></div>
-
-          <div class="flex items-center gap-2">
-            <span class="text-[12px] font-medium text-[#555]">Etiquetas</span>
-            <div
-              class="toggle-switch active relative w-11 h-6 bg-[#e0e0e0] rounded-full cursor-pointer transition-colors duration-300 after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:w-[18px] after:h-[18px] after:bg-white after:rounded-full after:transition-transform after:duration-300 after:shadow-sm [&.active]:bg-[#440edf] [&.active]:after:translate-x-5"
-              id="labelsToggle"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Labels Section -->
-      <div id="labelFields" class="mb-4">
-        <div class="flex items-center gap-2 mb-2">
-          <div class="w-1 h-4 bg-[#440edf] rounded-full"></div>
-          <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">Etiquetas</span>
-        </div>
-
-        <div class="space-y-2">
-          <div>
-            <label for="titleInput" class="block text-[11px] font-medium text-[#666] mb-1">Título</label>
-            <input id="titleInput" type="text" placeholder="Nombre de la ciudad" value="HAVANA"
-              class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20" />
-          </div>
-
-          <div>
-            <label for="subtitleInput" class="block text-[11px] font-medium text-[#666] mb-1">Subtítulo</label>
-            <input id="subtitleInput" type="text" placeholder="Subtítulo opcional" value="La perla de las Antillas"
-              class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20" />
-          </div>
-
-          <div>
-            <label for="taglineInput" class="block text-[11px] font-medium text-[#666] mb-1">Lema</label>
-            <input id="taglineInput" type="text" placeholder="40.712° N — 74.006° W" value=""
-              class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20" />
-          </div>
-
-          <div>
-            <label for="labelColorInput" class="block text-[11px] font-medium text-[#666] mb-1">Color de
-              etiqueta</label>
+          <div class="flex items-center gap-3 p-2 bg-white rounded-lg shadow-sm">
             <div class="flex items-center gap-2">
-              <input id="labelColorInput" type="color" value="#000000"
-                class="w-10 h-10 rounded-lg border-0 bg-white shadow-sm cursor-pointer p-0.5 transition-all duration-200 hover:shadow-md" />
-              <input id="labelColorHex" type="text" value="#000000" placeholder="#000000"
-                class="flex-1 px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20 font-mono" />
-              <button id="labelColorAuto" type="button" title="Auto (según el fondo)"
-                class="flex items-center justify-center w-10 h-10 rounded-lg bg-white shadow-sm text-[#666] text-base transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95">
-                <ion-icon name="color-wand-outline"></ion-icon>
-              </button>
+              <span class="text-[12px] font-medium text-[#555]">Horizontal</span>
+              <div
+                class="toggle-switch relative w-11 h-6 bg-[#e0e0e0] rounded-full cursor-pointer transition-colors duration-300 after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:w-[18px] after:h-[18px] after:bg-white after:rounded-full after:transition-transform after:duration-300 after:shadow-sm [&.active]:bg-[#440edf] [&.active]:after:translate-x-5"
+                id="orientationToggle"></div>
+            </div>
+
+            <div class="w-px h-6 bg-[#e0e0e0]"></div>
+
+            <div class="flex items-center gap-2">
+              <span class="text-[12px] font-medium text-[#555]">Etiquetas</span>
+              <div
+                class="toggle-switch active relative w-11 h-6 bg-[#e0e0e0] rounded-full cursor-pointer transition-colors duration-300 after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:w-[18px] after:h-[18px] after:bg-white after:rounded-full after:transition-transform after:duration-300 after:shadow-sm [&.active]:bg-[#440edf] [&.active]:after:translate-x-5"
+                id="labelsToggle"></div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Status & Attribution -->
-      <div class="mt-auto">
-        <div id="status" class="text-[11px] min-h-[16px] text-center text-[#888]">&nbsp;</div>
+        <!-- Labels Section -->
+        <div id="labelFields" class="mb-4">
+          <div class="flex items-center gap-2 mb-2">
+            <div class="w-1 h-4 bg-[#440edf] rounded-full"></div>
+            <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">Etiquetas</span>
+          </div>
 
-        <div id="attribution" class="mt-4 pt-2 border-t border-[#e5e5e5] text-[9px] text-center text-[#aaa]">
-          © OpenStreetMap contributors · Tiles © MapTiler
+          <div class="space-y-2">
+            <div>
+              <label for="titleInput" class="block text-[11px] font-medium text-[#666] mb-1">Título</label>
+              <input id="titleInput" type="text" placeholder="Nombre de la ciudad" value="HAVANA"
+                class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20" />
+            </div>
+
+            <div>
+              <label for="subtitleInput" class="block text-[11px] font-medium text-[#666] mb-1">Subtítulo</label>
+              <input id="subtitleInput" type="text" placeholder="Subtítulo opcional" value="La perla de las Antillas"
+                class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20" />
+            </div>
+
+            <div>
+              <label for="taglineInput" class="block text-[11px] font-medium text-[#666] mb-1">Lema</label>
+              <input id="taglineInput" type="text" placeholder="40.712° N — 74.006° W" value=""
+                class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20" />
+            </div>
+
+            <div>
+              <label for="labelColorInput" class="block text-[11px] font-medium text-[#666] mb-1">Color de
+                etiqueta</label>
+              <div class="flex items-center gap-2">
+                <input id="labelColorInput" type="color" value="#000000"
+                  class="w-10 h-10 rounded-lg border-0 bg-white shadow-sm cursor-pointer p-0.5 transition-all duration-200 hover:shadow-md" />
+                <input id="labelColorHex" type="text" value="#000000" placeholder="#000000"
+                  class="flex-1 px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20 font-mono" />
+                <button id="labelColorAuto" type="button" title="Auto (según el fondo)"
+                  class="flex items-center justify-center w-10 h-10 rounded-lg bg-white shadow-sm text-[#666] text-base transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95">
+                  <ion-icon name="color-wand-outline"></ion-icon>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+
+        <!-- Status & Attribution -->
+        <div class="mt-auto">
+          <div id="status" class="text-[11px] min-h-[16px] text-center text-[#888]">&nbsp;</div>
+
+          <div id="attribution" class="mt-4 pt-2 border-t border-[#e5e5e5] text-[9px] text-center text-[#aaa]">
+            © OpenStreetMap contributors · Tiles © MapTiler
+          </div>
+        </div>
       </div><!-- /.controls-body -->
     </section>
 
@@ -527,7 +528,7 @@
   </div>
 
   <!-- App Script -->
-  <script src="../js/app.js"></script>
+  <script src="../js/app.min.js"></script>
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-P2YZSW5Z51"></script>
   <script>
