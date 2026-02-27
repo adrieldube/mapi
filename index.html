@@ -50,6 +50,30 @@
   <script type="module" src="https://unpkg.com/ionicons@8.0.13/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@8.0.13/dist/ionicons/ionicons.js"></script>
 
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "MAPI - StreetMap Designer",
+    "url": "https://streetmap-designer.pages.dev/",
+    "description": "Design stunning map posters, wallpapers, and high-resolution images of any city in the world. Perfect for wall art, framed prints, phone and desktop wallpapers, personalized gifts, home decor, and social media banners.",
+    "applicationCategory": "DesignApplication",
+    "operatingSystem": "Any",
+    "browserRequirements": "Requires a modern web browser with JavaScript enabled",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "inLanguage": ["en", "es"],
+    "author": {
+      "@type": "Organization",
+      "name": "MAPI"
+    }
+  }
+  </script>
+
   <!-- Custom Styles -->
   <link href="css/styles.min.css" rel="stylesheet" />
 </head>
@@ -66,7 +90,7 @@
       class="intro-card relative z-10 flex flex-col lg:flex-row items-center gap-4 lg:gap-8 max-w-[1100px] w-full max-h-[calc(100dvh-1rem)] md:max-h-[calc(100dvh-2rem)] overflow-y-auto overflow-x-hidden mx-auto px-2 py-6 lg:px-8 lg:py-8 rounded-3xl bg-white"
       style="border: 1px solid rgba(68,14,223,0.08); box-shadow: 0 32px 80px rgba(0,0,0,0.25);">
       <!-- 3D Globe -->
-      <div id="globeContainer"
+      <div id="globeContainer" role="img" aria-label="Interactive 3D globe"
         class="w-[260px] h-[260px] sm:w-[320px] sm:h-[320px] lg:w-[500px] lg:h-[500px] flex-shrink-0 cursor-grab active:cursor-grabbing mx-auto lg:mx-0">
       </div>
 
@@ -74,11 +98,11 @@
       <div class="intro-copy text-[#111] max-w-lg w-full text-center lg:text-left min-w-0 break-words">
         <div class="flex items-center justify-center lg:justify-end gap-2 mb-3">
           <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#777]">Language</span>
-          <a href="index.html"
+          <a href="index.html" aria-label="English (current language)" aria-current="page"
             class="rounded-lg border border-[#440edf] bg-[#440edf] px-2.5 py-1 text-[11px] font-semibold text-white">
             EN
           </a>
-          <a href="es/index.html"
+          <a href="es/index.html" aria-label="Español"
             class="rounded-lg border border-[#440edf] bg-white px-2.5 py-1 text-[11px] font-semibold text-[#440edf] transition-colors duration-200 hover:bg-[#f3efff]">
             ES
           </a>
@@ -87,7 +111,7 @@
         <div class="flex items-center gap-3 justify-center lg:justify-start mb-3">
           <div
             class="w-10 h-10 bg-[#440edf] rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/20">
-            <ion-icon name="map-outline" class="text-xl text-[#d2e823]"></ion-icon>
+            <ion-icon name="map-outline" class="text-xl text-[#d2e823]" aria-hidden="true"></ion-icon>
           </div>
           <h1 class="text-3xl font-extrabold tracking-tight text-[#440edf]">MAPI</h1>
           <div class="rounded-lg bg-red-600 px-2 py-1 text-[9px] font-semibold text-white">Beta</div>
@@ -103,34 +127,34 @@
         <!-- add horizontal scroll for mobile devices -->
         <div
           class="intro-postcards-row flex gap-3 mb-6 justify-start lg:justify-start flex-nowrap overflow-x-auto md:overflow-x-hidden overflow-y-hidden w-full max-w-full px-1 py-3">
-          <button class="intro-city-btn postcard" data-city="Tokyo" data-lat="35.6762" data-lon="139.6503">
+          <button class="intro-city-btn postcard" data-city="Tokyo" data-lat="35.6762" data-lon="139.6503" aria-label="Start with Tokyo, Japan">
             <div class="postcard-map" id="minimap-tokyo"></div>
             <div class="postcard-body">
               <span class="postcard-city">Tokyo</span>
               <span class="postcard-country">Japan</span>
             </div>
             <div class="postcard-pin">
-              <ion-icon name="location"></ion-icon>
+              <ion-icon name="location" aria-hidden="true"></ion-icon>
             </div>
           </button>
-          <button class="intro-city-btn postcard" data-city="Paris" data-lat="48.8566" data-lon="2.3522">
+          <button class="intro-city-btn postcard" data-city="Paris" data-lat="48.8566" data-lon="2.3522" aria-label="Start with Paris, France">
             <div class="postcard-map" id="minimap-paris"></div>
             <div class="postcard-body">
               <span class="postcard-city">Paris</span>
               <span class="postcard-country">France</span>
             </div>
             <div class="postcard-pin">
-              <ion-icon name="location"></ion-icon>
+              <ion-icon name="location" aria-hidden="true"></ion-icon>
             </div>
           </button>
-          <button class="intro-city-btn postcard" data-city="New York" data-lat="40.7128" data-lon="-74.0060">
+          <button class="intro-city-btn postcard" data-city="New York" data-lat="40.7128" data-lon="-74.0060" aria-label="Start with New York, USA">
             <div class="postcard-map" id="minimap-newyork"></div>
             <div class="postcard-body">
               <span class="postcard-city">New York</span>
               <span class="postcard-country">USA</span>
             </div>
             <div class="postcard-pin">
-              <ion-icon name="location"></ion-icon>
+              <ion-icon name="location" aria-hidden="true"></ion-icon>
             </div>
           </button>
         </div>
@@ -146,8 +170,8 @@
 
   <header class="px-2 py-1 bg-[#440edf] text-[#d2e823]">
     <div class="flex items-center justify-between">
-      <a href="#" class="flex items-center gap-2 font-bold text-lg text-[#d2e823]">
-        <ion-icon name="map-outline" class="text-2xl"></ion-icon>
+      <a href="#" aria-label="MAPI - StreetMap Designer home" class="flex items-center gap-2 font-bold text-lg text-[#d2e823]">
+        <ion-icon name="map-outline" class="text-2xl" aria-hidden="true"></ion-icon>
         <span class="text-xl">MAPI</span>
         <span class="rounded bg-red-600 px-2 py-0 text-[9px] font-semibold text-white align-middle inline-block ml-1"
           style="line-height:1.8;">Beta</span>
@@ -156,16 +180,16 @@
       <div class="flex items-center gap-2">
         <button id="panelToggleBtn" type="button" aria-label="Toggle controls panel" aria-expanded="false"
           class="cursor-pointer rounded-xl border border-[#d2e823] px-3 py-2.5 text-[13px] font-semibold transition-all duration-200 bg-[#440edf] text-[#d2e823] hover:bg-[#d2e823] hover:text-[#000]">
-          <ion-icon name="options-outline" class="text-base"></ion-icon>
+          <ion-icon name="options-outline" class="text-base" aria-hidden="true"></ion-icon>
         </button>
-        <a href="es/index.html"
+        <a href="es/index.html" aria-label="Cambiar a Español"
           class="cursor-pointer rounded-xl border border-[#d2e823] px-3 py-2.5 text-[13px] font-semibold transition-all duration-200 bg-[#440edf] text-[#d2e823] hover:bg-[#d2e823] hover:text-[#000]">
           ES
         </a>
         <button
           class="cursor-pointer rounded-xl border border-[#d2e823] px-5 py-2.5 text-[13px] font-semibold transition-all duration-200 bg-[#440edf] text-[#d2e823] hover:bg-[#d2e823] hover:text-[#000] hover:shadow-lg flex items-center gap-2"
           id="downloadBtn">
-          <ion-icon name="download-outline" class="text-base"></ion-icon>
+          <ion-icon name="download-outline" class="text-base" aria-hidden="true"></ion-icon>
           Download
         </button>
       </div>
@@ -178,7 +202,7 @@
       class="w-[320px] bg-[#fafafa] p-4 h-full overflow-y-auto shrink-0 max-[900px]:w-full max-[900px]:h-auto">
       <div class="mobile-panel-header">
         <button id="panelCloseBtn" type="button" aria-label="Close controls panel">
-          <ion-icon name="close-outline"></ion-icon>
+          <ion-icon name="close-outline" aria-hidden="true"></ion-icon>
         </button>
       </div>
       <div class="controls-body">
@@ -200,7 +224,7 @@
                 <button id="citySearchBtn" type="button" aria-label="Search city"
                   class="absolute rounded-lg text-[#666] text-base transition-colors duration-200 hover:text-[#440edf]"
                   style="right: 0.25rem; top: 50%; width: 2rem; height: 2rem; transform: translateY(-50%); display: flex; align-items: center; justify-content: center;">
-                  <ion-icon name="search-outline"></ion-icon>
+                  <ion-icon name="search-outline" aria-hidden="true"></ion-icon>
                 </button>
               </div>
             </div>
@@ -211,19 +235,19 @@
                 <span id="zoomValue" class="text-[11px] font-semibold text-[#440edf]">13.0</span>
               </div>
               <div class="flex items-center gap-2">
-                <button type="button" id="zoomDecrement"
+                <button type="button" id="zoomDecrement" aria-label="Decrease zoom"
                   class="flex items-center justify-center w-8 h-8 rounded-lg bg-white shadow-sm text-[#666] text-base transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95">
-                  <ion-icon name="remove-outline"></ion-icon>
+                  <ion-icon name="remove-outline" aria-hidden="true"></ion-icon>
                 </button>
-                <div class="flex-1">
+                <div class="flex-1" role="presentation">
                   <input id="zoomInput" type="range" min="1" max="20" step="0.1" value="13"
                     class="w-full h-1.5 appearance-none bg-[#e5e5e5] rounded-full cursor-pointer
                     [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#440edf] [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb]:duration-200 [&::-webkit-slider-thumb]:hover:scale-110 [&::-webkit-slider-thumb]:shadow-md
                     [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-[#440edf] [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:transition-transform [&::-moz-range-thumb]:duration-200 [&::-moz-range-thumb]:hover:scale-110 [&::-moz-range-thumb]:shadow-md" />
                 </div>
-                <button type="button" id="zoomIncrement"
+                <button type="button" id="zoomIncrement" aria-label="Increase zoom"
                   class="flex items-center justify-center w-8 h-8 rounded-lg bg-white shadow-sm text-[#666] text-base transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95">
-                  <ion-icon name="add-outline"></ion-icon>
+                  <ion-icon name="add-outline" aria-hidden="true"></ion-icon>
                 </button>
               </div>
             </div>
@@ -319,19 +343,19 @@
 
           <div class="flex items-center gap-3 p-2 bg-white rounded-lg shadow-sm">
             <div class="flex items-center gap-2">
-              <span class="text-[12px] font-medium text-[#555]">Landscape</span>
+              <span class="text-[12px] font-medium text-[#555]" id="orientationLabel">Landscape</span>
               <div
                 class="toggle-switch relative w-11 h-6 bg-[#e0e0e0] rounded-full cursor-pointer transition-colors duration-300 after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:w-[18px] after:h-[18px] after:bg-white after:rounded-full after:transition-transform after:duration-300 after:shadow-sm [&.active]:bg-[#440edf] [&.active]:after:translate-x-5"
-                id="orientationToggle"></div>
+                id="orientationToggle" role="switch" aria-checked="false" aria-labelledby="orientationLabel" tabindex="0"></div>
             </div>
 
             <div class="w-px h-6 bg-[#e0e0e0]"></div>
 
             <div class="flex items-center gap-2">
-              <span class="text-[12px] font-medium text-[#555]">Labels</span>
+              <span class="text-[12px] font-medium text-[#555]" id="labelsLabel">Labels</span>
               <div
                 class="toggle-switch active relative w-11 h-6 bg-[#e0e0e0] rounded-full cursor-pointer transition-colors duration-300 after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:w-[18px] after:h-[18px] after:bg-white after:rounded-full after:transition-transform after:duration-300 after:shadow-sm [&.active]:bg-[#440edf] [&.active]:after:translate-x-5"
-                id="labelsToggle"></div>
+                id="labelsToggle" role="switch" aria-checked="true" aria-labelledby="labelsLabel" tabindex="0"></div>
             </div>
           </div>
         </div>
@@ -369,9 +393,9 @@
                   class="w-10 h-10 rounded-lg border-0 bg-white shadow-sm cursor-pointer p-0.5 transition-all duration-200 hover:shadow-md" />
                 <input id="labelColorHex" type="text" value="#000000" placeholder="#000000"
                   class="flex-1 px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20 font-mono" />
-                <button id="labelColorAuto" type="button" title="Auto (based on background)"
+                <button id="labelColorAuto" type="button" title="Auto (based on background)" aria-label="Auto-detect label color based on background"
                   class="flex items-center justify-center w-10 h-10 rounded-lg bg-white shadow-sm text-[#666] text-base transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95">
-                  <ion-icon name="color-wand-outline"></ion-icon>
+                  <ion-icon name="color-wand-outline" aria-hidden="true"></ion-icon>
                 </button>
               </div>
             </div>
@@ -404,10 +428,10 @@
   <!-- Download Notification Toast -->
   <div id="downloadToast" role="alert" aria-live="polite">
     <span class="download-toast-icon"><ion-icon id="downloadToastIcon"
-        name="checkmark-circle-outline"></ion-icon></span>
+        name="checkmark-circle-outline" aria-hidden="true"></ion-icon></span>
     <span id="downloadToastMsg"></span>
     <button id="downloadToastDismiss" type="button" aria-label="Dismiss notification">
-      <ion-icon name="close-outline"></ion-icon>
+      <ion-icon name="close-outline" aria-hidden="true"></ion-icon>
     </button>
   </div>
 
