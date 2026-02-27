@@ -3,8 +3,38 @@
 
 <head>
   <meta charset="UTF-8" />
-  <title>MAPI - Customizable Map Posters Generator</title>
+  <title>MAPI - StreetMap Designer</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description"
+    content="Design stunning map posters, wallpapers, and high-resolution images of any city in the world. Perfect for wall art &amp; framed prints, phone &amp; desktop wallpapers, personalized gifts, home &amp; office decor, social media banners, travel keepsakes, event stationery, and more. Pick a city, choose a style, and export print-ready images — all in your browser." />
+  <meta name="keywords"
+    content="map poster, city map, custom map print, map art, wall art, map wallpaper, desktop wallpaper, phone wallpaper, map generator, printable map, high-resolution map, personalized gift, home decor, framed map print, travel poster, streetmap designer" />
+  <meta name="author" content="MAPI" />
+  <meta name="theme-color" content="#440edf" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="canonical" href="https://streetmap-designer.pages.dev/" />
+  <link rel="alternate" hreflang="en" href="https://streetmap-designer.pages.dev/" />
+  <link rel="alternate" hreflang="es" href="https://streetmap-designer.pages.dev/es/" />
+  <link rel="alternate" hreflang="x-default" href="https://streetmap-designer.pages.dev/" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="MAPI - StreetMap Designer" />
+  <meta property="og:description"
+    content="Design stunning map posters, wallpapers, and high-resolution images of any city. Ideal for wall art, framed prints, desktop &amp; phone wallpapers, personalized gifts, home decor, and social media banners." />
+  <meta property="og:url" content="https://streetmap-designer.pages.dev/" />
+  <meta property="og:site_name" content="MAPI" />
+  <meta property="og:image" content="https://streetmap-designer.pages.dev/og-image.png" />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:locale:alternate" content="es_ES" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="MAPI - StreetMap Designer" />
+  <meta name="twitter:description"
+    content="Design stunning map posters, wallpapers &amp; high-res images of any city. Perfect for wall art, framed prints, wallpapers, gifts, decor &amp; more." />
+  <meta name="twitter:image" content="https://streetmap-designer.pages.dev/og-image.png" />
 
   <!-- MapLibre GL -->
   <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />
@@ -64,8 +94,9 @@
         </div>
 
         <p class="text-[15px] leading-relaxed text-[#555] mb-6">
-          Turn any place in the world into a stunning poster. Choose a city, select a color palette, and download a
-          high-resolution image ready to print — all in your browser.
+          Turn any place in the world into a stunning map poster, wallpaper, or high-resolution image. Perfect for
+          wall art, framed prints, phone &amp; desktop wallpapers, personalized gifts, home decor, or social media
+          banners. Pick a city, choose a style, and download — all in your browser.
         </p>
 
         <p class="text-[10px] font-semibold tracking-[2px] uppercase text-[#999] mb-2">Quick start with a city</p>
@@ -121,7 +152,7 @@
         <span class="rounded bg-red-600 px-2 py-0 text-[9px] font-semibold text-white align-middle inline-block ml-1"
           style="line-height:1.8;">Beta</span>
       </a>
-      <p class="m-0 text-md tracking-wide opacity-90 hidden md:block"> Customizable Poster</p>
+      <p class="m-0 text-md tracking-wide opacity-90 hidden md:block">Posters, Wallpapers &amp; Map Art</p>
       <div class="flex items-center gap-2">
         <button id="panelToggleBtn" type="button" aria-label="Toggle controls panel" aria-expanded="false"
           class="cursor-pointer rounded-xl border border-[#d2e823] px-3 py-2.5 text-[13px] font-semibold transition-all duration-200 bg-[#440edf] text-[#d2e823] hover:bg-[#d2e823] hover:text-[#000]">
