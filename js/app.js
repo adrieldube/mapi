@@ -344,7 +344,7 @@ const WORLD_CITIES = {
     'Algiers': { en: 'The White City', es: 'La Ciudad Blanca', lat: 36.7538, lon: 3.0588 },
     'Kigali': { en: 'The Land of a Thousand Hills', es: 'La Tierra de las Mil Colinas', lat: -1.9441, lon: 30.0619 },
     'Dakar': { en: 'The Gateway to Africa', es: 'La Puerta a África', lat: 14.7167, lon: -17.4677 },
-    'Abuja': { en: 'The Centre of Unity', es: 'El Centro de la Unidad', lat: 9.0765, lon: 7.3986 },
+    'Abuja': { en: 'The Centre of Unity', es: 'El Centro de la Unidad', lat: 9.0579, lon: 7.4951 },
 
     // Oceania
     'Sydney': { en: 'The Harbour City', es: 'La Ciudad del Puerto', lat: -33.8688, lon: 151.2093 },
@@ -1338,6 +1338,19 @@ async function downloadPoster() {
         const successMsg = t('statusPosterDownloaded', { width: canvas.width, height: canvas.height, dpi, sizeMB });
         setStatus(successMsg);
         showToast(successMsg);
+
+        if (typeof gtag === 'function') {
+            gtag('event', 'download', {
+                event_category: 'download-image',
+                event_label: cityName,
+                print_size: selectedSize,
+                color_theme: elements.styleSelect.value,
+                poster_layout: elements.posterStyleSelect.value,
+                orientation: isLandscape ? 'landscape' : 'portrait',
+                resolution: `${canvas.width}x${canvas.height}`,
+                file_size_mb: sizeMB
+            });
+        }
     } catch (err) {
         console.error("Download error:", err);
         const errorMsg = t('statusDownloadError', { message: err.message });
