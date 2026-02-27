@@ -3,6 +3,17 @@
 
 <head>
   <meta charset="UTF-8" />
+
+  <!-- Resource Hints -->
+  <link rel="preconnect" href="https://unpkg.com" crossorigin />
+  <link rel="dns-prefetch" href="https://unpkg.com" />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+  <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
+  <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
+  <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+
   <title>MAPI - StreetMap Designer</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description"
@@ -10,9 +21,11 @@
   <meta name="keywords"
     content="map poster, city map, custom map print, map art, wall art, map wallpaper, desktop wallpaper, phone wallpaper, map generator, printable map, high-resolution map, personalized gift, home decor, framed map print, travel poster, streetmap designer" />
   <meta name="author" content="MAPI" />
+  <meta name="robots" content="index, follow" />
   <meta name="theme-color" content="#440edf" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
   <link rel="canonical" href="https://streetmap-designer.pages.dev/" />
   <link rel="alternate" hreflang="en" href="https://streetmap-designer.pages.dev/" />
   <link rel="alternate" hreflang="es" href="https://streetmap-designer.pages.dev/es/" />
@@ -26,6 +39,9 @@
   <meta property="og:url" content="https://streetmap-designer.pages.dev/" />
   <meta property="og:site_name" content="MAPI" />
   <meta property="og:image" content="https://streetmap-designer.pages.dev/og-image.png" />
+  <meta property="og:image:width" content="1274" />
+  <meta property="og:image:height" content="600" />
+  <meta property="og:image:type" content="image/png" />
   <meta property="og:locale" content="en_US" />
   <meta property="og:locale:alternate" content="es_ES" />
 
@@ -37,14 +53,18 @@
   <meta name="twitter:image" content="https://streetmap-designer.pages.dev/og-image.png" />
 
   <!-- MapLibre GL -->
+  <link rel="preload" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" as="style" />
   <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />
-  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+  <script defer src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 
   <!-- html2canvas for exporting the poster as PNG -->
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
   <!-- Three.js for 3D Globe -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <!-- App Script -->
+  <script defer src="js/app.min.js"></script>
 
   <!-- Ionicons -->
   <script type="module" src="https://unpkg.com/ionicons@8.0.13/dist/ionicons/ionicons.esm.js"></script>
@@ -127,7 +147,8 @@
         <!-- add horizontal scroll for mobile devices -->
         <div
           class="intro-postcards-row flex gap-3 mb-6 justify-start lg:justify-start flex-nowrap overflow-x-auto md:overflow-x-hidden overflow-y-hidden w-full max-w-full px-1 py-3">
-          <button class="intro-city-btn postcard" data-city="Tokyo" data-lat="35.6762" data-lon="139.6503" aria-label="Start with Tokyo, Japan">
+          <button class="intro-city-btn postcard" data-city="Tokyo" data-lat="35.6762" data-lon="139.6503"
+            aria-label="Start with Tokyo, Japan">
             <div class="postcard-map" id="minimap-tokyo"></div>
             <div class="postcard-body">
               <span class="postcard-city">Tokyo</span>
@@ -137,7 +158,8 @@
               <ion-icon name="location" aria-hidden="true"></ion-icon>
             </div>
           </button>
-          <button class="intro-city-btn postcard" data-city="Paris" data-lat="48.8566" data-lon="2.3522" aria-label="Start with Paris, France">
+          <button class="intro-city-btn postcard" data-city="Paris" data-lat="48.8566" data-lon="2.3522"
+            aria-label="Start with Paris, France">
             <div class="postcard-map" id="minimap-paris"></div>
             <div class="postcard-body">
               <span class="postcard-city">Paris</span>
@@ -147,7 +169,8 @@
               <ion-icon name="location" aria-hidden="true"></ion-icon>
             </div>
           </button>
-          <button class="intro-city-btn postcard" data-city="New York" data-lat="40.7128" data-lon="-74.0060" aria-label="Start with New York, USA">
+          <button class="intro-city-btn postcard" data-city="New York" data-lat="40.7128" data-lon="-74.0060"
+            aria-label="Start with New York, USA">
             <div class="postcard-map" id="minimap-newyork"></div>
             <div class="postcard-body">
               <span class="postcard-city">New York</span>
@@ -170,7 +193,8 @@
 
   <header class="px-2 py-1 bg-[#440edf] text-[#d2e823]">
     <div class="flex items-center justify-between">
-      <a href="#" aria-label="MAPI - StreetMap Designer home" class="flex items-center gap-2 font-bold text-lg text-[#d2e823]">
+      <a href="#" aria-label="MAPI - StreetMap Designer home"
+        class="flex items-center gap-2 font-bold text-lg text-[#d2e823]">
         <ion-icon name="map-outline" class="text-2xl" aria-hidden="true"></ion-icon>
         <span class="text-xl">MAPI</span>
         <span class="rounded bg-red-600 px-2 py-0 text-[9px] font-semibold text-white align-middle inline-block ml-1"
@@ -346,7 +370,8 @@
               <span class="text-[12px] font-medium text-[#555]" id="orientationLabel">Landscape</span>
               <div
                 class="toggle-switch relative w-11 h-6 bg-[#e0e0e0] rounded-full cursor-pointer transition-colors duration-300 after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:w-[18px] after:h-[18px] after:bg-white after:rounded-full after:transition-transform after:duration-300 after:shadow-sm [&.active]:bg-[#440edf] [&.active]:after:translate-x-5"
-                id="orientationToggle" role="switch" aria-checked="false" aria-labelledby="orientationLabel" tabindex="0"></div>
+                id="orientationToggle" role="switch" aria-checked="false" aria-labelledby="orientationLabel"
+                tabindex="0"></div>
             </div>
 
             <div class="w-px h-6 bg-[#e0e0e0]"></div>
@@ -393,7 +418,8 @@
                   class="w-10 h-10 rounded-lg border-0 bg-white shadow-sm cursor-pointer p-0.5 transition-all duration-200 hover:shadow-md" />
                 <input id="labelColorHex" type="text" value="#000000" placeholder="#000000"
                   class="flex-1 px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20 font-mono" />
-                <button id="labelColorAuto" type="button" title="Auto (based on background)" aria-label="Auto-detect label color based on background"
+                <button id="labelColorAuto" type="button" title="Auto (based on background)"
+                  aria-label="Auto-detect label color based on background"
                   class="flex items-center justify-center w-10 h-10 rounded-lg bg-white shadow-sm text-[#666] text-base transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95">
                   <ion-icon name="color-wand-outline" aria-hidden="true"></ion-icon>
                 </button>
@@ -427,16 +453,14 @@
 
   <!-- Download Notification Toast -->
   <div id="downloadToast" role="alert" aria-live="polite">
-    <span class="download-toast-icon"><ion-icon id="downloadToastIcon"
-        name="checkmark-circle-outline" aria-hidden="true"></ion-icon></span>
+    <span class="download-toast-icon"><ion-icon id="downloadToastIcon" name="checkmark-circle-outline"
+        aria-hidden="true"></ion-icon></span>
     <span id="downloadToastMsg"></span>
     <button id="downloadToastDismiss" type="button" aria-label="Dismiss notification">
       <ion-icon name="close-outline" aria-hidden="true"></ion-icon>
     </button>
   </div>
 
-  <!-- App Script -->
-  <script src="js/app.min.js"></script>
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-P2YZSW5Z51"></script>
   <script>

@@ -1,0 +1,21 @@
+{
+  "name": "MAPI - StreetMap Designer",
+  "short_name": "MAPI",
+  "description": "Design stunning map posters, wallpapers, and high-resolution images of any city in the world.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#440edf",
+  "theme_color": "#440edf",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "type": "image/png",
+      "sizes": "180x180"
+    }
+  ]
+}
