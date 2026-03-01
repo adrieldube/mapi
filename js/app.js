@@ -424,6 +424,8 @@ const I18N = {
         statusLoadCityError: 'Error loading city, using default location.',
         toggleShowAll: 'Show all',
         toggleShowLess: 'Show less',
+        statusRenderingPreview: 'Rendering preview…',
+        statusPreviewReady: 'Preview ready.',
         errGeocodingFailed: 'Geocoding failed',
         errCanvasRenderingFailed: 'Canvas rendering failed',
         errCreateImageFailed: 'Failed to create image'
@@ -444,6 +446,8 @@ const I18N = {
         statusLoadCityError: 'Error al cargar la ciudad; se usará la ubicación predeterminada.',
         toggleShowAll: 'Mostrar todos',
         toggleShowLess: 'Mostrar menos',
+        statusRenderingPreview: 'Generando vista previa…',
+        statusPreviewReady: 'Vista previa lista.',
         errGeocodingFailed: 'Falló la geocodificación',
         errCanvasRenderingFailed: 'Falló el renderizado del lienzo',
         errCreateImageFailed: 'No se pudo crear la imagen'
@@ -582,6 +586,10 @@ const elements = {
     coordinates: document.getElementById("coordinates"),
     posterFooter: document.getElementById("posterFooter"),
     downloadBtn: document.getElementById("downloadBtn"),
+    previewBtn: document.getElementById("previewBtn"),
+    previewModal: document.getElementById("previewModal"),
+    previewImg: document.getElementById("previewImg"),
+    previewClose: document.getElementById("previewClose"),
     themesGrid: document.getElementById("themesGrid"),
     toggleThemesGrid: document.getElementById("toggleThemesGrid"),
     selectedThemeSwatch: document.getElementById("selectedThemeSwatch"),
@@ -1286,50 +1294,20 @@ async function downloadPoster() {
     setStatus(t('statusRenderingPoster'));
 
     try {
-        await document.fonts.ready;
+        const canvas = await renderPosterImage();
         const selectedSize = elements.sizeSelect.value;
         const printSize = PRINT_SIZES[selectedSize];
-        const { offsetWidth: w, offsetHeight: h } = elements.poster;
-
-        let scale = 3;
-        if (printSize) {
-            const [tw, th] = isLandscape ? [printSize.height, printSize.width] : [printSize.width, printSize.height];
-            scale = Math.min(Math.max(tw * TARGET_DPI / w, th * TARGET_DPI / h), 16384 / Math.max(w, h));
-        }
-
-        await new Promise(r => setTimeout(r, 100));
-
-        // Temporary image replacement for WebGL context to fix html2canvas issues
-        const mapCanvas = map.getCanvas();
-        const tempImg = document.createElement("img");
-        tempImg.src = mapCanvas.toDataURL();
-        Object.assign(tempImg.style, {
-            position: "absolute", left: "0", top: "0", width: "100%", height: "100%", zIndex: "0"
-        });
-
-        const mapContainer = document.getElementById("mapContainer");
-        mapContainer.appendChild(tempImg);
-        mapCanvas.style.visibility = "hidden";
-
-        let canvas;
-        try {
-            canvas = await html2canvas(elements.poster, {
-                useCORS: true, scale, logging: false, backgroundColor: null,
-                imageTimeout: 15000, width: w, height: h
-            });
-        } finally {
-            // Always restore the map, even if html2canvas throws
-            mapContainer.removeChild(tempImg);
-            mapCanvas.style.visibility = "visible";
-        }
-
-        if (!canvas?.width || !canvas?.height) throw new Error(t('errCanvasRenderingFailed'));
 
         const blob = await new Promise((res, rej) => canvas.toBlob(b => b ? res(b) : rej(new Error(t('errCreateImageFailed'))), "image/png", 1.0));
         const url = URL.createObjectURL(blob);
         const cityName = elements.cityTitle?.textContent?.replace(/\s+/g, "_").toLowerCase() || "city";
 
         Object.assign(document.createElement("a"), { href: url, download: `${cityName}_${selectedSize}_${Date.now()}.png` }).click();
+
+        // Show preview after download
+        const previewUrl = canvas.toDataURL('image/png');
+        showPreview(previewUrl);
+
         setTimeout(() => URL.revokeObjectURL(url), 1000);
 
         const sizeMB = (blob.size / 1048576).toFixed(1);
@@ -1353,6 +1331,86 @@ async function downloadPoster() {
         }
     } catch (err) {
         console.error("Download error:", err);
+        const errorMsg = t('statusDownloadError', { message: err.message });
+        setStatus(errorMsg, true);
+        showToast(errorMsg, true);
+    } finally {
+        isDownloading = false;
+    }
+}
+
+// === PREVIEW MODAL ===
+function showPreview(imgSrc) {
+    const { previewModal, previewImg } = elements;
+    if (!previewModal || !previewImg) return;
+    previewImg.src = imgSrc;
+    previewModal.classList.remove('hidden', 'closing');
+    previewModal.style.display = 'flex';
+}
+
+function hidePreview() {
+    const { previewModal, previewImg } = elements;
+    if (!previewModal) return;
+    previewModal.classList.add('closing');
+    previewModal.addEventListener('animationend', () => {
+        previewModal.style.display = 'none';
+        previewModal.classList.add('hidden');
+        previewModal.classList.remove('closing');
+        previewImg.src = '';
+    }, { once: true });
+}
+
+async function renderPosterImage() {
+    await document.fonts.ready;
+    const selectedSize = elements.sizeSelect.value;
+    const printSize = PRINT_SIZES[selectedSize];
+    const { offsetWidth: w, offsetHeight: h } = elements.poster;
+
+    let scale = 3;
+    if (printSize) {
+        const [tw, th] = isLandscape ? [printSize.height, printSize.width] : [printSize.width, printSize.height];
+        scale = Math.min(Math.max(tw * TARGET_DPI / w, th * TARGET_DPI / h), 16384 / Math.max(w, h));
+    }
+
+    await new Promise(r => setTimeout(r, 100));
+
+    const mapCanvas = map.getCanvas();
+    const tempImg = document.createElement("img");
+    tempImg.src = mapCanvas.toDataURL();
+    Object.assign(tempImg.style, {
+        position: "absolute", left: "0", top: "0", width: "100%", height: "100%", zIndex: "0"
+    });
+
+    const mapContainer = document.getElementById("mapContainer");
+    mapContainer.appendChild(tempImg);
+    mapCanvas.style.visibility = "hidden";
+
+    let canvas;
+    try {
+        canvas = await html2canvas(elements.poster, {
+            useCORS: true, scale, logging: false, backgroundColor: null,
+            imageTimeout: 15000, width: w, height: h
+        });
+    } finally {
+        mapContainer.removeChild(tempImg);
+        mapCanvas.style.visibility = "visible";
+    }
+
+    if (!canvas?.width || !canvas?.height) throw new Error(t('errCanvasRenderingFailed'));
+    return canvas;
+}
+
+async function previewPoster() {
+    if (isDownloading) return;
+    isDownloading = true;
+    setStatus(t('statusRenderingPreview'));
+    try {
+        const canvas = await renderPosterImage();
+        const url = canvas.toDataURL('image/png');
+        showPreview(url);
+        setStatus(t('statusPreviewReady'));
+    } catch (err) {
+        console.error("Preview error:", err);
         const errorMsg = t('statusDownloadError', { message: err.message });
         setStatus(errorMsg, true);
         showToast(errorMsg, true);
@@ -1404,11 +1462,17 @@ function setupEventListeners() {
     elements.cityInput.addEventListener("keydown", e => e.key === "Enter" && triggerCitySearch());
     elements.citySearchBtn?.addEventListener("click", triggerCitySearch);
     elements.downloadBtn.addEventListener("click", downloadPoster);
+    elements.previewBtn?.addEventListener("click", previewPoster);
+    elements.previewClose?.addEventListener("click", hidePreview);
+    elements.previewModal?.addEventListener("click", (e) => {
+        if (e.target === elements.previewModal) hidePreview();
+    });
 
     elements.orientationToggle.addEventListener("click", () => {
         isLandscape = !isLandscape;
         elements.orientationToggle.classList.toggle("active", isLandscape);
         elements.poster.classList.toggle("landscape", isLandscape);
+        document.getElementById("posterWrapper").classList.toggle("landscape-scroll", isLandscape);
         localStorage.setItem('mapi_landscape', isLandscape);
         setTimeout(() => map.resize(), 350);
     });
@@ -2036,6 +2100,7 @@ function initializeApp(center, zoom, cityName) {
         isLandscape = savedLandscape === 'true';
         elements.orientationToggle.classList.toggle("active", isLandscape);
         elements.poster.classList.toggle("landscape", isLandscape);
+        document.getElementById("posterWrapper").classList.toggle("landscape-scroll", isLandscape);
     }
 
     // Restore label color

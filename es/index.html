@@ -212,6 +212,12 @@
           EN
         </a>
         <button
+          class="cursor-pointer rounded-xl border border-[#d2e823] px-5 py-2.5 text-[13px] font-semibold transition-all duration-200 bg-transparent text-[#d2e823] hover:bg-[#d2e823]/15 hover:shadow-lg flex items-center gap-2"
+          id="previewBtn">
+          <ion-icon name="eye-outline" class="text-base" aria-hidden="true"></ion-icon>
+          Vista previa
+        </button>
+        <button
           class="cursor-pointer rounded-xl border border-[#d2e823] px-5 py-2.5 text-[13px] font-semibold transition-all duration-200 bg-[#440edf] text-[#d2e823] hover:bg-[#d2e823] hover:text-[#000] hover:shadow-lg flex items-center gap-2"
           id="downloadBtn">
           <ion-icon name="download-outline" class="text-base" aria-hidden="true"></ion-icon>Descargar</button>
@@ -439,7 +445,7 @@
       </div><!-- /.controls-body -->
     </section>
 
-    <section id="posterWrapper" class="flex-1 flex justify-center items-center p-4 bg-[#fff] overflow-hidden">
+    <section id="posterWrapper" class="flex-1 flex justify-center items-start p-4 bg-[#fff] overflow-y-auto">
       <div id="poster" class="poster-style-minimal">
         <div id="mapContainer"></div>
         <div id="posterFooter">
@@ -449,6 +455,15 @@
         </div>
       </div>
     </section>
+  </div>
+
+  <!-- Preview Modal -->
+  <div id="previewModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm" role="dialog" aria-label="Vista previa del póster">
+    <button id="previewClose" type="button" aria-label="Cerrar vista previa"
+      class="absolute top-4 right-4 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white text-2xl transition-colors cursor-pointer">
+      <ion-icon name="close-outline" aria-hidden="true"></ion-icon>
+    </button>
+    <img id="previewImg" alt="Vista previa del póster" class="max-w-[90vw] max-h-[90vh] object-contain rounded-lg shadow-2xl" />
   </div>
 
   <!-- Download Notification Toast -->
