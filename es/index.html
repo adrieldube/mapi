@@ -246,7 +246,7 @@
             <div>
               <label for="cityInput" class="block text-[11px] font-medium text-[#666] mb-1">Ciudad / Lugar</label>
               <div class="relative">
-                <input id="cityInput" type="text" placeholder="Buscar una ciudad..."
+                <input id="cityInput" type="text" placeholder="Buscar una ciudad..." autocomplete="off"
                   class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20"
                   style="padding-right: 2.6rem;" />
                 <button id="citySearchBtn" type="button" aria-label="Buscar ciudad"
@@ -254,6 +254,7 @@
                   style="right: 0.25rem; top: 50%; width: 2rem; height: 2rem; transform: translateY(-50%); display: flex; align-items: center; justify-content: center;">
                   <ion-icon name="search-outline" aria-hidden="true"></ion-icon>
                 </button>
+                <ul id="cityAutocomplete" class="city-autocomplete" role="listbox" aria-label="Sugerencias de ciudades"></ul>
               </div>
             </div>
 

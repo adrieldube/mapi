@@ -604,6 +604,7 @@ const elements = {
     panelCloseBtn: document.getElementById("panelCloseBtn"),
     controls: document.getElementById("controls"),
     canvasSizeDisplay: document.getElementById("canvasSizeDisplay"),
+    cityAutocomplete: document.getElementById("cityAutocomplete"),
 };
 
 // === STATE ===
@@ -1237,6 +1238,173 @@ function getCitySubtitle(cityName) {
     return DEFAULT_SUBTITLE;
 }
 
+// === CITY AUTOCOMPLETE ===
+let acActiveIndex = -1;
+let acDebounceTimer = null;
+let acAbortController = null;
+
+function getLocalCityMatches(query) {
+    const norm = normalize(query);
+    if (!norm) return [];
+    const results = [];
+    for (const [city, data] of Object.entries(WORLD_CITIES)) {
+        if (normalize(city).startsWith(norm)) {
+            results.push({ name: city, subtitle: data[APP_LANG] || data.en, lat: data.lat, lon: data.lon, source: 'local' });
+        }
+    }
+    // Also check contains (but prioritize startsWith)
+    if (results.length < 5) {
+        for (const [city, data] of Object.entries(WORLD_CITIES)) {
+            if (!normalize(city).startsWith(norm) && normalize(city).includes(norm)) {
+                results.push({ name: city, subtitle: data[APP_LANG] || data.en, lat: data.lat, lon: data.lon, source: 'local' });
+            }
+            if (results.length >= 5) break;
+        }
+    }
+    // Also check Spanish aliases
+    if (APP_LANG === 'es') {
+        for (const [alias, key] of Object.entries(CITY_ALIASES_ES)) {
+            if (normalize(alias).includes(norm) && WORLD_CITIES[key] && !results.some(r => r.name === key)) {
+                const data = WORLD_CITIES[key];
+                results.push({ name: key, subtitle: data.es || data.en, lat: data.lat, lon: data.lon, source: 'local' });
+            }
+            if (results.length >= 5) break;
+        }
+    }
+    return results.slice(0, 5);
+}
+
+async function getApiCityMatches(query) {
+    if (acAbortController) acAbortController.abort();
+    acAbortController = new AbortController();
+    try {
+        const url = `https://api.maptiler.com/geocoding/${encodeURIComponent(query)}.json?key=${MAPTILER_KEY}&language=${APP_LANG}&limit=5`;
+        const res = await fetch(url, { signal: acAbortController.signal });
+        if (!res.ok) return [];
+        const data = await res.json();
+        if (!data.features?.length) return [];
+        return data.features.map(f => ({
+            name: f.place_name || f.text || query,
+            city: f.text || query,
+            subtitle: f.place_type?.[0] || '',
+            lat: f.center[1],
+            lon: f.center[0],
+            source: 'api'
+        }));
+    } catch {
+        return [];
+    }
+}
+
+function renderAutocomplete(items) {
+    const list = elements.cityAutocomplete;
+    if (!items.length) {
+        list.innerHTML = '';
+        list.classList.remove('open');
+        acActiveIndex = -1;
+        return;
+    }
+    list.innerHTML = items.map((item, i) => `
+        <li role="option" data-index="${i}" data-name="${item.name.replace(/"/g, '&quot;')}" data-city="${(item.city || item.name).replace(/"/g, '&quot;')}" data-lat="${item.lat}" data-lon="${item.lon}"${i === acActiveIndex ? ' class="active"' : ''}>
+            <span class="ac-icon"><ion-icon name="location-outline"></ion-icon></span>
+            <span class="ac-city">${item.name}</span>
+            <span class="ac-subtitle">${item.subtitle}</span>
+        </li>
+    `).join('');
+    list.classList.add('open');
+
+    list.querySelectorAll('li').forEach(li => {
+        li.addEventListener('mousedown', e => {
+            e.preventDefault();
+            selectAutocompleteItem(li);
+        });
+    });
+}
+
+function selectAutocompleteItem(li) {
+    const name = li.dataset.name;
+    const cityName = li.dataset.city || name;
+    const lat = parseFloat(li.dataset.lat);
+    const lon = parseFloat(li.dataset.lon);
+    elements.cityInput.value = name;
+    closeAutocomplete();
+
+    map.flyTo({ center: [lon, lat], zoom: 12 });
+    elements.titleInput.value = cityName.toUpperCase();
+    elements.subtitleInput.value = getCitySubtitle(cityName);
+    saveStateToStorage(name, [lon, lat]);
+    updateLabels();
+    updateFooter(lat, lon);
+    setStatus(t('statusLocationUpdated'));
+}
+
+function closeAutocomplete() {
+    elements.cityAutocomplete.classList.remove('open');
+    elements.cityAutocomplete.innerHTML = '';
+    acActiveIndex = -1;
+}
+
+async function handleAutocompleteInput() {
+    const query = elements.cityInput.value.trim();
+    if (query.length < 2) {
+        closeAutocomplete();
+        return;
+    }
+
+    // First try local matches
+    const localMatches = getLocalCityMatches(query);
+    if (localMatches.length > 0) {
+        renderAutocomplete(localMatches);
+        return;
+    }
+
+    // No local matches — show loading then fetch from API
+    elements.cityAutocomplete.innerHTML = '<li class="ac-loading">Searching...</li>';
+    elements.cityAutocomplete.classList.add('open');
+
+    const apiMatches = await getApiCityMatches(query);
+    // Only render if input hasn't changed while waiting
+    if (elements.cityInput.value.trim() === query) {
+        renderAutocomplete(apiMatches);
+    }
+}
+
+function initAutocomplete() {
+    elements.cityInput.addEventListener('input', () => {
+        clearTimeout(acDebounceTimer);
+        acDebounceTimer = setTimeout(handleAutocompleteInput, 200);
+    });
+
+    elements.cityInput.addEventListener('keydown', e => {
+        const list = elements.cityAutocomplete;
+        const items = list.querySelectorAll('li[role="option"]');
+        if (!items.length || !list.classList.contains('open')) return;
+
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            acActiveIndex = Math.min(acActiveIndex + 1, items.length - 1);
+            items.forEach((li, i) => li.classList.toggle('active', i === acActiveIndex));
+            items[acActiveIndex]?.scrollIntoView({ block: 'nearest' });
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            acActiveIndex = Math.max(acActiveIndex - 1, 0);
+            items.forEach((li, i) => li.classList.toggle('active', i === acActiveIndex));
+            items[acActiveIndex]?.scrollIntoView({ block: 'nearest' });
+        } else if (e.key === 'Enter' && acActiveIndex >= 0) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            selectAutocompleteItem(items[acActiveIndex]);
+        } else if (e.key === 'Escape') {
+            closeAutocomplete();
+        }
+    });
+
+    elements.cityInput.addEventListener('blur', () => {
+        // Small delay so mousedown on list item fires first
+        setTimeout(closeAutocomplete, 150);
+    });
+}
+
 async function searchCity(name) {
     if (!name) return;
 
@@ -1447,9 +1615,12 @@ function setupEventListeners() {
         requestAnimationFrame(() => { map.resize(); updateCanvasSizeDisplay(); });
     });
 
-    const triggerCitySearch = () => searchCity(elements.cityInput.value.trim());
-    elements.cityInput.addEventListener("keydown", e => e.key === "Enter" && triggerCitySearch());
+    const triggerCitySearch = () => { closeAutocomplete(); searchCity(elements.cityInput.value.trim()); };
+    elements.cityInput.addEventListener("keydown", e => {
+        if (e.key === "Enter" && acActiveIndex < 0) triggerCitySearch();
+    });
     elements.citySearchBtn?.addEventListener("click", triggerCitySearch);
+    initAutocomplete();
     elements.downloadBtn.addEventListener("click", downloadPoster);
     elements.previewBtn?.addEventListener("click", previewPoster);
     elements.previewClose?.addEventListener("click", hidePreview);
