@@ -1,12 +1,21 @@
-/* --- Mobile Panel Toggle --- */
-#panelToggleBtn {
-    display: none;
+/* --- Panel Toggle (all screen sizes) --- */
+
+/* Desktop/tablet: panel slides in/out with transition */
+#controls {
+    transition: margin-left 0.3s ease, opacity 0.3s ease;
+}
+
+#controls.panel-hidden {
+    margin-left: -320px;
+    opacity: 0;
+    pointer-events: none;
 }
 
 .mobile-panel-header {
     display: none;
 }
 
+/* Mobile overrides (≤900px) */
 @media (max-width: 900px) {
 
     html,
@@ -27,21 +36,6 @@
         overflow: visible !important;
     }
 
-    #panelToggleBtn {
-        width: 42px;
-        height: 42px;
-        border: 0;
-        border-radius: 10px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-    }
-
-    #panelToggleBtn ion-icon {
-        font-size: 20px;
-    }
-
     #controls {
         position: fixed;
         top: 0;
@@ -54,12 +48,16 @@
         overflow: hidden !important;
         display: flex !important;
         flex-direction: column;
+        margin-left: 0;
+        opacity: 1;
         transform: translateX(0);
         transition: transform 0.25s ease;
         box-shadow: 18px 0 36px rgba(0, 0, 0, 0.18);
     }
 
     #controls.panel-hidden {
+        margin-left: 0;
+        opacity: 1;
         transform: translateX(-110%);
         pointer-events: none;
     }
@@ -527,7 +525,7 @@
 #poster {
     width: 100%;
     max-width: 1200px;
-    aspect-ratio: 5 / 8;
+    aspect-ratio: 2 / 3;
     container-type: inline-size;
     background-color: white;
     border: none;
@@ -543,14 +541,14 @@
 }
 
 #poster.landscape {
-    aspect-ratio: 8 / 5;
+    aspect-ratio: 3 / 2;
     max-width: 1500px;
 }
 
 @media (max-width: 768px) {
     #poster {
         max-width: 95%;
-        aspect-ratio: 5 / 7;
+        aspect-ratio: 2 / 3;
     }
 }
 
@@ -783,6 +781,16 @@
     position: sticky;
     left: 0;
     width: calc(100vw - 320px - 3rem);
+}
+
+/* When panel is hidden on desktop, poster takes full width */
+.panel-collapsed #posterWrapper.landscape-scroll #poster {
+    width: calc((100vw - 3rem) * 2);
+}
+
+.panel-collapsed #posterWrapper.landscape-scroll .poster-style-minimal #posterFooter,
+.panel-collapsed #posterWrapper.landscape-scroll .poster-style-oversized #posterFooter {
+    width: calc(100vw - 3rem);
 }
 
 
@@ -1223,6 +1231,70 @@
         min-width: 0;
         width: calc(100vw - 32px);
         font-size: 12px;
+    }
+}
+
+/* === HEADER: Uniform button sizing === */
+header .flex > div:last-child > * {
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+header .flex > div:last-child ion-icon {
+    font-size: 18px;
+}
+
+/* === RESPONSIVE: Small phones (iPhone SE / iPhone mini ≤ 640px) === */
+@media (max-width: 640px) {
+    .btn-text {
+        display: none;
+    }
+
+    header .flex > div:last-child {
+        gap: 4px;
+    }
+
+    header .flex > div:last-child > * {
+        padding: 8px 10px !important;
+        height: 34px;
+    }
+}
+
+/* === RESPONSIVE: Mobile poster print-size overrides (≤ 900px) === */
+@media (max-width: 900px) {
+    #poster.size-24x36,
+    #poster.size-a1,
+    #poster.size-18x24,
+    #poster.size-16x20,
+    #poster.size-a2,
+    #poster.size-a3,
+    #poster.size-11x14 {
+        max-width: 100%;
+    }
+
+    #poster.size-24x36.landscape,
+    #poster.size-a1.landscape,
+    #poster.size-18x24.landscape,
+    #poster.size-16x20.landscape,
+    #poster.size-a2.landscape,
+    #poster.size-a3.landscape,
+    #poster.size-11x14.landscape {
+        max-width: none;
+    }
+}
+
+@media (max-width: 768px) {
+    #poster.size-24x36,
+    #poster.size-a1,
+    #poster.size-18x24,
+    #poster.size-16x20,
+    #poster.size-a2,
+    #poster.size-a3,
+    #poster.size-11x14 {
+        max-width: 95%;
     }
 }
 

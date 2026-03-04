@@ -1505,34 +1505,27 @@ function setupEventListeners() {
     elements.labelColorAuto.addEventListener("click", setLabelColorAuto);
 }
 
-function setupMobilePanelToggle() {
+function setupPanelToggle() {
     const mobileQuery = window.matchMedia("(max-width: 900px)");
+    const container = document.getElementById("container");
     if (!elements.controls || !elements.panelToggleBtn || !elements.panelCloseBtn) return;
 
     const syncPanelState = () => {
-        const isMobile = mobileQuery.matches;
-
-        if (isMobile) {
-            const isHidden = elements.controls.classList.contains("panel-hidden");
-            elements.panelToggleBtn.setAttribute("aria-expanded", String(!isHidden));
-        } else {
-            elements.controls.classList.remove("panel-hidden");
-            elements.panelToggleBtn.setAttribute("aria-expanded", "true");
-        }
+        const isHidden = elements.controls.classList.contains("panel-hidden");
+        elements.panelToggleBtn.setAttribute("aria-expanded", String(!isHidden));
+        if (container) container.classList.toggle("panel-collapsed", isHidden);
     };
 
     elements.panelToggleBtn.addEventListener("click", () => {
-        if (!mobileQuery.matches) return;
-        const nowHidden = elements.controls.classList.toggle("panel-hidden");
-        elements.panelToggleBtn.setAttribute("aria-expanded", String(!nowHidden));
-        setTimeout(() => map.resize(), 260);
+        elements.controls.classList.toggle("panel-hidden");
+        syncPanelState();
+        setTimeout(() => map.resize(), 310);
     });
 
     elements.panelCloseBtn.addEventListener("click", () => {
-        if (!mobileQuery.matches) return;
         elements.controls.classList.add("panel-hidden");
-        elements.panelToggleBtn.setAttribute("aria-expanded", "false");
-        setTimeout(() => map.resize(), 260);
+        syncPanelState();
+        setTimeout(() => map.resize(), 310);
     });
 
     mobileQuery.addEventListener("change", () => {
@@ -1540,7 +1533,7 @@ function setupMobilePanelToggle() {
             elements.controls.classList.add("panel-hidden");
         }
         syncPanelState();
-        setTimeout(() => map.resize(), 260);
+        setTimeout(() => map.resize(), 310);
     });
 
     if (mobileQuery.matches) {
@@ -2112,10 +2105,14 @@ function initializeApp(center, zoom, cityName) {
         elements.labelColorAuto.classList.replace('text-[#440edf]', 'text-[#666]');
     }
 
+    // Apply initial print size class so poster matches the selected size on load
+    const initialSize = elements.sizeSelect.value;
+    if (initialSize !== 'default') elements.poster.classList.add(`size-${initialSize}`);
+
     map = initMap(center, zoom, currentStyle);
     setupMapEvents();
     setupEventListeners();
-    setupMobilePanelToggle();
+    setupPanelToggle();
     elements.cityInput.value = cityName;
     elements.titleInput.value = cityName.toUpperCase();
     elements.subtitleInput.value = getCitySubtitle(cityName);
