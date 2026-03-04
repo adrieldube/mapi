@@ -93,7 +93,7 @@
   <div id="introModal"
     class="fixed inset-0 z-50 flex items-start md:items-center justify-center p-2 md:p-4 overflow-y-auto">
     <!-- Backdrop -->
-    <div id="introBackdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+    <div id="introBackdrop" class="absolute inset-0 bg-black/30 backdrop-blur-sm"></div>
     <!-- Card -->
     <div
       class="intro-card relative z-10 flex flex-col lg:flex-row items-center gap-4 lg:gap-8 max-w-[1100px] w-full max-h-[calc(100dvh-1rem)] md:max-h-[calc(100dvh-2rem)] overflow-y-auto overflow-x-hidden mx-auto px-2 py-6 lg:px-8 lg:py-8 rounded-3xl bg-white"
@@ -123,19 +123,19 @@
         <!-- City Search -->
         <div class="w-full relative mb-4">
           <label for="frameCityInput"
-            class="text-[10px] font-semibold tracking-[2px] uppercase text-[#999] mb-1 block">Search a city</label>
+            class="text-[10px] font-semibold tracking-[2px] uppercase text-[#666] mb-1 block">Search a city</label>
           <div class="relative">
             <ion-icon name="search-outline"
               class="absolute left-3 top-1/2 -translate-y-1/2 text-[#999] text-lg pointer-events-none"
               aria-hidden="true"></ion-icon>
             <input type="text" id="frameCityInput" placeholder="New York, Paris, Tokyo ..."
-              class="w-full bg-[#f8f8f8] border border-[#e5e5e5] rounded-xl pl-10 pr-4 py-3 text-[#111] text-sm placeholder:text-[#bbb] focus:outline-none focus:border-[#440edf] focus:ring-1 focus:ring-[#440edf] transition-colors"
+              class="w-full bg-[#f8f8f8] border border-[#e5e5e5] rounded-xl pl-10 pr-4 py-3 text-[#111] text-sm placeholder:text-[#aaa] focus:outline-none focus:border-[#440edf] focus:ring-1 focus:ring-[#440edf] transition-colors"
               autocomplete="off" />
           </div>
           <ul id="frameCityAutocomplete" class="city-autocomplete" role="listbox" aria-label="City suggestions"></ul>
         </div>
 
-        <p class="text-[10px] font-semibold tracking-[2px] uppercase text-[#999] mb-2">Quick start with a city</p>
+        <p class="text-[10px] font-semibold tracking-[2px] uppercase text-[#666] mb-2">Quick start with a city</p>
         <div
           class="intro-postcards-row flex gap-3 mb-6 justify-start lg:justify-start flex-nowrap overflow-x-auto md:overflow-x-hidden overflow-y-hidden w-full max-w-full px-1 py-3">
           <button class="intro-city-btn postcard" data-city="New York" data-lat="40.7127" data-lon="-74.006"
