@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MAPI — 3D Frame Viewer</title>
+  <meta name="description"
+    content="View your custom map poster in a realistic 3D picture frame. Rotate, zoom, and explore from every angle." />
+  <meta name="keywords"
+    content="3D frame viewer, map poster frame, framed map print, map art, wall art, city map, custom map print, map generator, MAPI" />
+  <meta name="author" content="MAPI" />
+  <meta name="robots" content="index, follow" />
+  <meta name="theme-color" content="#440edf" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <link rel="canonical" href="https://streetmap-designer.pages.dev/frame.html" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="MAPI — 3D Frame Viewer" />
+  <meta property="og:description"
+    content="View your custom map poster in a realistic 3D picture frame. Rotate, zoom, and explore from every angle." />
+  <meta property="og:url" content="https://streetmap-designer.pages.dev/frame.html" />
+  <meta property="og:site_name" content="MAPI" />
+  <meta property="og:image" content="https://streetmap-designer.pages.dev/og-image.png" />
+  <meta property="og:image:width" content="1274" />
+  <meta property="og:image:height" content="600" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:locale" content="en_US" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="MAPI — 3D Frame Viewer" />
+  <meta name="twitter:description"
+    content="View your custom map poster in a realistic 3D picture frame. Rotate, zoom, and explore from every angle." />
+  <meta name="twitter:image" content="https://streetmap-designer.pages.dev/og-image.png" />
+
+  <!-- Resource Hints -->
+  <link rel="preconnect" href="https://api.maptiler.com" crossorigin />
+  <link rel="preconnect" href="https://unpkg.com" crossorigin />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+
+  <!-- MapLibre GL -->
+  <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />
+  <script defer src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+
+  <!-- Three.js r128 -->
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- OrbitControls -->
+  <script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+  <!-- Ionicons -->
+  <script type="module" src="https://unpkg.com/ionicons@8.0.13/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@8.0.13/dist/ionicons/ionicons.js"></script>
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "MAPI — 3D Frame Viewer",
+    "url": "https://streetmap-designer.pages.dev/frame.html",
+    "description": "View your custom map poster in a realistic 3D picture frame. Rotate, zoom, and explore from every angle.",
+    "applicationCategory": "DesignApplication",
+    "operatingSystem": "Any",
+    "browserRequirements": "Requires a modern web browser with JavaScript and WebGL enabled",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "author": {
+      "@type": "Organization",
+      "name": "MAPI"
+    }
+  }
+  </script>
+
+  <!-- Styles -->
+  <link href="css/styles.min.css" rel="stylesheet" />
+  <link href="css/frame-styles.css" rel="stylesheet" />
+
+  <!-- Frame page script -->
+  <script defer src="js/frame.js"></script>
+</head>
+
+<body class="bg-[#440edf] text-[#111] font-sans m-0 h-screen overflow-hidden">
+
+  <!-- ─── Intro Modal ─── -->
+  <div id="introModal"
+    class="fixed inset-0 z-50 flex items-start md:items-center justify-center p-2 md:p-4 overflow-y-auto">
+    <!-- Backdrop -->
+    <div id="introBackdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+    <!-- Card -->
+    <div
+      class="intro-card relative z-10 flex flex-col lg:flex-row items-center gap-4 lg:gap-8 max-w-[1100px] w-full max-h-[calc(100dvh-1rem)] md:max-h-[calc(100dvh-2rem)] overflow-y-auto overflow-x-hidden mx-auto px-2 py-6 lg:px-8 lg:py-8 rounded-3xl bg-white"
+      style="border: 1px solid rgba(68,14,223,0.08); box-shadow: 0 32px 80px rgba(0,0,0,0.25);">
+
+      <!-- 3D Frame Preview -->
+      <div id="introPreviewContainer"
+        class="w-[260px] h-[260px] sm:w-[320px] sm:h-[320px] lg:w-[500px] lg:h-[500px] flex-shrink-0 mx-auto lg:mx-0 rounded-2xl overflow-hidden bg-[#f8f8f8] border border-[#e5e5e5]">
+      </div>
+
+      <!-- Content -->
+      <div class="intro-copy text-[#111] max-w-lg w-full text-center lg:text-left min-w-0 break-words">
+        <!-- Logo -->
+        <div class="flex items-center gap-3 justify-center lg:justify-start mb-3">
+          <div
+            class="w-10 h-10 bg-[#440edf] rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/20">
+            <ion-icon name="map-outline" class="text-xl text-[#d2e823]" aria-hidden="true"></ion-icon>
+          </div>
+          <h1 class="text-3xl font-extrabold tracking-tight text-[#440edf]">MAPI</h1>
+          <span class="text-[10px] font-semibold tracking-wider uppercase text-[#999]">3D Frame</span>
+        </div>
+
+        <p class="text-[15px] leading-relaxed text-[#555] mb-6">
+          See your map as a framed print. Pick a city and explore it from every angle.
+        </p>
+
+        <!-- City Search -->
+        <div class="w-full relative mb-4">
+          <label for="frameCityInput"
+            class="text-[10px] font-semibold tracking-[2px] uppercase text-[#999] mb-1 block">Search a city</label>
+          <div class="relative">
+            <ion-icon name="search-outline"
+              class="absolute left-3 top-1/2 -translate-y-1/2 text-[#999] text-lg pointer-events-none"
+              aria-hidden="true"></ion-icon>
+            <input type="text" id="frameCityInput" placeholder="Tokyo, Paris, New York..."
+              class="w-full bg-[#f8f8f8] border border-[#e5e5e5] rounded-xl pl-10 pr-4 py-3 text-[#111] text-sm placeholder:text-[#bbb] focus:outline-none focus:border-[#440edf] focus:ring-1 focus:ring-[#440edf] transition-colors"
+              autocomplete="off" />
+          </div>
+          <ul id="frameCityAutocomplete" class="city-autocomplete" role="listbox" aria-label="City suggestions"></ul>
+        </div>
+
+        <p class="text-[10px] font-semibold tracking-[2px] uppercase text-[#999] mb-2">Quick start with a city</p>
+        <div
+          class="intro-postcards-row flex gap-3 mb-6 justify-start lg:justify-start flex-nowrap overflow-x-auto md:overflow-x-hidden overflow-y-hidden w-full max-w-full px-1 py-3">
+          <button class="intro-city-btn postcard" data-city="New York" data-lat="40.7127" data-lon="-74.006"
+            aria-label="Start with New York, USA">
+            <div class="postcard-map" id="minimap-newyork"></div>
+            <div class="postcard-body">
+              <span class="postcard-city">New York</span>
+              <span class="postcard-country">USA</span>
+            </div>
+            <div class="postcard-pin">
+              <ion-icon name="location" aria-hidden="true"></ion-icon>
+            </div>
+          </button>
+          <button class="intro-city-btn postcard" data-city="Paris" data-lat="48.8535" data-lon="2.3484"
+            aria-label="Start with Paris, France">
+            <div class="postcard-map" id="minimap-paris"></div>
+            <div class="postcard-body">
+              <span class="postcard-city">Paris</span>
+              <span class="postcard-country">France</span>
+            </div>
+            <div class="postcard-pin">
+              <ion-icon name="location" aria-hidden="true"></ion-icon>
+            </div>
+          </button>
+          <button class="intro-city-btn postcard" data-city="Tokyo" data-lat="35.6769" data-lon="139.7639"
+            aria-label="Start with Tokyo, Japan">
+            <div class="postcard-map" id="minimap-tokyo"></div>
+            <div class="postcard-body">
+              <span class="postcard-city">Tokyo</span>
+              <span class="postcard-country">Japan</span>
+            </div>
+            <div class="postcard-pin">
+              <ion-icon name="location" aria-hidden="true"></ion-icon>
+            </div>
+          </button>
+        </div>
+
+        <!-- Start button -->
+        <button id="startFrameBtn"
+          class="group cursor-pointer bg-[#440edf] text-white font-semibold px-7 py-2.5 rounded-full text-sm transition-all duration-300 hover:bg-[#3308b8] hover:shadow-lg hover:shadow-purple-500/30 hover:scale-105 active:scale-95">
+          Explore in 3D
+          <span class="inline-block transition-transform duration-300 group-hover:translate-x-1">&rarr;</span>
+        </button>
+      </div><!-- /intro-copy -->
+
+    </div>
+  </div>
+
+  <!-- ─── Hidden map container (offscreen, renders map for texture capture) ─── -->
+  <div id="hiddenMapContainer"
+    style="position:absolute; left:-9999px; top:0; width:1100px; height:1400px; overflow:hidden;"></div>
+
+  <!-- ─── Main Layout (matches index page: rounded container with sidebar + main area) ─── -->
+  <div id="appLayout"
+    class="flex h-[calc(100vh-16px)] rounded-xl m-2 overflow-hidden opacity-0 transition-opacity duration-500 max-[900px]:flex-col max-[900px]:h-auto">
+
+    <!-- Sidebar Controls -->
+    <section id="sidebar"
+      class="w-[320px] bg-[#fafafa] p-4 h-full overflow-y-auto shrink-0 max-[900px]:w-full max-[900px]:h-auto">
+
+      <!-- Logo / Header -->
+      <div class="flex items-center gap-2 mb-5">
+        <div class="w-8 h-8 bg-[#440edf] rounded-lg flex items-center justify-center shadow-md shadow-purple-500/15">
+          <ion-icon name="map-outline" class="text-sm text-[#d2e823]" aria-hidden="true"></ion-icon>
+        </div>
+        <span class="text-lg font-extrabold tracking-tight text-[#440edf]">MAPI</span>
+        <span class="text-[9px] font-semibold tracking-wider uppercase text-[#999]">3D Frame</span>
+        <a href="index.html"
+          class="ml-auto flex items-center gap-1 text-[11px] font-medium text-[#888] hover:text-[#440edf] transition-colors"
+          title="Back to designer">
+          <ion-icon name="arrow-back-outline" class="text-base"></ion-icon>
+          <span class="hidden sm:inline">Designer</span>
+        </a>
+      </div>
+
+      <!-- Location Section -->
+      <div class="mb-6">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="w-1 h-4 bg-[#440edf] rounded-full"></div>
+          <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">Location</span>
+        </div>
+        <div class="space-y-2">
+          <div class="relative">
+            <label for="sidebarCityInput" class="block text-[11px] font-medium text-[#666] mb-1">City / Place</label>
+            <div class="relative">
+              <input id="sidebarCityInput" type="text" placeholder="Search for a city..." autocomplete="off"
+                class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20"
+                style="padding-right: 2.6rem;" />
+              <button id="sidebarCitySearchBtn" type="button" aria-label="Search city"
+                class="absolute rounded-lg text-[#666] text-base transition-colors duration-200 hover:text-[#440edf]"
+                style="right: 0.25rem; top: 50%; width: 2rem; height: 2rem; transform: translateY(-50%); display: flex; align-items: center; justify-content: center;">
+                <ion-icon name="search-outline" aria-hidden="true"></ion-icon>
+              </button>
+            </div>
+            <ul id="sidebarCityAutocomplete" class="city-autocomplete sidebar-autocomplete" role="listbox"
+              aria-label="City suggestions"></ul>
+          </div>
+
+          <!-- Zoom -->
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label for="frameZoomInput" class="text-[11px] font-medium text-[#666]">Zoom</label>
+              <span id="frameZoomValue" class="text-[11px] font-semibold text-[#440edf]">13.0</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <button type="button" id="frameZoomDecrement" aria-label="Decrease zoom"
+                class="flex items-center justify-center w-8 h-8 rounded-lg bg-white shadow-sm text-[#666] text-base transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95 cursor-pointer">
+                <ion-icon name="remove-outline" aria-hidden="true"></ion-icon>
+              </button>
+              <div class="flex-1">
+                <input id="frameZoomInput" type="range" min="1" max="20" step="0.1" value="13"
+                  class="w-full h-1.5 appearance-none bg-[#e5e5e5] rounded-full cursor-pointer
+                  [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#440edf] [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb]:duration-200 [&::-webkit-slider-thumb]:hover:scale-110 [&::-webkit-slider-thumb]:shadow-md
+                  [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-[#440edf] [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:transition-transform [&::-moz-range-thumb]:duration-200 [&::-moz-range-thumb]:hover:scale-110 [&::-moz-range-thumb]:shadow-md" />
+              </div>
+              <button type="button" id="frameZoomIncrement" aria-label="Increase zoom"
+                class="flex items-center justify-center w-8 h-8 rounded-lg bg-white shadow-sm text-[#666] text-base transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95 cursor-pointer">
+                <ion-icon name="add-outline" aria-hidden="true"></ion-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Frame Style Section -->
+      <div class="mb-6">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="w-1 h-4 bg-[#440edf] rounded-full"></div>
+          <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">Frame Style</span>
+        </div>
+        <div class="flex gap-1.5 flex-wrap">
+          <button class="frame-style-btn active" data-style="slim-black" title="Slim Black">
+            <span class="frame-dot" style="background:#111; border:1px solid #444;"></span>
+          </button>
+          <button class="frame-style-btn" data-style="thin-white" title="Thin White">
+            <span class="frame-dot" style="background:#f2f2f2; border:1px solid #ccc;"></span>
+          </button>
+          <button class="frame-style-btn" data-style="natural-oak" title="Natural Oak">
+            <span class="frame-dot" style="background:#C49A6C;"></span>
+          </button>
+          <button class="frame-style-btn" data-style="walnut" title="Walnut">
+            <span class="frame-dot" style="background:#5C3A1E;"></span>
+          </button>
+          <button class="frame-style-btn" data-style="brushed-silver" title="Brushed Silver">
+            <span class="frame-dot" style="background:linear-gradient(135deg, #A0A0A0, #D0D0D0);"></span>
+          </button>
+          <button class="frame-style-btn" data-style="matte-gold" title="Matte Gold">
+            <span class="frame-dot" style="background:linear-gradient(135deg, #C5A55A, #DBBF70);"></span>
+          </button>
+          <button class="frame-style-btn" data-style="charcoal" title="Charcoal">
+            <span class="frame-dot" style="background:#3A3A3A;"></span>
+          </button>
+          <button class="frame-style-btn" data-style="olive" title="Olive">
+            <span class="frame-dot" style="background:#556B2F;"></span>
+          </button>
+          <button class="frame-style-btn" data-style="copper" title="Copper">
+            <span class="frame-dot" style="background:linear-gradient(135deg, #B87333, #D4956A);"></span>
+          </button>
+          <button class="frame-style-btn" data-style="floating" title="Floating (No Mat)">
+            <span class="frame-dot" style="background:#111; border:1px dashed #555;"></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Color Theme Section -->
+      <div class="mb-6">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="w-1 h-4 bg-[#440edf] rounded-full"></div>
+          <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">Color Theme</span>
+        </div>
+
+        <!-- Selected Theme Preview -->
+        <div id="frameSelectedThemePreview" class="mb-2 p-2 bg-white rounded-lg shadow-sm">
+          <div class="flex items-center gap-3">
+            <div id="frameSelectedThemeSwatch" class="theme-swatch-large"></div>
+            <div class="flex-1 min-w-0">
+              <div id="frameSelectedThemeName" class="text-[12px] font-semibold text-[#333] truncate">
+                Pure Black & White
+              </div>
+              <div class="flex gap-2 mt-1.5">
+                <div class="flex items-center gap-1">
+                  <span id="frameSelectedBgColor" class="color-dot"></span>
+                  <span class="text-[9px] text-[#888]">Background</span>
+                </div>
+                <div class="flex items-center gap-1">
+                  <span id="frameSelectedRoadsColor" class="color-dot"></span>
+                  <span class="text-[9px] text-[#888]">Roads</span>
+                </div>
+                <div class="flex items-center gap-1">
+                  <span id="frameSelectedWaterColor" class="color-dot"></span>
+                  <span class="text-[9px] text-[#888]">Water</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- All Themes Grid -->
+        <div class="mb-2">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[10px] font-medium text-[#888]">All Themes</span>
+            <button id="frameToggleThemesGrid"
+              class="text-[10px] text-[#440edf] hover:underline cursor-pointer bg-transparent border-none">Show
+              all</button>
+          </div>
+          <div id="frameThemesGrid" class="themes-grid collapsed"></div>
+        </div>
+
+        <select id="frameThemeSelect"
+          class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20 cursor-pointer">
+        </select>
+      </div>
+
+      <!-- Camera Section -->
+      <div class="mb-6">
+        <div class="flex items-center gap-2 mb-4">
+          <div class="w-1 h-4 bg-[#440edf] rounded-full"></div>
+          <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">Camera</span>
+        </div>
+        <button id="resetViewBtn"
+          class="group cursor-pointer bg-[#440edf] text-white font-semibold px-7 py-2.5 rounded-full text-sm transition-all duration-300 hover:bg-[#3308b8] hover:shadow-lg hover:shadow-purple-500/30 w-full text-center">
+          Reset camera view
+        </button>
+      </div>
+
+      <!-- Attribution -->
+      <div class="mt-auto pt-2 border-t border-[#e5e5e5] text-[9px] text-center text-[#aaa]">
+        &copy; OpenStreetMap contributors &middot; Tiles &copy; MapTiler
+      </div>
+
+    </section>
+
+    <!-- 3D Scene (same position as #posterWrapper on index page) -->
+    <section id="sceneWrapper" class="flex-1 flex justify-center items-center p-4 bg-[#fff] overflow-hidden">
+      <div id="frameScene" class="w-full h-full rounded-xl overflow-hidden"></div>
+    </section>
+
+  </div>
+
+  <!-- ─── Loading overlay ─── -->
+  <div id="loadingOverlay"
+    class="fixed inset-0 z-40 flex items-center justify-center bg-white/80 backdrop-blur-sm pointer-events-none opacity-0 transition-opacity duration-300">
+    <div class="flex flex-col items-center gap-3">
+      <div class="frame-spinner"></div>
+      <p class="text-[#888] text-sm">Rendering map...</p>
+    </div>
+  </div>
+
+</body>
+
+</html>
