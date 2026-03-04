@@ -603,6 +603,7 @@ const elements = {
     panelToggleBtn: document.getElementById("panelToggleBtn"),
     panelCloseBtn: document.getElementById("panelCloseBtn"),
     controls: document.getElementById("controls"),
+    canvasSizeDisplay: document.getElementById("canvasSizeDisplay"),
 };
 
 // === STATE ===
@@ -626,6 +627,13 @@ function isLightColor(hexColor) {
 function setStatus(msg, isError = false) {
     elements.status.textContent = msg || "";
     elements.status.style.color = isError ? "#b00020" : "#111";
+}
+
+function updateCanvasSizeDisplay() {
+    const el = elements.canvasSizeDisplay;
+    if (!el || !elements.poster) return;
+    const { offsetWidth: w, offsetHeight: h } = elements.poster;
+    el.textContent = `Canvas: ${w} × ${h} px`;
 }
 
 // === TOAST NOTIFICATION ===
@@ -1449,13 +1457,17 @@ function setupEventListeners() {
     elements.posterStyleSelect.addEventListener("change", () => {
         elements.poster.className = elements.poster.className.replace(/poster-style-\w+/g, `poster-style-${elements.posterStyleSelect.value}`);
         updateLabels();
-        setTimeout(() => map.resize(), 350);
+        // Force reflow then resize
+        elements.poster.offsetHeight;
+        requestAnimationFrame(() => { map.resize(); updateCanvasSizeDisplay(); });
     });
 
     elements.sizeSelect.addEventListener("change", () => {
         elements.poster.className = elements.poster.className.replace(/size-\S+/g, '').trim();
         if (elements.sizeSelect.value !== 'default') elements.poster.classList.add(`size-${elements.sizeSelect.value}`);
-        setTimeout(() => map.resize(), 350);
+        // Force reflow then resize
+        elements.poster.offsetHeight;
+        requestAnimationFrame(() => { map.resize(); updateCanvasSizeDisplay(); });
     });
 
     const triggerCitySearch = () => searchCity(elements.cityInput.value.trim());
@@ -1471,10 +1483,16 @@ function setupEventListeners() {
     elements.orientationToggle.addEventListener("click", () => {
         isLandscape = !isLandscape;
         elements.orientationToggle.classList.toggle("active", isLandscape);
+        // Skip CSS transition so container dimensions are correct immediately
+        elements.poster.style.transition = 'none';
         elements.poster.classList.toggle("landscape", isLandscape);
+        elements.poster.offsetHeight; // force reflow
+        elements.poster.style.transition = '';
         document.getElementById("posterWrapper").classList.toggle("landscape-scroll", isLandscape);
         localStorage.setItem('mapi_landscape', isLandscape);
-        setTimeout(() => map.resize(), 350);
+        // Resize immediately now that layout is settled
+        map.resize();
+        updateCanvasSizeDisplay();
     });
 
     elements.labelsToggle.addEventListener("click", () => {
@@ -1503,6 +1521,8 @@ function setupEventListeners() {
         if (!/^#[0-9A-Fa-f]{6}$/.test(val)) e.target.value = elements.labelColorInput.value.toUpperCase();
     });
     elements.labelColorAuto.addEventListener("click", setLabelColorAuto);
+
+    window.addEventListener("resize", updateCanvasSizeDisplay);
 }
 
 function setupPanelToggle() {
@@ -2092,7 +2112,14 @@ function initializeApp(center, zoom, cityName) {
     if (savedLandscape !== null) {
         isLandscape = savedLandscape === 'true';
         elements.orientationToggle.classList.toggle("active", isLandscape);
-        elements.poster.classList.toggle("landscape", isLandscape);
+        if (isLandscape) {
+            // Suppress transition so poster snaps to landscape dimensions instantly;
+            // otherwise the map initialises mid-animation with wrong container size.
+            elements.poster.style.transition = 'none';
+            elements.poster.classList.add('landscape');
+            elements.poster.offsetHeight; // force reflow
+            elements.poster.style.transition = '';
+        }
         document.getElementById("posterWrapper").classList.toggle("landscape-scroll", isLandscape);
     }
 
@@ -2113,6 +2140,19 @@ function initializeApp(center, zoom, cityName) {
     setupMapEvents();
     setupEventListeners();
     setupPanelToggle();
+
+    // ResizeObserver reliably calls map.resize() whenever the container
+    // dimensions change (orientation toggle, size change, panel toggle, etc.)
+    const mapContainer = document.getElementById('mapContainer');
+    if (mapContainer && typeof ResizeObserver !== 'undefined') {
+        let resizeRaf;
+        new ResizeObserver(() => {
+            cancelAnimationFrame(resizeRaf);
+            resizeRaf = requestAnimationFrame(() => {
+                if (map) { map.resize(); updateCanvasSizeDisplay(); }
+            });
+        }).observe(mapContainer);
+    }
     elements.cityInput.value = cityName;
     elements.titleInput.value = cityName.toUpperCase();
     elements.subtitleInput.value = getCitySubtitle(cityName);
@@ -2121,6 +2161,7 @@ function initializeApp(center, zoom, cityName) {
     generateThemesGrid();
     updateSelectedThemePreview(currentStyle);
     setupIntroModal();
+    setTimeout(updateCanvasSizeDisplay, 400);
 }
 
 async function init() {

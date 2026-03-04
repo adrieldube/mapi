@@ -308,11 +308,12 @@
                 <option value="a1">A1 — 23.4 × 33.1 in / 59.4 × 84.1 cm</option>
                 <option value="a2">A2 — 16.5 × 23.4 in / 42 × 59.4 cm</option>
                 <option value="a3">A3 — 11.7 × 16.5 in / 29.7 × 42 cm</option>
-                <option value="24x36" selected>24 × 36 in / 61 × 91.4 cm</option>
+                <option value="24x36">24 × 36 in / 61 × 91.4 cm</option>
                 <option value="18x24">18 × 24 in / 45.7 × 61 cm</option>
                 <option value="16x20">16 × 20 in / 40.6 × 50.8 cm</option>
-                <option value="11x14">11 × 14 in / 27.9 × 35.6 cm</option>
+                <option value="11x14" selected>11 × 14 in / 27.9 × 35.6 cm</option>
               </select>
+              <span id="canvasSizeDisplay" class="block text-[10px] text-[#999] mt-1"></span>
             </div>
 
             <div>
@@ -444,7 +445,7 @@
       </div><!-- /.controls-body -->
     </section>
 
-    <section id="posterWrapper" class="flex-1 flex justify-center items-start p-4 bg-[#fff] overflow-y-auto">
+    <section id="posterWrapper" class="flex-1 flex justify-center items-start p-4 bg-[#fff] overflow-auto">
       <div id="poster" class="poster-style-minimal">
         <div id="mapContainer"></div>
         <div id="posterFooter">
@@ -457,12 +458,14 @@
   </div>
 
   <!-- Preview Modal -->
-  <div id="previewModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm" role="dialog" aria-label="Vista previa del póster">
+  <div id="previewModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm"
+    role="dialog" aria-label="Vista previa del póster">
     <button id="previewClose" type="button" aria-label="Cerrar vista previa"
       class="absolute top-4 right-4 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white text-2xl transition-colors cursor-pointer">
       <ion-icon name="close-outline" aria-hidden="true"></ion-icon>
     </button>
-    <img id="previewImg" alt="Vista previa del póster" class="max-w-[90vw] max-h-[90vh] object-contain rounded-lg shadow-2xl" />
+    <img id="previewImg" alt="Vista previa del póster"
+      class="max-w-[90vw] max-h-[90vh] object-contain rounded-lg shadow-2xl" />
   </div>
 
   <!-- Download Notification Toast -->
