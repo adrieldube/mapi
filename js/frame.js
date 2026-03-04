@@ -322,7 +322,7 @@ let hiddenMap = null;
 let currentFrameStyle = 'slim-black';
 let currentColorTheme = 'Pure Black & White';
 let currentCity = null;
-let currentZoom = 13;
+let currentZoom = 12;
 
 // === UTILITY ===
 function isLightColor(hexColor) {
@@ -772,6 +772,26 @@ async function reloadCurrentCity() {
     showLoading(false);
 }
 
+async function applyTheme(themeName) {
+    if (!hiddenMap) return;
+    showLoading(true);
+    try {
+        const newStyle = createMapStyle(PALETTES[themeName]);
+        hiddenMap.setStyle(newStyle);
+        await new Promise(resolve => {
+            hiddenMap.once('idle', () => {
+                setTimeout(() => {
+                    captureMapTexture();
+                    resolve();
+                }, 600);
+            });
+        });
+    } catch (err) {
+        console.error('Error applying theme:', err);
+    }
+    showLoading(false);
+}
+
 // ═══════════════════════════════════════════════════════════════
 // CITY AUTOCOMPLETE (shared logic for intro + sidebar)
 // ═══════════════════════════════════════════════════════════════
@@ -1094,6 +1114,13 @@ function initIntroPreview() {
     glassMesh.position.z = 0.001;
     previewGroup.add(glassMesh);
 
+    // Back panel (prevents seeing through the frame from behind)
+    const backGeo = new THREE.PlaneGeometry(outerW - 0.01, outerH - 0.01);
+    const backMat = new THREE.MeshBasicMaterial({ color: 0x1a1a1a, side: THREE.BackSide });
+    const backMesh = new THREE.Mesh(backGeo, backMat);
+    backMesh.position.z = -fd - 0.005;
+    previewGroup.add(backMesh);
+
     previewScene.add(previewGroup);
 
     // Slow auto-rotate
@@ -1158,6 +1185,7 @@ function initIntroPreview() {
         if (!document.getElementById('introPreviewContainer')) {
             cancelAnimationFrame(animId);
             window.removeEventListener('resize', onPreviewResize);
+            disposeGroup(previewScene);
             previewRenderer.dispose();
             previewMapContainer.remove();
             observer.disconnect();
@@ -1265,7 +1293,7 @@ function generateFrameThemesGrid() {
         swatch.addEventListener('click', () => {
             document.getElementById('frameThemeSelect').value = name;
             currentColorTheme = name;
-            reloadCurrentCity();
+            applyTheme(name);
             updateFrameThemePreview(name);
         });
 
@@ -1344,7 +1372,7 @@ function setupControls() {
     const select = document.getElementById('frameThemeSelect');
     select.addEventListener('change', async () => {
         currentColorTheme = select.value;
-        reloadCurrentCity();
+        applyTheme(select.value);
         updateFrameThemePreview(select.value);
     });
 
