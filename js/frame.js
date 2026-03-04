@@ -1157,10 +1157,12 @@ function initIntroPreview() {
     previewMapContainer.style.cssText = 'position:absolute;left:-9999px;top:0;width:512px;height:640px;overflow:hidden;';
     document.body.appendChild(previewMapContainer);
 
+    var index = Math.floor(Math.random() * Object.keys(PALETTES).length);
+    var mapStyle = createMapStyle(Object.values(PALETTES)[index]);
     try {
         const previewMap = new maplibregl.Map({
             container: previewMapContainer,
-            style: createMapStyle({ bg: '#f0f0f5', roads: '#440edf', water: '#d2e823', buildings: '#e8e8f0', parks: '#e0e0ea' }),
+            style: mapStyle,
             center: [-74.006, 40.7127], // New York
             zoom: 12,
             interactive: false,
