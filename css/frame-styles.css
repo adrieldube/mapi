@@ -144,7 +144,9 @@
 }
 
 @keyframes frameSpin {
-    to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 #loadingOverlay.visible {
@@ -181,6 +183,34 @@
     height: 18px;
     border-radius: 5px;
     display: block;
+}
+
+.themes-grid {
+    scrollbar-width: thin;
+    scrollbar-color: #440edf transparent;
+}
+
+.themes-grid::-webkit-scrollbar {
+    width: 8px;
+}
+
+.themes-grid::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.themes-grid::-webkit-scrollbar-thumb {
+    background: #440edf;
+    border-radius: 4px;
+}
+
+.themes-grid::-webkit-scrollbar-thumb:hover {
+    background: #3509b8;
+}
+
+/* Firefox scrollbar styling */
+.themes-grid {
+    scrollbar-width: auto;
+    scrollbar-color: #440edf transparent;
 }
 
 /* ── Theme select dropdown ───────────────────────────────────── */
