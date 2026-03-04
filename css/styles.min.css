@@ -950,7 +950,7 @@
 
 #controls,
 #posterWrapper {
-  scrollbar-width: thin;
+  scrollbar-width: auto;
   scrollbar-color: #440edf transparent;
 }
 
