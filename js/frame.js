@@ -1035,16 +1035,16 @@ function initIntroPreview() {
     texCanvas.width = 512;
     texCanvas.height = 640;
     const ctx = texCanvas.getContext('2d');
-    // Draw a gradient as placeholder
+    // Draw a gradient as placeholder (matches postcard map palette)
     const gradient = ctx.createLinearGradient(0, 0, 0, 640);
     gradient.addColorStop(0, '#f0f0f5');
-    gradient.addColorStop(1, '#e0e0ea');
+    gradient.addColorStop(1, '#e8e8f0');
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, 512, 640);
     // Draw some abstract "road" lines
     ctx.strokeStyle = '#440edf';
     ctx.lineWidth = 1.5;
-    ctx.globalAlpha = 0.25;
+    ctx.globalAlpha = 0.3;
     for (let i = 0; i < 30; i++) {
         ctx.beginPath();
         ctx.moveTo(Math.random() * 512, Math.random() * 640);
@@ -1160,8 +1160,8 @@ function initIntroPreview() {
     try {
         const previewMap = new maplibregl.Map({
             container: previewMapContainer,
-            style: createMapStyle(PALETTES['Pure Black & White']),
-            center: [139.7639, 35.6769], // Tokyo
+            style: createMapStyle({ bg: '#f0f0f5', roads: '#440edf', water: '#d2e823', buildings: '#e8e8f0', parks: '#e0e0ea' }),
+            center: [-74.006, 40.7127], // New York
             zoom: 12,
             interactive: false,
             preserveDrawingBuffer: true,
@@ -1220,14 +1220,14 @@ function setupIntroModal() {
         });
     });
 
-    // Start button (defaults to Tokyo)
+    // Start button (defaults to New York)
     document.getElementById('startFrameBtn')?.addEventListener('click', () => {
-        closeIntroModal('Tokyo', 35.6769, 139.7639);
+        closeIntroModal('New York', 40.7127, -74.006);
     });
 
     // Backdrop click
     document.getElementById('introBackdrop')?.addEventListener('click', () => {
-        closeIntroModal('Tokyo', 35.6769, 139.7639);
+        closeIntroModal('New York', 40.7127, -74.006);
     });
 }
 
