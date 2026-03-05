@@ -51,7 +51,7 @@ const PALETTES = {
     'Coral Lagoon': { bg: '#F0F8F8', roads: '#E87461', water: '#7BC8C8', buildings: '#E8F0F0', parks: '#A0D8D0' },
 
     // === UNIQUE VISUAL STYLES ===
-    'Blueprint': { bg: '#0D47A1', roads: '#DDDDDD', water: '#1565C0', buildings: '#1976D2', parks: '#1E88E5' },
+    'Blueprint': { bg: '#0d1c87', roads: '#FFFFFF', water: '#0d1c87', buildings: '#0d1c87', parks: '#0d1c87' },
     'Cyberpunk 2077': { bg: '#0D0E15', roads: '#FCE205', water: '#05D5FA', buildings: '#2E1A47', parks: '#FF0055' },
     'Synthwave': { bg: '#180A2D', roads: '#FF007F', water: '#4D0099', buildings: '#301350', parks: '#00F0FF' },
     'Vaporwave': { bg: '#FFB6C1', roads: '#00FFFF', water: '#8A2BE2', buildings: '#FF69B4', parks: '#9370DB' },
@@ -163,7 +163,29 @@ const PALETTES = {
     'Monochrome Blue': { bg: '#080820', roads: '#4488FF', water: '#040414', buildings: '#0C0C30', parks: '#0A0A28' },
     'Paper & Ink': { bg: '#F5F0E0', roads: '#1A1A1A', water: '#D4CEB8', buildings: '#EBE5D0', parks: '#DDD8C4' },
     'Dreamscape': { bg: '#1A0A30', roads: '#FF88CC', water: '#100520', buildings: '#28144A', parks: '#C888FF' },
-    'Phantom': { bg: '#0C0C14', roads: '#4A4A6A', water: '#06060C', buildings: '#16161E', parks: '#101018' }
+    'Phantom': { bg: '#0C0C14', roads: '#4A4A6A', water: '#06060C', buildings: '#16161E', parks: '#101018' },
+
+    // === CRAZY & WILD ===
+    'Radioactive': { bg: '#0D0D00', roads: '#39FF14', water: '#CCFF00', buildings: '#1A1A00', parks: '#FF6600' },
+    'Bubblegum Explosion': { bg: '#FF69B4', roads: '#00FFFF', water: '#FF1493', buildings: '#FFD700', parks: '#7FFF00' },
+    'Alien Planet': { bg: '#2B0040', roads: '#00FF99', water: '#FF00CC', buildings: '#440066', parks: '#33FFCC' },
+    'Lava Flow': { bg: '#1A0000', roads: '#FF4500', water: '#FFD700', buildings: '#330000', parks: '#FF0000' },
+    'Candy Crush': { bg: '#FF6FFF', roads: '#FFFF00', water: '#00FFCC', buildings: '#FF99CC', parks: '#FF3366' },
+    'Toxic Waste': { bg: '#1C1C00', roads: '#BFFF00', water: '#8B008B', buildings: '#333300', parks: '#00FF00' },
+    'Disco Inferno': { bg: '#1A001A', roads: '#FF00FF', water: '#FFD700', buildings: '#4B0082', parks: '#00BFFF' },
+    'Arctic Aurora': { bg: '#001428', roads: '#00FFAA', water: '#002244', buildings: '#001A33', parks: '#FF00FF' },
+    'Rust & Teal': { bg: '#1E1E1E', roads: '#C45226', water: '#008B8B', buildings: '#2D2D2D', parks: '#20B2AA' },
+    'Sunset Strip': { bg: '#FF6347', roads: '#FFE4B5', water: '#FF8C00', buildings: '#FF4500', parks: '#FFDAB9' },
+    'Electric Lime': { bg: '#0A0A0A', roads: '#CCFF00', water: '#1A1A1A', buildings: '#FF00FF', parks: '#00FFFF' },
+    'Coral & Navy': { bg: '#001F3F', roads: '#FF7F50', water: '#003366', buildings: '#002B4D', parks: '#FF6347' },
+    'Psychedelic': { bg: '#FF1493', roads: '#00FF00', water: '#8A2BE2', buildings: '#FF4500', parks: '#00FFFF' },
+    'Ice Cream Parlor': { bg: '#FFF5EE', roads: '#C87137', water: '#FFB6C1', buildings: '#FFFACD', parks: '#98FB98' },
+    'Neon Jungle': { bg: '#0B3D0B', roads: '#FF00FF', water: '#001A00', buildings: '#145214', parks: '#FFFF00' },
+    'Galactic Dust': { bg: '#0A0015', roads: '#FF6EC7', water: '#1A0030', buildings: '#FFD700', parks: '#7B68EE' },
+    'Burning Chrome': { bg: '#0C0C0C', roads: '#C0C0C0', water: '#FF4500', buildings: '#1C1C1C', parks: '#00CED1' },
+    'Tropical Punch': { bg: '#FF3399', roads: '#00FF7F', water: '#1E90FF', buildings: '#FF6600', parks: '#FFFF00' },
+    'Holographic': { bg: '#E8E8FF', roads: '#C850C0', water: '#4158D0', buildings: '#FFCC70', parks: '#00DDEB' },
+    'Graffiti Wall': { bg: '#2C2C2C', roads: '#FF0055', water: '#FFD700', buildings: '#3D3D3D', parks: '#00BFFF' }
 };
 
 // === WORLD CITIES ===
