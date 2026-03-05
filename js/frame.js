@@ -210,6 +210,22 @@ const WORLD_CITIES = {
 
 const APP_LANG = document.documentElement.lang?.toLowerCase().startsWith('es') ? 'es' : 'en';
 
+const I18N = {
+    en: {
+        toggleShowAll: 'Show all',
+        toggleShowLess: 'Show less',
+    },
+    es: {
+        toggleShowAll: 'Mostrar todos',
+        toggleShowLess: 'Mostrar menos',
+    },
+};
+
+function t(key) {
+    const dict = I18N[APP_LANG] || I18N.en;
+    return dict[key] || I18N.en[key] || key;
+}
+
 // === FRAME STYLES ===
 const FRAME_STYLES = {
     'slim-black': {
@@ -1372,7 +1388,7 @@ function setupControls() {
     const themesGrid = document.getElementById('frameThemesGrid');
     toggleBtn.addEventListener('click', () => {
         const collapsed = themesGrid.classList.toggle('collapsed');
-        toggleBtn.textContent = collapsed ? 'Show all' : 'Show less';
+        toggleBtn.textContent = collapsed ? t('toggleShowAll') : t('toggleShowLess');
     });
 
     // Reset view
