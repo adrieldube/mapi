@@ -2,6 +2,9 @@
   "permissions": {
     "additionalDirectories": [
       "/tmp"
+    ],
+    "allow": [
+      "Bash(git -C /Users/adrieldubemarante/Projects/mapi log --oneline -10)"
     ]
   }
 }
