@@ -1,40 +1,44 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MAPI — 3D Frame Viewer</title>
+  <title>MAPI — Visor de Marco 3D</title>
   <meta name="description"
-    content="View your custom map poster in a realistic 3D picture frame. Rotate, zoom, and explore from every angle." />
+    content="Visualiza tu póster de mapa personalizado en un marco 3D realista. Rota, amplía y explora desde cualquier ángulo." />
   <meta name="keywords"
-    content="3D frame viewer, map poster frame, framed map print, map art, wall art, city map, custom map print, map generator, MAPI" />
+    content="visor de marco 3D, póster de mapa enmarcado, impresión de mapa enmarcada, arte de mapa, decoración mural, mapa de ciudad, impresión de mapa personalizado, generador de mapas, MAPI" />
   <meta name="author" content="MAPI" />
   <meta name="robots" content="index, follow" />
   <meta name="theme-color" content="#440edf" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <link rel="manifest" href="/site.webmanifest" />
-  <link rel="canonical" href="https://streetmap-designer.pages.dev/frame.html" />
+  <link rel="canonical" href="https://streetmap-designer.pages.dev/es/frame.html" />
+  <link rel="alternate" hreflang="en" href="https://streetmap-designer.pages.dev/frame.html" />
+  <link rel="alternate" hreflang="es" href="https://streetmap-designer.pages.dev/es/frame.html" />
+  <link rel="alternate" hreflang="x-default" href="https://streetmap-designer.pages.dev/frame.html" />
 
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="MAPI — 3D Frame Viewer" />
+  <meta property="og:title" content="MAPI — Visor de Marco 3D" />
   <meta property="og:description"
-    content="View your custom map poster in a realistic 3D picture frame. Rotate, zoom, and explore from every angle." />
-  <meta property="og:url" content="https://streetmap-designer.pages.dev/frame.html" />
+    content="Visualiza tu póster de mapa personalizado en un marco 3D realista. Rota, amplía y explora desde cualquier ángulo." />
+  <meta property="og:url" content="https://streetmap-designer.pages.dev/es/frame.html" />
   <meta property="og:site_name" content="MAPI" />
   <meta property="og:image" content="https://streetmap-designer.pages.dev/og-image.png" />
   <meta property="og:image:width" content="1274" />
   <meta property="og:image:height" content="600" />
   <meta property="og:image:type" content="image/png" />
-  <meta property="og:locale" content="en_US" />
+  <meta property="og:locale" content="es_ES" />
+  <meta property="og:locale:alternate" content="en_US" />
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="MAPI — 3D Frame Viewer" />
+  <meta name="twitter:title" content="MAPI — Visor de Marco 3D" />
   <meta name="twitter:description"
-    content="View your custom map poster in a realistic 3D picture frame. Rotate, zoom, and explore from every angle." />
+    content="Visualiza tu póster de mapa personalizado en un marco 3D realista. Rota, amplía y explora desde cualquier ángulo." />
   <meta name="twitter:image" content="https://streetmap-designer.pages.dev/og-image.png" />
 
   <!-- Resource Hints -->
@@ -61,17 +65,18 @@
   {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    "name": "MAPI — 3D Frame Viewer",
-    "url": "https://streetmap-designer.pages.dev/frame.html",
-    "description": "View your custom map poster in a realistic 3D picture frame. Rotate, zoom, and explore from every angle.",
+    "name": "MAPI — Visor de Marco 3D",
+    "url": "https://streetmap-designer.pages.dev/es/frame.html",
+    "description": "Visualiza tu póster de mapa personalizado en un marco 3D realista. Rota, amplía y explora desde cualquier ángulo.",
     "applicationCategory": "DesignApplication",
     "operatingSystem": "Any",
-    "browserRequirements": "Requires a modern web browser with JavaScript and WebGL enabled",
+    "browserRequirements": "Requiere un navegador web moderno con JavaScript y WebGL habilitados",
     "offers": {
       "@type": "Offer",
       "price": "0",
       "priceCurrency": "USD"
     },
+    "inLanguage": ["es", "en"],
     "author": {
       "@type": "Organization",
       "name": "MAPI"
@@ -80,41 +85,41 @@
   </script>
 
   <!-- Styles -->
-  <link href="css/styles.min.css" rel="stylesheet" />
-  <link href="css/frame-styles.css" rel="stylesheet" />
+  <link href="../css/styles.min.css" rel="stylesheet" />
+  <link href="../css/frame-styles.css" rel="stylesheet" />
 
   <!-- Frame page script -->
-  <script defer src="js/frame.js"></script>
+  <script defer src="../js/frame.js"></script>
 </head>
 
 <body class="bg-[#440edf] text-[#111] font-sans m-0 h-screen overflow-hidden">
 
-  <!-- ─── Intro Modal ─── -->
+  <!-- ─── Modal de Introducción ─── -->
   <div id="introModal"
     class="fixed inset-0 z-50 flex items-start md:items-center justify-center p-2 md:p-4 overflow-y-auto">
-    <!-- Backdrop -->
+    <!-- Fondo -->
     <div id="introBackdrop" class="absolute inset-0 bg-black/30 backdrop-blur-lg"></div>
-    <!-- Card -->
+    <!-- Tarjeta -->
     <div
       class="intro-card relative z-10 flex flex-col lg:flex-row items-center gap-4 lg:gap-8 max-w-[1100px] w-full max-h-[calc(100dvh-1rem)] md:max-h-[calc(100dvh-2rem)] overflow-y-auto overflow-x-hidden mx-auto px-2 py-6 lg:px-8 lg:py-8 rounded-3xl bg-white"
       style="border: 1px solid rgba(68,14,223,0.08); box-shadow: 0 32px 80px rgba(0,0,0,0.25);">
 
-      <!-- 3D Frame Preview -->
+      <!-- Vista previa del marco 3D -->
       <div id="introPreviewContainer"
         class="w-[260px] h-[260px] sm:w-[320px] sm:h-[320px] lg:w-[500px] lg:h-[500px] flex-shrink-0 mx-auto lg:mx-0 rounded-2xl overflow-hidden bg-[#f8f8f8] border border-[#e5e5e5]">
       </div>
 
-      <!-- Content -->
+      <!-- Contenido -->
       <div class="intro-copy text-[#111] max-w-lg w-full text-center lg:text-left min-w-0 break-words">
-        <!-- Language Switcher -->
+        <!-- Selector de idioma -->
         <div class="flex items-center justify-center lg:justify-end gap-2 mb-3">
-          <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#777]">Language</span>
-          <a href="frame.html" aria-label="English (current language)" aria-current="page"
-            class="rounded-lg border border-[#440edf] bg-[#440edf] px-2.5 py-1 text-[11px] font-semibold text-white">
+          <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#777]">Idioma</span>
+          <a href="../frame.html" aria-label="English"
+            class="rounded-lg border border-[#440edf] bg-white px-2.5 py-1 text-[11px] font-semibold text-[#440edf] transition-colors duration-200 hover:bg-[#f3efff]">
             EN
           </a>
-          <a href="es/frame.html" aria-label="Español"
-            class="rounded-lg border border-[#440edf] bg-white px-2.5 py-1 text-[11px] font-semibold text-[#440edf] transition-colors duration-200 hover:bg-[#f3efff]">
+          <a href="frame.html" aria-label="Español (idioma actual)" aria-current="page"
+            class="rounded-lg border border-[#440edf] bg-[#440edf] px-2.5 py-1 text-[11px] font-semibold text-white">
             ES
           </a>
         </div>
@@ -126,59 +131,59 @@
             <ion-icon name="map-outline" class="text-2xl text-[#d2e823]" aria-hidden="true"></ion-icon>
           </div>
           <h1 class="text-4xl font-extrabold tracking-tight text-[#440edf]">MAPI</h1>
-          <span class="text-[11px] font-semibold tracking-wider uppercase text-[#440edf]">3D Frame</span>
+          <span class="text-[11px] font-semibold tracking-wider uppercase text-[#440edf]">Marco 3D</span>
         </div>
 
         <p class="text-[15px] leading-relaxed text-[#555] mb-6">
-          See your map as a framed print. Pick a city and explore it from every angle.
+          Visualiza tu mapa como una lámina enmarcada. Elige una ciudad y explórala desde cualquier ángulo.
         </p>
 
-        <!-- City Search -->
+        <!-- Búsqueda de ciudad -->
         <div class="w-full relative mb-4">
           <label for="frameCityInput"
-            class="text-[10px] font-semibold tracking-[2px] uppercase text-[#666] mb-1 block">Search a city</label>
+            class="text-[10px] font-semibold tracking-[2px] uppercase text-[#666] mb-1 block">Buscar una ciudad</label>
           <div class="relative">
             <ion-icon name="search-outline"
               class="absolute left-3 top-1/2 -translate-y-1/2 text-[#999] text-lg pointer-events-none"
               aria-hidden="true"></ion-icon>
-            <input type="text" id="frameCityInput" placeholder="New York, Paris, Tokyo ..."
+            <input type="text" id="frameCityInput" placeholder="Nueva York, París, Tokio ..."
               class="w-full bg-[#f8f8f8] border border-[#e5e5e5] rounded-xl pl-10 pr-4 py-3 text-[#111] text-sm placeholder:text-[#aaa] focus:outline-none focus:border-[#440edf] focus:ring-1 focus:ring-[#440edf] transition-colors"
               autocomplete="off" />
           </div>
-          <ul id="frameCityAutocomplete" class="city-autocomplete" role="listbox" aria-label="City suggestions"></ul>
+          <ul id="frameCityAutocomplete" class="city-autocomplete" role="listbox" aria-label="Sugerencias de ciudades"></ul>
         </div>
 
-        <p class="text-[10px] font-semibold tracking-[2px] uppercase text-[#666] mb-2">Quick start with a city</p>
+        <p class="text-[10px] font-semibold tracking-[2px] uppercase text-[#666] mb-2">Inicio rápido con una ciudad</p>
         <div
           class="intro-postcards-row flex gap-3 mb-6 justify-start lg:justify-start flex-nowrap overflow-x-auto md:overflow-x-hidden overflow-y-hidden w-full max-w-full px-1 py-3">
-          <button class="intro-city-btn postcard" data-city="New York" data-lat="40.7127" data-lon="-74.006"
-            aria-label="Start with New York, USA">
+          <button class="intro-city-btn postcard" data-city="Nueva York" data-lat="40.7127" data-lon="-74.006"
+            aria-label="Empezar con Nueva York, EE. UU.">
             <div class="postcard-map" id="minimap-newyork"></div>
             <div class="postcard-body">
-              <span class="postcard-city">New York</span>
-              <span class="postcard-country">USA</span>
+              <span class="postcard-city">Nueva York</span>
+              <span class="postcard-country">EE. UU.</span>
             </div>
             <div class="postcard-pin">
               <ion-icon name="location" aria-hidden="true"></ion-icon>
             </div>
           </button>
-          <button class="intro-city-btn postcard" data-city="Paris" data-lat="48.8535" data-lon="2.3484"
-            aria-label="Start with Paris, France">
+          <button class="intro-city-btn postcard" data-city="París" data-lat="48.8535" data-lon="2.3484"
+            aria-label="Empezar con París, Francia">
             <div class="postcard-map" id="minimap-paris"></div>
             <div class="postcard-body">
-              <span class="postcard-city">Paris</span>
-              <span class="postcard-country">France</span>
+              <span class="postcard-city">París</span>
+              <span class="postcard-country">Francia</span>
             </div>
             <div class="postcard-pin">
               <ion-icon name="location" aria-hidden="true"></ion-icon>
             </div>
           </button>
-          <button class="intro-city-btn postcard" data-city="Tokyo" data-lat="35.6769" data-lon="139.7639"
-            aria-label="Start with Tokyo, Japan">
+          <button class="intro-city-btn postcard" data-city="Tokio" data-lat="35.6769" data-lon="139.7639"
+            aria-label="Empezar con Tokio, Japón">
             <div class="postcard-map" id="minimap-tokyo"></div>
             <div class="postcard-body">
-              <span class="postcard-city">Tokyo</span>
-              <span class="postcard-country">Japan</span>
+              <span class="postcard-city">Tokio</span>
+              <span class="postcard-country">Japón</span>
             </div>
             <div class="postcard-pin">
               <ion-icon name="location" aria-hidden="true"></ion-icon>
@@ -186,10 +191,10 @@
           </button>
         </div>
 
-        <!-- Start button -->
+        <!-- Botón de inicio -->
         <button id="startFrameBtn"
           class="group cursor-pointer bg-[#440edf] text-white font-semibold px-7 py-2.5 rounded-full text-sm transition-all duration-300 hover:bg-[#3308b8] hover:shadow-lg hover:shadow-purple-500/30 hover:scale-105 active:scale-95">
-          Explore in 3D
+          Explorar en 3D
           <span class="inline-block transition-transform duration-300 group-hover:translate-x-1">&rarr;</span>
         </button>
       </div><!-- /intro-copy -->
@@ -197,62 +202,62 @@
     </div>
   </div>
 
-  <!-- ─── Header (matches index page) ─── -->
+  <!-- ─── Encabezado (igual que la página principal) ─── -->
   <header class="px-2 py-1 bg-[#440edf] text-[#d2e823]">
     <div class="flex items-center justify-between mx-auto w-full">
-      <a href="index.html" aria-label="MAPI - StreetMap Designer home"
+      <a href="index.html" aria-label="MAPI - StreetMap Designer inicio"
         class="flex items-center gap-2 font-bold text-lg text-[#d2e823]">
         <ion-icon name="map-outline" class="text-2xl" aria-hidden="true"></ion-icon>
         <span class="text-xl">MAPI</span>
         <span class="rounded bg-red-600 px-2 py-0 text-[9px] font-semibold text-white align-middle inline-block ml-1"
           style="line-height:1.8;">Beta</span>
       </a>
-      <p class="m-0 text-md tracking-wide opacity-90 hidden md:block">3D Frame Viewer</p>
+      <p class="m-0 text-md tracking-wide opacity-90 hidden md:block">Visor de Marco 3D</p>
       <div class="flex items-center gap-2">
-        <a href="es/frame.html" title="Español" aria-label="Cambiar a Español"
+        <a href="../frame.html" title="English" aria-label="Cambiar a inglés"
           class="cursor-pointer rounded-xl border border-[#d2e823] px-3 py-2.5 text-[13px] font-semibold transition-all duration-200 bg-[#440edf] text-[#d2e823] hover:bg-[#d2e823] hover:text-[#000] hover:shadow-lg flex items-center justify-center">
-          ES
+          EN
         </a>
-        <a href="index.html" title="Back to Designer" aria-label="Back to Designer"
+        <a href="index.html" title="Volver al Diseñador" aria-label="Volver al Diseñador"
           class="cursor-pointer rounded-xl border border-[#d2e823] px-3 py-2.5 text-[13px] font-semibold transition-all duration-200 bg-[#440edf] text-[#d2e823] hover:bg-[#d2e823] hover:text-[#000] hover:shadow-lg flex items-center gap-2">
           <ion-icon name="earth-outline" aria-hidden="true"></ion-icon>
-          <span class="btn-text">Designer</span>
+          <span class="btn-text">Diseñador</span>
         </a>
       </div>
     </div>
   </header>
 
-  <!-- ─── Hidden map container (offscreen, renders map for texture capture) ─── -->
+  <!-- ─── Contenedor de mapa oculto (fuera de pantalla, renderiza el mapa para captura de textura) ─── -->
   <div id="hiddenMapContainer"
     style="position:absolute; left:-9999px; top:0; width:1100px; height:1400px; overflow:hidden;"></div>
 
-  <!-- ─── Main Layout (matches index page: rounded container with sidebar + main area) ─── -->
+  <!-- ─── Diseño Principal (contenedor redondeado con barra lateral + área principal) ─── -->
   <div id="appLayout"
     class="flex h-[calc(100vh-74px)] rounded-xl m-2 overflow-hidden opacity-0 transition-opacity duration-500 max-[900px]:flex-col max-[900px]:h-auto">
 
-    <!-- Sidebar Controls -->
+    <!-- Controles laterales -->
     <section id="sidebar"
       class="w-[320px] bg-[#fafafa] p-4 h-full overflow-y-auto shrink-0 max-[900px]:w-full max-[900px]:h-auto">
 
-      <!-- Location Section -->
+      <!-- Sección de Ubicación -->
       <div class="mb-6">
         <div class="flex items-center gap-2 mb-2">
           <div class="w-1 h-4 bg-[#440edf] rounded-full"></div>
-          <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">Location</span>
+          <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">Ubicación</span>
         </div>
         <div class="space-y-2">
           <div>
-            <label for="sidebarCityInput" class="block text-[11px] font-medium text-[#666] mb-1">City / Place</label>
+            <label for="sidebarCityInput" class="block text-[11px] font-medium text-[#666] mb-1">Ciudad / Lugar</label>
             <div class="relative">
-              <input id="sidebarCityInput" type="text" placeholder="Search for a city..." autocomplete="off"
+              <input id="sidebarCityInput" type="text" placeholder="Buscar una ciudad..." autocomplete="off"
                 class="w-full pr-10 px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20" />
-              <button id="sidebarCitySearchBtn" type="button" aria-label="Search city"
+              <button id="sidebarCitySearchBtn" type="button" aria-label="Buscar ciudad"
                 class="absolute right-1 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-lg text-[#666] text-base transition-colors duration-200 hover:text-[#440edf]">
                 <ion-icon name="search-outline" aria-hidden="true"></ion-icon>
               </button>
             </div>
             <ul id="sidebarCityAutocomplete" class="city-autocomplete sidebar-autocomplete" role="listbox"
-              aria-label="City suggestions"></ul>
+              aria-label="Sugerencias de ciudades"></ul>
           </div>
 
           <!-- Zoom -->
@@ -262,7 +267,7 @@
               <span id="frameZoomValue" class="text-[11px] font-semibold text-[#440edf]">12.0</span>
             </div>
             <div class="flex items-center gap-2">
-              <button type="button" id="frameZoomDecrement" aria-label="Decrease zoom"
+              <button type="button" id="frameZoomDecrement" aria-label="Reducir zoom"
                 class="flex items-center justify-center w-8 h-8 rounded-lg bg-white shadow-sm text-[#666] text-base transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95 cursor-pointer">
                 <ion-icon name="remove-outline" aria-hidden="true"></ion-icon>
               </button>
@@ -272,7 +277,7 @@
                   [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#440edf] [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md
                   [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-[#440edf] [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:shadow-md" />
               </div>
-              <button type="button" id="frameZoomIncrement" aria-label="Increase zoom"
+              <button type="button" id="frameZoomIncrement" aria-label="Aumentar zoom"
                 class="flex items-center justify-center w-8 h-8 rounded-lg bg-white shadow-sm text-[#666] text-base transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95 cursor-pointer">
                 <ion-icon name="add-outline" aria-hidden="true"></ion-icon>
               </button>
@@ -281,54 +286,54 @@
         </div>
       </div>
 
-      <!-- Frame Style Section -->
+      <!-- Sección de Estilo del Marco -->
       <div class="mb-6">
         <div class="flex items-center gap-2 mb-2">
           <div class="w-1 h-4 bg-[#440edf] rounded-full"></div>
-          <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">Frame Style</span>
+          <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">Estilo del Marco</span>
         </div>
         <div class="flex gap-1.5 flex-wrap">
-          <button class="frame-style-btn active" data-style="slim-black" title="Slim Black">
+          <button class="frame-style-btn active" data-style="slim-black" title="Negro delgado">
             <span class="frame-dot" style="background:#111; border:1px solid #444;"></span>
           </button>
-          <button class="frame-style-btn" data-style="thin-white" title="Thin White">
+          <button class="frame-style-btn" data-style="thin-white" title="Blanco fino">
             <span class="frame-dot" style="background:#f2f2f2; border:1px solid #ccc;"></span>
           </button>
-          <button class="frame-style-btn" data-style="natural-oak" title="Natural Oak">
+          <button class="frame-style-btn" data-style="natural-oak" title="Roble natural">
             <span class="frame-dot" style="background:#C49A6C;"></span>
           </button>
-          <button class="frame-style-btn" data-style="walnut" title="Walnut">
+          <button class="frame-style-btn" data-style="walnut" title="Nogal">
             <span class="frame-dot" style="background:#5C3A1E;"></span>
           </button>
-          <button class="frame-style-btn" data-style="brushed-silver" title="Brushed Silver">
+          <button class="frame-style-btn" data-style="brushed-silver" title="Plata cepillada">
             <span class="frame-dot" style="background:linear-gradient(135deg, #A0A0A0, #D0D0D0);"></span>
           </button>
-          <button class="frame-style-btn" data-style="matte-gold" title="Matte Gold">
+          <button class="frame-style-btn" data-style="matte-gold" title="Oro mate">
             <span class="frame-dot" style="background:linear-gradient(135deg, #C5A55A, #DBBF70);"></span>
           </button>
-          <button class="frame-style-btn" data-style="charcoal" title="Charcoal">
+          <button class="frame-style-btn" data-style="charcoal" title="Carbón">
             <span class="frame-dot" style="background:#3A3A3A;"></span>
           </button>
-          <button class="frame-style-btn" data-style="olive" title="Olive">
+          <button class="frame-style-btn" data-style="olive" title="Oliva">
             <span class="frame-dot" style="background:#556B2F;"></span>
           </button>
-          <button class="frame-style-btn" data-style="copper" title="Copper">
+          <button class="frame-style-btn" data-style="copper" title="Cobre">
             <span class="frame-dot" style="background:linear-gradient(135deg, #B87333, #D4956A);"></span>
           </button>
-          <button class="frame-style-btn" data-style="floating" title="Floating (No Mat)">
+          <button class="frame-style-btn" data-style="floating" title="Flotante (sin paspartú)">
             <span class="frame-dot" style="background:#111; border:1px dashed #555;"></span>
           </button>
         </div>
       </div>
 
-      <!-- Color Theme Section -->
+      <!-- Sección de Tema de Color -->
       <div class="mb-6">
         <div class="flex items-center gap-2 mb-2">
           <div class="w-1 h-4 bg-[#440edf] rounded-full"></div>
-          <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">Color Theme</span>
+          <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">Tema de Color</span>
         </div>
 
-        <!-- Selected Theme Preview -->
+        <!-- Vista previa del tema seleccionado -->
         <div id="frameSelectedThemePreview" class="mb-2 p-2 bg-white rounded-lg shadow-sm">
           <div class="flex items-center gap-3">
             <div id="frameSelectedThemeSwatch" class="theme-swatch-large"></div>
@@ -339,28 +344,28 @@
               <div class="flex gap-2 mt-1.5">
                 <div class="flex items-center gap-1">
                   <span id="frameSelectedBgColor" class="color-dot"></span>
-                  <span class="text-[9px] text-[#888]">Background</span>
+                  <span class="text-[9px] text-[#888]">Fondo</span>
                 </div>
                 <div class="flex items-center gap-1">
                   <span id="frameSelectedRoadsColor" class="color-dot"></span>
-                  <span class="text-[9px] text-[#888]">Roads</span>
+                  <span class="text-[9px] text-[#888]">Calles</span>
                 </div>
                 <div class="flex items-center gap-1">
                   <span id="frameSelectedWaterColor" class="color-dot"></span>
-                  <span class="text-[9px] text-[#888]">Water</span>
+                  <span class="text-[9px] text-[#888]">Agua</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- All Themes Grid -->
+        <!-- Cuadrícula de todos los temas -->
         <div class="mb-2">
           <div class="flex items-center justify-between mb-1">
-            <span class="text-[10px] font-medium text-[#888]">All Themes</span>
+            <span class="text-[10px] font-medium text-[#888]">Todos los temas</span>
             <button id="frameToggleThemesGrid"
-              class="text-[10px] text-[#440edf] hover:underline cursor-pointer bg-transparent border-none">Show
-              all</button>
+              class="text-[10px] text-[#440edf] hover:underline cursor-pointer bg-transparent border-none">Mostrar
+              todos</button>
           </div>
           <div id="frameThemesGrid" class="themes-grid collapsed"></div>
         </div>
@@ -370,38 +375,38 @@
         </select>
       </div>
 
-      <!-- Camera Section -->
+      <!-- Sección de Cámara -->
       <div class="mb-6">
         <div class="flex items-center gap-2 mb-4">
           <div class="w-1 h-4 bg-[#440edf] rounded-full"></div>
-          <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">Camera</span>
+          <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">Cámara</span>
         </div>
         <button id="resetViewBtn"
           class="group cursor-pointer bg-[#440edf] text-white font-semibold px-7 py-2.5 rounded-full text-sm transition-all duration-300 hover:bg-[#3308b8] hover:shadow-lg hover:shadow-purple-500/30 w-full text-center">
-          Reset
+          Restablecer
         </button>
       </div>
 
-      <!-- Attribution -->
+      <!-- Atribución -->
       <div class="mt-auto pt-2 border-t border-[#e5e5e5] text-[9px] text-center text-[#aaa]">
         &copy; OpenStreetMap contributors &middot; Tiles &copy; MapTiler
       </div>
 
     </section>
 
-    <!-- 3D Scene (same position as #posterWrapper on index page) -->
+    <!-- Escena 3D (misma posición que #posterWrapper en la página principal) -->
     <section id="sceneWrapper" class="flex-1 flex justify-center items-center p-4 bg-[#fff] overflow-hidden">
       <div id="frameScene" class="w-full h-full rounded-xl overflow-hidden"></div>
     </section>
 
   </div>
 
-  <!-- ─── Loading overlay ─── -->
+  <!-- ─── Superposición de carga ─── -->
   <div id="loadingOverlay"
     class="fixed inset-0 z-40 flex items-center justify-center bg-white/80 backdrop-blur-sm pointer-events-none opacity-0 transition-opacity duration-300">
     <div class="flex flex-col items-center gap-3">
       <div class="frame-spinner"></div>
-      <p class="text-[#888] text-sm">Rendering map...</p>
+      <p class="text-[#888] text-sm">Renderizando mapa...</p>
     </div>
   </div>
 
