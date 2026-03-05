@@ -240,7 +240,7 @@ const FRAME_STYLES = {
     },
     'thin-white': {
         name: 'Thin White',
-        frameColor: 0xf2f2f2,
+        frameColor: 0x999999,
         frameRoughness: 0.3,
         frameMetalness: 0.0,
         matColor: 0xffffff,
