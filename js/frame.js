@@ -1041,17 +1041,6 @@ function initIntroPreview() {
     gradient.addColorStop(1, '#e8e8f0');
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, 512, 640);
-    // Draw some abstract "road" lines
-    ctx.strokeStyle = '#440edf';
-    ctx.lineWidth = 1.5;
-    ctx.globalAlpha = 0.3;
-    for (let i = 0; i < 30; i++) {
-        ctx.beginPath();
-        ctx.moveTo(Math.random() * 512, Math.random() * 640);
-        ctx.lineTo(Math.random() * 512, Math.random() * 640);
-        ctx.stroke();
-    }
-    ctx.globalAlpha = 1;
 
     const previewTexture = new THREE.CanvasTexture(texCanvas);
     previewTexture.encoding = THREE.sRGBEncoding;

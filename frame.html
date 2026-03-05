@@ -15,6 +15,8 @@
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <link rel="manifest" href="/site.webmanifest" />
+  <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
+  <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
   <link rel="canonical" href="https://streetmap-designer.pages.dev/frame.html" />
   <link rel="alternate" hreflang="en" href="https://streetmap-designer.pages.dev/frame.html" />
   <link rel="alternate" hreflang="es" href="https://streetmap-designer.pages.dev/es/frame.html" />
@@ -130,8 +132,8 @@
             class="w-12 h-12 bg-[#440edf] rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/20">
             <ion-icon name="map-outline" class="text-2xl text-[#d2e823]" aria-hidden="true"></ion-icon>
           </div>
-          <h1 class="text-4xl font-extrabold tracking-tight text-[#440edf]">MAPI</h1>
-          <span class="text-[11px] font-semibold tracking-wider uppercase text-[#440edf]">3D Frame</span>
+          <h1 class="text-3xl font-extrabold tracking-tight text-[#440edf]">MAPI</h1>
+          <div class="rounded-lg bg-red-600 px-2 py-1 text-[9px] font-semibold text-white">Beta</div>
         </div>
 
         <p class="text-[15px] leading-relaxed text-[#555] mb-6">
@@ -410,6 +412,15 @@
     </div>
   </div>
 
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-P2YZSW5Z51"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'G-P2YZSW5Z51');
+  </script>
 </body>
 
 </html>
