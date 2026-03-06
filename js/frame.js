@@ -353,7 +353,7 @@ const FRAME_STYLES = {
 };
 
 // === STATE ===
-let scene, camera, renderer, controls;
+let scene, camera, renderer, controls, sceneContainer;
 let frameGroup = null;
 let mapTexture = null;
 let hiddenMap = null;
@@ -363,11 +363,18 @@ let currentCity = null;
 let currentZoom = 12;
 
 // === UTILITY ===
+function parseHex(hex) {
+    const h = hex.replace('#', '');
+    return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+}
+
+function hexToRgba(hex, opacity, alphaBoost = 1) {
+    const [r, g, b] = parseHex(hex);
+    return `rgba(${r},${g},${b},${Math.min(opacity * alphaBoost, 1)})`;
+}
+
 function isLightColor(hexColor) {
-    const hex = hexColor.replace('#', '');
-    const r = parseInt(hex.substr(0, 2), 16);
-    const g = parseInt(hex.substr(2, 2), 16);
-    const b = parseInt(hex.substr(4, 2), 16);
+    const [r, g, b] = parseHex(hexColor);
     return ((r * 299) + (g * 587) + (b * 114)) / 1000 > 155;
 }
 
@@ -382,19 +389,12 @@ function createMapStyle(palette) {
 
     const ensureContrast = (color, minDist) => {
         if (!isDark) return color;
-        const parse = (hex) => {
-            const h = hex.replace('#', '');
-            return [parseInt(h.substr(0, 2), 16), parseInt(h.substr(2, 2), 16), parseInt(h.substr(4, 2), 16)];
-        };
-        const [br, bgr, bb] = parse(palette.bg);
-        const [cr, cg, cb] = parse(color);
+        const [br, bgr, bb] = parseHex(palette.bg);
+        const [cr, cg, cb] = parseHex(color);
         const dist = Math.sqrt((br - cr) ** 2 + (bgr - cg) ** 2 + (bb - cb) ** 2);
         if (dist >= minDist) return color;
         const offset = Math.ceil(minDist / 1.73) + 1;
-        const nr = Math.min(255, br + offset);
-        const ng = Math.min(255, bgr + offset);
-        const nb = Math.min(255, bb + offset);
-        return '#' + [nr, ng, nb].map(v => v.toString(16).padStart(2, '0')).join('');
+        return '#' + [br, bgr, bb].map(v => Math.min(255, v + offset).toString(16).padStart(2, '0')).join('');
     };
 
     const waterColor = ensureContrast(palette.water, 35);
@@ -405,20 +405,8 @@ function createMapStyle(palette) {
         4, z4, 6, z6, 8, z8, 10, z10, 12, z12, 14, z14, 16, z16, 18, z18
     ];
 
-    const roadsAlpha = (opacity) => {
-        const hex = palette.roads.replace('#', '');
-        const r = parseInt(hex.substr(0, 2), 16);
-        const g = parseInt(hex.substr(2, 2), 16);
-        const b = parseInt(hex.substr(4, 2), 16);
-        return `rgba(${r},${g},${b},${Math.min(opacity * alphaBoost, 1)})`;
-    };
-    const waterAlpha = (opacity) => {
-        const hex = palette.water.replace('#', '');
-        const r = parseInt(hex.substr(0, 2), 16);
-        const g = parseInt(hex.substr(2, 2), 16);
-        const b = parseInt(hex.substr(4, 2), 16);
-        return `rgba(${r},${g},${b},${Math.min(opacity * alphaBoost, 1)})`;
-    };
+    const roadsAlpha = (opacity) => hexToRgba(palette.roads, opacity, alphaBoost);
+    const waterAlpha = (opacity) => hexToRgba(palette.water, opacity, alphaBoost);
 
     return {
         version: 8,
@@ -469,17 +457,16 @@ function createMapStyle(palette) {
 // ═══════════════════════════════════════════════════════════════
 
 function initScene() {
-    const container = document.getElementById('frameScene');
+    sceneContainer = document.getElementById('frameScene');
 
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0xf5f5f5);
 
     // Camera
-    const rect = container.getBoundingClientRect();
+    const rect = sceneContainer.getBoundingClientRect();
     camera = new THREE.PerspectiveCamera(40, rect.width / rect.height, 0.1, 100);
     camera.position.set(0, 0, 4.2);
 
-    // Renderer
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(rect.width, rect.height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -487,7 +474,7 @@ function initScene() {
     renderer.toneMapping = THREE.LinearToneMapping;
     renderer.toneMappingExposure = 1.0;
     renderer.outputEncoding = THREE.sRGBEncoding;
-    container.appendChild(renderer.domElement);
+    sceneContainer.appendChild(renderer.domElement);
 
     // OrbitControls
     controls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -500,62 +487,47 @@ function initScene() {
     controls.maxPolarAngle = Math.PI * 0.85;
     controls.minPolarAngle = Math.PI * 0.15;
 
-    setupLighting();
-    setupBackground();
+    setupLighting(scene);
+    setupBackground(scene);
 
     window.addEventListener('resize', onResize);
     animate();
 }
 
-function setupLighting() {
-    // Ambient fill — brighter for white room
-    scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+function setupLighting(targetScene) {
+    targetScene.add(new THREE.AmbientLight(0xffffff, 0.8));
 
-    // Key light — soft gallery spot
     const keyLight = new THREE.DirectionalLight(0xfff8f0, 1.0);
     keyLight.position.set(3, 4, 5);
-    scene.add(keyLight);
+    targetScene.add(keyLight);
 
-    // Fill light
     const fillLight = new THREE.DirectionalLight(0xeef2ff, 0.5);
     fillLight.position.set(-2, 2, -3);
-    scene.add(fillLight);
+    targetScene.add(fillLight);
 
-    // Front point light for specular on metallic frames
     const pointLight = new THREE.PointLight(0xffffff, 0.4, 10);
     pointLight.position.set(0, 0, 5);
-    scene.add(pointLight);
+    targetScene.add(pointLight);
 }
 
-function setupBackground() {
-    // White floor
+function setupBackground(targetScene) {
     const floorGeo = new THREE.PlaneGeometry(30, 30);
-    const floorMat = new THREE.MeshStandardMaterial({
-        color: 0xeeeeee,
-        roughness: 0.95,
-        metalness: 0.0
-    });
+    const floorMat = new THREE.MeshStandardMaterial({ color: 0xeeeeee, roughness: 0.95, metalness: 0.0 });
     const floor = new THREE.Mesh(floorGeo, floorMat);
     floor.rotation.x = -Math.PI / 2;
     floor.position.y = -2;
-    scene.add(floor);
+    targetScene.add(floor);
 
-    // White back wall
     const wallGeo = new THREE.PlaneGeometry(30, 20);
-    const wallMat = new THREE.MeshStandardMaterial({
-        color: 0xf5f5f5,
-        roughness: 0.9,
-        metalness: 0.0
-    });
+    const wallMat = new THREE.MeshStandardMaterial({ color: 0xf5f5f5, roughness: 0.9, metalness: 0.0 });
     const wall = new THREE.Mesh(wallGeo, wallMat);
     wall.position.z = -3;
     wall.position.y = 5;
-    scene.add(wall);
+    targetScene.add(wall);
 }
 
 function onResize() {
-    const container = document.getElementById('frameScene');
-    const rect = container.getBoundingClientRect();
+    const rect = sceneContainer.getBoundingClientRect();
     camera.aspect = rect.width / rect.height;
     camera.updateProjectionMatrix();
     renderer.setSize(rect.width, rect.height);
@@ -575,27 +547,18 @@ function disposeGroup(group) {
     group.traverse(child => {
         if (child.geometry) child.geometry.dispose();
         if (child.material) {
+            if (child.material.map) child.material.map.dispose();
             child.material.dispose();
         }
     });
 }
 
-function buildFrame(style, texture) {
-    if (frameGroup) {
-        scene.remove(frameGroup);
-        disposeGroup(frameGroup);
-        frameGroup = null;
-    }
-
-    if (!texture) return;
-
-    frameGroup = new THREE.Group();
+function buildFrameGroup(style, texture, { includeBevels = true } = {}) {
+    const group = new THREE.Group();
     const config = FRAME_STYLES[style];
 
-    // Poster dimensions (11:14 ratio, normalized so height ~2 units)
     const posterHeight = 2.0;
     const posterWidth = posterHeight * (11 / 14);
-
     const fw = config.frameWidth;
     const fd = config.frameDepth;
     const mw = config.matWidth;
@@ -605,7 +568,7 @@ function buildFrame(style, texture) {
     const canvasMat = new THREE.MeshBasicMaterial({ map: texture });
     const canvasMesh = new THREE.Mesh(canvasGeo, canvasMat);
     canvasMesh.position.z = -fd * 0.4;
-    frameGroup.add(canvasMesh);
+    group.add(canvasMesh);
 
     // ─── Mat / passepartout ───
     const matOuterW = posterWidth + mw * 2;
@@ -628,14 +591,10 @@ function buildFrame(style, texture) {
         matShape.holes.push(hole);
 
         const matGeo = new THREE.ShapeGeometry(matShape);
-        const matMaterial = new THREE.MeshStandardMaterial({
-            color: config.matColor,
-            roughness: 0.95,
-            metalness: 0.0,
-        });
+        const matMaterial = new THREE.MeshStandardMaterial({ color: config.matColor, roughness: 0.95, metalness: 0.0 });
         const matMesh = new THREE.Mesh(matGeo, matMaterial);
         matMesh.position.z = -fd * 0.25;
-        frameGroup.add(matMesh);
+        group.add(matMesh);
     }
 
     // ─── Frame border (4 box pieces) ───
@@ -650,82 +609,87 @@ function buildFrame(style, texture) {
     const outerW = innerW + fw * 2;
     const outerH = innerH + fw * 2;
 
-    // Top
     const topGeo = new THREE.BoxGeometry(outerW, fw, fd);
     const topMesh = new THREE.Mesh(topGeo, frameMat);
     topMesh.position.set(0, (innerH + fw) / 2, -fd / 2);
-    frameGroup.add(topMesh);
+    group.add(topMesh);
 
-    // Bottom
     const bottomMesh = new THREE.Mesh(topGeo, frameMat);
     bottomMesh.position.set(0, -(innerH + fw) / 2, -fd / 2);
-    frameGroup.add(bottomMesh);
+    group.add(bottomMesh);
 
-    // Left
     const sideGeo = new THREE.BoxGeometry(fw, outerH, fd);
     const leftMesh = new THREE.Mesh(sideGeo, frameMat);
     leftMesh.position.set(-(innerW + fw) / 2, 0, -fd / 2);
-    frameGroup.add(leftMesh);
+    group.add(leftMesh);
 
-    // Right
     const rightMesh = new THREE.Mesh(sideGeo, frameMat);
     rightMesh.position.set((innerW + fw) / 2, 0, -fd / 2);
-    frameGroup.add(rightMesh);
+    group.add(rightMesh);
 
     // ─── Inner bevel strips ───
-    const bevelDepth = fd * 0.6;
-    const bevelWidth = 0.015;
-    const bevelMat = new THREE.MeshStandardMaterial({
-        color: config.frameColor,
-        roughness: config.frameRoughness + 0.15,
-        metalness: Math.max(0, config.frameMetalness - 0.1),
-    });
+    if (includeBevels) {
+        const bevelDepth = fd * 0.6;
+        const bevelWidth = 0.015;
+        const bevelMat = new THREE.MeshStandardMaterial({
+            color: config.frameColor,
+            roughness: config.frameRoughness + 0.15,
+            metalness: Math.max(0, config.frameMetalness - 0.1),
+        });
 
-    const bevelTopGeo = new THREE.BoxGeometry(innerW, bevelWidth, bevelDepth);
-    const bevelTop = new THREE.Mesh(bevelTopGeo, bevelMat);
-    bevelTop.position.set(0, innerH / 2, -bevelDepth / 2);
-    bevelTop.rotation.x = Math.PI * 0.12;
-    frameGroup.add(bevelTop);
+        const bevelTopGeo = new THREE.BoxGeometry(innerW, bevelWidth, bevelDepth);
+        const bevelTop = new THREE.Mesh(bevelTopGeo, bevelMat);
+        bevelTop.position.set(0, innerH / 2, -bevelDepth / 2);
+        bevelTop.rotation.x = Math.PI * 0.12;
+        group.add(bevelTop);
 
-    const bevelBottom = new THREE.Mesh(bevelTopGeo, bevelMat);
-    bevelBottom.position.set(0, -innerH / 2, -bevelDepth / 2);
-    bevelBottom.rotation.x = -Math.PI * 0.12;
-    frameGroup.add(bevelBottom);
+        const bevelBottom = new THREE.Mesh(bevelTopGeo, bevelMat);
+        bevelBottom.position.set(0, -innerH / 2, -bevelDepth / 2);
+        bevelBottom.rotation.x = -Math.PI * 0.12;
+        group.add(bevelBottom);
 
-    const bevelSideGeo = new THREE.BoxGeometry(bevelWidth, innerH, bevelDepth);
-    const bevelLeft = new THREE.Mesh(bevelSideGeo, bevelMat);
-    bevelLeft.position.set(-innerW / 2, 0, -bevelDepth / 2);
-    bevelLeft.rotation.y = -Math.PI * 0.12;
-    frameGroup.add(bevelLeft);
+        const bevelSideGeo = new THREE.BoxGeometry(bevelWidth, innerH, bevelDepth);
+        const bevelLeft = new THREE.Mesh(bevelSideGeo, bevelMat);
+        bevelLeft.position.set(-innerW / 2, 0, -bevelDepth / 2);
+        bevelLeft.rotation.y = -Math.PI * 0.12;
+        group.add(bevelLeft);
 
-    const bevelRight = new THREE.Mesh(bevelSideGeo, bevelMat);
-    bevelRight.position.set(innerW / 2, 0, -bevelDepth / 2);
-    bevelRight.rotation.y = Math.PI * 0.12;
-    frameGroup.add(bevelRight);
+        const bevelRight = new THREE.Mesh(bevelSideGeo, bevelMat);
+        bevelRight.position.set(innerW / 2, 0, -bevelDepth / 2);
+        bevelRight.rotation.y = Math.PI * 0.12;
+        group.add(bevelRight);
+    }
 
     // ─── Glass pane ───
     const glassGeo = new THREE.PlaneGeometry(posterWidth + 0.005, posterHeight + 0.005);
     const glassMat = new THREE.MeshStandardMaterial({
-        color: 0xffffff,
-        transparent: true,
-        opacity: 0.03,
-        roughness: 0.0,
-        metalness: 0.1,
+        color: 0xffffff, transparent: true, opacity: 0.03, roughness: 0.0, metalness: 0.1,
     });
     const glassMesh = new THREE.Mesh(glassGeo, glassMat);
     glassMesh.position.z = 0.001;
-    frameGroup.add(glassMesh);
+    group.add(glassMesh);
 
     // ─── Back panel ───
     const backGeo = new THREE.PlaneGeometry(outerW - 0.01, outerH - 0.01);
-    const backMat = new THREE.MeshBasicMaterial({
-        color: 0x1a1a1a,
-        side: THREE.BackSide,
-    });
+    const backMat = new THREE.MeshBasicMaterial({ color: 0x1a1a1a, side: THREE.BackSide });
     const backMesh = new THREE.Mesh(backGeo, backMat);
     backMesh.position.z = -fd - 0.005;
-    frameGroup.add(backMesh);
+    group.add(backMesh);
 
+    return { group, canvasMat };
+}
+
+function buildFrame(style, texture) {
+    if (frameGroup) {
+        scene.remove(frameGroup);
+        disposeGroup(frameGroup);
+        frameGroup = null;
+    }
+
+    if (!texture) return;
+
+    const { group } = buildFrameGroup(style, texture);
+    frameGroup = group;
     scene.add(frameGroup);
 }
 
@@ -1034,46 +998,14 @@ function initIntroPreview() {
     previewRenderer.outputEncoding = THREE.sRGBEncoding;
     container.appendChild(previewRenderer.domElement);
 
-    // Lighting
-    previewScene.add(new THREE.AmbientLight(0xffffff, 0.8));
-    const keyLight = new THREE.DirectionalLight(0xfff8f0, 1.0);
-    keyLight.position.set(3, 4, 5);
-    previewScene.add(keyLight);
-    const fillLight = new THREE.DirectionalLight(0xeef2ff, 0.5);
-    fillLight.position.set(-2, 2, -3);
-    previewScene.add(fillLight);
+    setupLighting(previewScene);
+    setupBackground(previewScene);
 
-    // Floor & wall
-    const floorGeo = new THREE.PlaneGeometry(30, 30);
-    const floorMat = new THREE.MeshStandardMaterial({ color: 0xeeeeee, roughness: 0.95 });
-    const floor = new THREE.Mesh(floorGeo, floorMat);
-    floor.rotation.x = -Math.PI / 2;
-    floor.position.y = -2;
-    previewScene.add(floor);
-
-    const wallGeo = new THREE.PlaneGeometry(30, 20);
-    const wallMat = new THREE.MeshStandardMaterial({ color: 0xf5f5f5, roughness: 0.9 });
-    const wall = new THREE.Mesh(wallGeo, wallMat);
-    wall.position.z = -3;
-    wall.position.y = 5;
-    previewScene.add(wall);
-
-    // Build a preview frame with a colored placeholder texture
-    const posterHeight = 2.0;
-    const posterWidth = posterHeight * (11 / 14);
-    const config = FRAME_STYLES['slim-black'];
-    const fw = config.frameWidth;
-    const fd = config.frameDepth;
-    const mw = config.matWidth;
-
-    const previewGroup = new THREE.Group();
-
-    // Create a canvas as the "map" texture
+    // Build a preview frame with a gradient placeholder texture
     const texCanvas = document.createElement('canvas');
     texCanvas.width = 512;
     texCanvas.height = 640;
     const ctx = texCanvas.getContext('2d');
-    // Draw a gradient as placeholder (matches postcard map palette)
     const gradient = ctx.createLinearGradient(0, 0, 0, 640);
     gradient.addColorStop(0, '#f0f0f5');
     gradient.addColorStop(1, '#e8e8f0');
@@ -1083,71 +1015,7 @@ function initIntroPreview() {
     const previewTexture = new THREE.CanvasTexture(texCanvas);
     previewTexture.encoding = THREE.sRGBEncoding;
 
-    // Canvas mesh
-    const canvasGeo = new THREE.PlaneGeometry(posterWidth, posterHeight);
-    const canvasMat = new THREE.MeshBasicMaterial({ map: previewTexture });
-    const canvasMesh = new THREE.Mesh(canvasGeo, canvasMat);
-    canvasMesh.position.z = -fd * 0.4;
-    previewGroup.add(canvasMesh);
-
-    // Mat
-    const matOuterW = posterWidth + mw * 2;
-    const matOuterH = posterHeight + mw * 2;
-    const matShape = new THREE.Shape();
-    matShape.moveTo(-matOuterW / 2, -matOuterH / 2);
-    matShape.lineTo(matOuterW / 2, -matOuterH / 2);
-    matShape.lineTo(matOuterW / 2, matOuterH / 2);
-    matShape.lineTo(-matOuterW / 2, matOuterH / 2);
-    matShape.lineTo(-matOuterW / 2, -matOuterH / 2);
-    const hole = new THREE.Path();
-    hole.moveTo(-posterWidth / 2, -posterHeight / 2);
-    hole.lineTo(-posterWidth / 2, posterHeight / 2);
-    hole.lineTo(posterWidth / 2, posterHeight / 2);
-    hole.lineTo(posterWidth / 2, -posterHeight / 2);
-    hole.lineTo(-posterWidth / 2, -posterHeight / 2);
-    matShape.holes.push(hole);
-    const matGeo = new THREE.ShapeGeometry(matShape);
-    const matMaterial = new THREE.MeshStandardMaterial({ color: config.matColor, roughness: 0.95 });
-    const matMesh = new THREE.Mesh(matGeo, matMaterial);
-    matMesh.position.z = -fd * 0.25;
-    previewGroup.add(matMesh);
-
-    // Frame pieces
-    const frameMat2 = new THREE.MeshStandardMaterial({ color: config.frameColor, roughness: config.frameRoughness });
-    const innerW = matOuterW;
-    const innerH = matOuterH;
-    const outerW = innerW + fw * 2;
-    const outerH = innerH + fw * 2;
-
-    const topGeo = new THREE.BoxGeometry(outerW, fw, fd);
-    const topMesh = new THREE.Mesh(topGeo, frameMat2);
-    topMesh.position.set(0, (innerH + fw) / 2, -fd / 2);
-    previewGroup.add(topMesh);
-    const bottomMesh = new THREE.Mesh(topGeo, frameMat2);
-    bottomMesh.position.set(0, -(innerH + fw) / 2, -fd / 2);
-    previewGroup.add(bottomMesh);
-    const sideGeo = new THREE.BoxGeometry(fw, outerH, fd);
-    const leftMesh = new THREE.Mesh(sideGeo, frameMat2);
-    leftMesh.position.set(-(innerW + fw) / 2, 0, -fd / 2);
-    previewGroup.add(leftMesh);
-    const rightMesh = new THREE.Mesh(sideGeo, frameMat2);
-    rightMesh.position.set((innerW + fw) / 2, 0, -fd / 2);
-    previewGroup.add(rightMesh);
-
-    // Glass
-    const glassGeo = new THREE.PlaneGeometry(posterWidth + 0.005, posterHeight + 0.005);
-    const glassMat2 = new THREE.MeshStandardMaterial({ color: 0xffffff, transparent: true, opacity: 0.03, roughness: 0.0, metalness: 0.1 });
-    const glassMesh = new THREE.Mesh(glassGeo, glassMat2);
-    glassMesh.position.z = 0.001;
-    previewGroup.add(glassMesh);
-
-    // Back panel (prevents seeing through the frame from behind)
-    const backGeo = new THREE.PlaneGeometry(outerW - 0.01, outerH - 0.01);
-    const backMat = new THREE.MeshBasicMaterial({ color: 0x1a1a1a, side: THREE.BackSide });
-    const backMesh = new THREE.Mesh(backGeo, backMat);
-    backMesh.position.z = -fd - 0.005;
-    previewGroup.add(backMesh);
-
+    const { group: previewGroup, canvasMat } = buildFrameGroup('slim-black', previewTexture, { includeBevels: false });
     previewScene.add(previewGroup);
 
     // Slow auto-rotate
@@ -1184,8 +1052,8 @@ function initIntroPreview() {
     previewMapContainer.style.cssText = 'position:absolute;left:-9999px;top:0;width:512px;height:640px;overflow:hidden;';
     document.body.appendChild(previewMapContainer);
 
-    var index = Math.floor(Math.random() * Object.keys(PALETTES).length);
-    var mapStyle = createMapStyle(Object.values(PALETTES)[index]);
+    const paletteKeys = Object.keys(PALETTES);
+    const mapStyle = createMapStyle(PALETTES[paletteKeys[Math.floor(Math.random() * paletteKeys.length)]]);
     try {
         const previewMap = new maplibregl.Map({
             container: previewMapContainer,
@@ -1210,6 +1078,7 @@ function initIntroPreview() {
     } catch { /* fallback to gradient placeholder */ }
 
     // Cleanup when modal closes
+    const observeTarget = container.parentElement || document.body;
     const observer = new MutationObserver(() => {
         if (!document.getElementById('introPreviewContainer')) {
             cancelAnimationFrame(animId);
@@ -1220,7 +1089,7 @@ function initIntroPreview() {
             observer.disconnect();
         }
     });
-    observer.observe(document.body, { childList: true, subtree: true });
+    observer.observe(observeTarget, { childList: true, subtree: true });
 }
 
 function setupIntroModal() {
@@ -1369,23 +1238,17 @@ function setupControls() {
         }, 400);
     });
 
-    document.getElementById('frameZoomDecrement')?.addEventListener('click', () => {
-        const val = Math.max(1, parseFloat(zoomInput.value) - 1);
+    function stepZoom(delta) {
+        const val = Math.max(1, Math.min(20, parseFloat(zoomInput.value) + delta));
         zoomInput.value = val;
         currentZoom = val;
         updateZoomDisplay();
         clearTimeout(zoomDebounce);
         zoomDebounce = setTimeout(() => reloadCurrentCity(), 200);
-    });
+    }
 
-    document.getElementById('frameZoomIncrement')?.addEventListener('click', () => {
-        const val = Math.min(20, parseFloat(zoomInput.value) + 1);
-        zoomInput.value = val;
-        currentZoom = val;
-        updateZoomDisplay();
-        clearTimeout(zoomDebounce);
-        zoomDebounce = setTimeout(() => reloadCurrentCity(), 200);
-    });
+    document.getElementById('frameZoomDecrement')?.addEventListener('click', () => stepZoom(-1));
+    document.getElementById('frameZoomIncrement')?.addEventListener('click', () => stepZoom(1));
 
     // Frame style buttons
     document.querySelectorAll('.frame-style-btn').forEach(btn => {
