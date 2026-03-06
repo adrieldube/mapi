@@ -1,0 +1,316 @@
+/* --- Flight Page Styles --- */
+
+/* Panel Toggle (same pattern as styles.css) */
+#controls {
+    transition: margin-left 0.3s ease, opacity 0.3s ease;
+}
+
+#controls.panel-hidden {
+    margin-left: -320px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.mobile-panel-header {
+    display: none;
+}
+
+/* Mobile overrides */
+@media (max-width: 900px) {
+
+    html,
+    body {
+        height: auto !important;
+        min-height: 100%;
+        overflow-y: auto !important;
+    }
+
+    body {
+        position: relative;
+    }
+
+    #container {
+        display: block;
+        height: auto !important;
+        margin: 0.25rem;
+        overflow: visible !important;
+    }
+
+    #controls {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 44;
+        width: min(86vw, 320px) !important;
+        height: 100dvh !important;
+        max-height: 100dvh;
+        padding: 0 !important;
+        overflow: hidden !important;
+        display: flex !important;
+        flex-direction: column;
+        margin-left: 0;
+        opacity: 1;
+        transform: translateX(0);
+        transition: transform 0.25s ease;
+        box-shadow: 18px 0 36px rgba(0, 0, 0, 0.18);
+    }
+
+    #controls.panel-hidden {
+        margin-left: 0;
+        opacity: 1;
+        transform: translateX(-110%);
+        pointer-events: none;
+    }
+
+    .mobile-panel-header {
+        display: flex;
+        position: absolute;
+        top: 0;
+        right: 0;
+        z-index: 2;
+        padding: 0.65rem;
+    }
+
+    .controls-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 3.5rem 1rem 1rem 1rem;
+    }
+
+    #panelCloseBtn {
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+        background: #fafafa;
+        border: 1.5px solid #3509b8;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background 0.15s ease;
+    }
+
+    #panelCloseBtn:hover {
+        background: #3509b8;
+    }
+
+    #panelCloseBtn:hover ion-icon {
+        color: #fff;
+    }
+
+    #mapContainer {
+        min-height: 70vh;
+    }
+}
+
+/* Map area container — visible frame, clips the oversized map canvas */
+#mapArea {
+    position: relative;
+    overflow: hidden;
+    transition: width 0.3s ease, height 0.3s ease;
+}
+
+/* Map container — oversized canvas that extends beyond the visible frame to preload tiles */
+#mapContainer {
+    position: absolute;
+    border-radius: 12px;
+}
+
+/* Flight HUD overlay */
+.flight-hud {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: #fff;
+    border-radius: 12px;
+    padding: 12px 14px;
+    min-width: 160px;
+    max-width: 200px;
+    font-family: system-ui, -apple-system, sans-serif;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.flight-hud h3 {
+    margin: 0 0 6px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    opacity: 0.6;
+}
+
+.flight-hud .hud-route {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.flight-hud .hud-route .arrow {
+    opacity: 0.5;
+    font-size: 12px;
+}
+
+.flight-hud .hud-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 12px;
+}
+
+.flight-hud .hud-stat-label {
+    font-size: 8px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    opacity: 0.5;
+}
+
+.flight-hud .hud-stat-value {
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* Progress bar */
+.flight-progress-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    height: 3px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 0 0 12px 12px;
+    overflow: hidden;
+}
+
+.flight-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: #440edf;
+    transition: width 0.1s linear;
+    border-radius: 0 2px 2px 0;
+}
+
+/* Theme swatches (copied from styles.css pattern) */
+.theme-swatch {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    background: var(--swatch-bg);
+    border: 2px solid transparent;
+    transition: border-color 0.15s ease, transform 0.15s ease;
+    flex-shrink: 0;
+}
+
+.theme-swatch:hover {
+    transform: scale(1.12);
+    border-color: #440edf;
+}
+
+.theme-swatch.selected {
+    border-color: #440edf;
+    box-shadow: 0 0 0 2px rgba(68, 14, 223, 0.25);
+}
+
+.theme-swatch .roads {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60%;
+    height: 2px;
+    background: var(--swatch-roads);
+    border-radius: 1px;
+}
+
+.theme-swatch .roads::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: 30%;
+    width: 2px;
+    height: 12px;
+    background: var(--swatch-roads);
+    border-radius: 1px;
+}
+
+.themes-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    overflow: hidden;
+}
+
+/* Autocomplete */
+.autocomplete-list {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    z-index: 50;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    margin-top: 4px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    list-style: none;
+    padding: 4px;
+    display: none;
+    max-height: 260px;
+    overflow-y: auto;
+}
+
+.autocomplete-list.open {
+    display: block;
+}
+
+.autocomplete-list li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background 0.1s;
+}
+
+.autocomplete-list li:hover,
+.autocomplete-list li.active {
+    background: #f3efff;
+}
+
+.autocomplete-list .ac-icon {
+    color: #440edf;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.autocomplete-list .ac-city {
+    font-weight: 600;
+    color: #111;
+}
+
+.autocomplete-list .ac-subtitle {
+    font-size: 11px;
+    color: #888;
+    margin-left: auto;
+    white-space: nowrap;
+}
+
+.autocomplete-list .ac-loading {
+    padding: 12px;
+    text-align: center;
+    color: #888;
+    font-size: 12px;
+    cursor: default;
+}

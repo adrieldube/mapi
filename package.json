@@ -4,7 +4,7 @@
   "scripts": {
     "build": "npm run build:css && npm run build:js",
     "build:css": "npx tailwindcss -c tailwind.config.js -i ./css/tailwind.css -o ./css/styles.min.css --minify",
-    "build:js": "npx terser js/app.js --compress --mangle --output js/app.min.js && npx terser js/frame.js --compress --mangle --output js/frame.min.js",
+    "build:js": "npx terser js/app.js --compress --mangle --output js/app.min.js && npx terser js/frame.js --compress --mangle --output js/frame.min.js && npx terser js/flight.js --compress --mangle --output js/flight.min.js",
     "watch": "concurrently \"npm run watch:css\" \"npm run watch:js\"",
     "watch:css": "npx tailwindcss -c tailwind.config.js -i ./css/tailwind.css -o ./css/styles.min.css --watch",
     "watch:js": "chokidar \"js/app.js\" -c \"npm run build:js\""
