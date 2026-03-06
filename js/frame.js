@@ -1385,13 +1385,26 @@ async function exportToUSDZ() {
         const exportGroup = prepareGroupForUSDZ(frameGroup);
 
         // Scale to real-world size: poster = 50×70 cm for AR wall preview
+        // USDZExporter skips the root object's transform, so we wrap in a
+        // Scene and apply the scale on the inner group (a child node whose
+        // local matrix IS written to the USDZ file).
         const posterHeight = 2.0;
         const realHeightMeters = 0.70; // poster is 70 cm tall
         const scaleFactor = realHeightMeters / posterHeight;
         exportGroup.scale.set(scaleFactor, scaleFactor, scaleFactor);
 
+        const exportScene = new THREE.Scene();
+        exportScene.add(exportGroup);
+        exportScene.updateMatrixWorld(true);
+
         const exporter = new USDZExporter();
-        const arraybuffer = await exporter.parseAsync(exportGroup);
+        const arraybuffer = await exporter.parseAsync(exportScene, {
+            ar: {
+                anchoring: { type: 'plane' },
+                planeAnchoring: { alignment: 'vertical' },
+            },
+            quickLookCompatible: true,
+        });
         const blob = new Blob([arraybuffer], { type: 'model/vnd.usdz+zip' });
         const url = URL.createObjectURL(blob);
 
