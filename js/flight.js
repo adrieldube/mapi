@@ -742,11 +742,6 @@ function startFlight() {
     updateFlightPath();
     updateEndpoints();
 
-    // Clear traveled path
-    if (map.getSource('flight-traveled')) {
-        map.getSource('flight-traveled').setData(lineFeature([]));
-    }
-
     // Place plane at origin
     if (map.getSource('plane-point')) {
         const initBearing = calculateBearing(originCoords.lat, originCoords.lon, destCoords.lat, destCoords.lon);
@@ -1623,13 +1618,18 @@ function initGlobe3D() {
     }, { passive: false });
 
     // Handle resize — refit globe to frame on format change
+    let resizeRafId = 0;
     const resizeObserver = new ResizeObserver(() => {
-        const r = container.getBoundingClientRect();
-        if (r.width > 0 && r.height > 0) {
-            camera.aspect = r.width / r.height;
-            renderer.setSize(r.width, r.height);
-            fitGlobeCameraToFrame(); // recalculates FOV, Z, and calls updateProjectionMatrix
-        }
+        if (resizeRafId) return;
+        resizeRafId = requestAnimationFrame(() => {
+            resizeRafId = 0;
+            const r = container.getBoundingClientRect();
+            if (r.width > 0 && r.height > 0) {
+                camera.aspect = r.width / r.height;
+                renderer.setSize(r.width, r.height);
+                fitGlobeCameraToFrame();
+            }
+        });
     });
     resizeObserver.observe(container);
     globe3d._resizeObserver = resizeObserver;
@@ -1723,8 +1723,12 @@ function update3DFlightPath() {
     globe3d.flightArcLine = new THREE.Line(geo, mat);
     globe3d.globeGroup.add(globe3d.flightArcLine);
 
-    // Endpoints
-    globe3d.endpointMarkers.forEach(m => globe3d.globeGroup.remove(m));
+    // Endpoints — dispose old markers to avoid GPU memory leak
+    globe3d.endpointMarkers.forEach(m => {
+        globe3d.globeGroup.remove(m);
+        if (m.geometry) m.geometry.dispose();
+        if (m.material) m.material.dispose();
+    });
     globe3d.endpointMarkers = [];
 
     const endGeo = new THREE.SphereGeometry(0.009, 12, 12);
