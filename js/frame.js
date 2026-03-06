@@ -324,15 +324,15 @@ const FRAME_STYLES = {
         frameWidth: 0.05,
         matWidth: 0.06
     },
-    'olive': {
-        name: 'Olive',
-        frameColor: 0x556B2F,
+    'crimson-red': {
+        name: 'Crimson Red',
+        frameColor: 0xB83232,
         frameRoughness: 0.8,
         frameMetalness: 0.0,
         matColor: 0xFFFDE8,
         frameDepth: 0.035,
         frameWidth: 0.05,
-        matWidth: 0.05
+        matWidth: 0.18
     },
     'copper': {
         name: 'Copper',
