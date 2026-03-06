@@ -1618,11 +1618,11 @@ function initGlobe3D() {
     }, { passive: false });
 
     // Handle resize — refit globe to frame on format change
-    let resizeRafId = 0;
+    globe3d._resizeRafId = null;
     const resizeObserver = new ResizeObserver(() => {
-        if (resizeRafId) return;
-        resizeRafId = requestAnimationFrame(() => {
-            resizeRafId = 0;
+        if (globe3d._resizeRafId) return;
+        globe3d._resizeRafId = requestAnimationFrame(() => {
+            globe3d._resizeRafId = null;
             const r = container.getBoundingClientRect();
             if (r.width > 0 && r.height > 0) {
                 camera.aspect = r.width / r.height;
@@ -1932,6 +1932,10 @@ function destroyGlobe3D() {
     if (globe3d.animId) {
         cancelAnimationFrame(globe3d.animId);
         globe3d.animId = null;
+    }
+    if (globe3d._resizeRafId) {
+        cancelAnimationFrame(globe3d._resizeRafId);
+        globe3d._resizeRafId = null;
     }
     if (globe3d._resizeObserver) {
         globe3d._resizeObserver.disconnect();
