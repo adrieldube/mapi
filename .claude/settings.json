@@ -2,7 +2,15 @@
   "permissions": {
     "allow": [
       "Bash(git -C /Users/adrieldubemarante/Projects/mapi log --oneline -10)",
-      "Bash(node -c js/flight.js)"
+      "Bash(node -c js/flight.js)",
+      "Bash(curl -sI \"https://cdn.jsdelivr.net/npm/three@0.149.0/examples/js/exporters/USDZExporter.js\")",
+      "Bash(curl -sI \"https://cdn.jsdelivr.net/npm/three@0.149.0/examples/js/libs/fflate.min.js\")",
+      "Bash(curl -sI \"https://cdn.jsdelivr.net/npm/three@0.148.0/examples/js/exporters/USDZExporter.js\")",
+      "Bash(curl -sI \"https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/exporters/USDZExporter.js\")",
+      "Bash(curl -sI \"https://cdn.jsdelivr.net/npm/three@0.149.0/examples/jsm/exporters/USDZExporter.js\")",
+      "Bash(curl -s \"https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/exporters/USDZExporter.js\")",
+      "Bash(curl -sI \"https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/libs/fflate.min.js\")",
+      "Bash(curl -sI \"https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js\")"
     ],
     "additionalDirectories": [
       "/tmp"

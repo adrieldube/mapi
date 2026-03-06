@@ -735,11 +735,22 @@ function initHiddenMap(center, zoom, styleName) {
     });
 }
 
+function snapshotCanvas(srcCanvas) {
+    const c = document.createElement('canvas');
+    c.width = srcCanvas.width;
+    c.height = srcCanvas.height;
+    c.getContext('2d').drawImage(srcCanvas, 0, 0);
+    return c;
+}
+
 function captureMapTexture() {
     const mapCanvas = hiddenMap.getCanvas();
 
+    // Snapshot WebGL canvas to a 2D canvas so pixels are preserved for USDZ export
+    const snapshot = snapshotCanvas(mapCanvas);
+
     if (mapTexture) mapTexture.dispose();
-    mapTexture = new THREE.CanvasTexture(mapCanvas);
+    mapTexture = new THREE.CanvasTexture(snapshot);
     mapTexture.encoding = THREE.sRGBEncoding;
     mapTexture.needsUpdate = true;
 
@@ -1282,6 +1293,122 @@ function setupControls() {
         camera.lookAt(0, 0, 0);
         controls.reset();
     });
+
+    // AR Quick Look — iOS check disabled for testing, always show button
+    // if (isIOSDevice()) {
+    const arBtn = document.getElementById('viewInARBtn');
+    if (arBtn) {
+        arBtn.classList.remove('hidden');
+        arBtn.addEventListener('click', exportToUSDZ);
+    }
+    // }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// AR QUICK LOOK (USDZ EXPORT)
+// ═══════════════════════════════════════════════════════════════
+
+function isIOSDevice() {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+
+function prepareGroupForUSDZ(sourceGroup) {
+    const clone = sourceGroup.clone(true);
+    const toRemove = [];
+
+    clone.traverse((child) => {
+        if (!child.isMesh) return;
+
+        // Clone material so we don't mutate the live scene
+        child.material = child.material.clone();
+        const mat = child.material;
+
+        // Skip glass and near-invisible meshes — USDZ handles transparency poorly
+        if (mat.transparent && mat.opacity < 0.1) {
+            toRemove.push(child);
+            return;
+        }
+
+        // USDZ doesn't support BackSide — flip geometry normals instead
+        if (mat.side === THREE.BackSide) {
+            mat.side = THREE.FrontSide;
+            child.geometry = child.geometry.clone();
+            const normals = child.geometry.attributes.normal;
+            for (let i = 0; i < normals.count; i++) {
+                normals.setXYZ(i,
+                    -normals.getX(i),
+                    -normals.getY(i),
+                    -normals.getZ(i));
+            }
+            normals.needsUpdate = true;
+        }
+
+        // USDZExporter only supports MeshStandardMaterial
+        if (mat.isMeshBasicMaterial) {
+            child.material = new THREE.MeshStandardMaterial({
+                map: mat.map,
+                color: mat.color,
+                roughness: 1.0,
+                metalness: 0.0,
+                side: mat.side,
+                transparent: mat.transparent,
+                opacity: mat.opacity,
+            });
+        }
+    });
+
+    toRemove.forEach((mesh) => mesh.parent && mesh.parent.remove(mesh));
+    return clone;
+}
+
+async function exportToUSDZ() {
+    if (!frameGroup) return;
+
+    const arBtn = document.getElementById('viewInARBtn');
+    if (arBtn) {
+        arBtn.disabled = true;
+        arBtn.textContent = 'Generating...';
+    }
+
+    try {
+        const exportGroup = prepareGroupForUSDZ(frameGroup);
+        const exporter = new THREE.USDZExporter();
+        const arraybuffer = await exporter.parse(exportGroup);
+        const blob = new Blob([arraybuffer], { type: 'model/vnd.usdz+zip' });
+        const url = URL.createObjectURL(blob);
+
+        const anchor = document.createElement('a');
+        anchor.href = url;
+
+        if (isIOSDevice()) {
+            // AR Quick Look requires rel="ar" and a child <img>
+            anchor.rel = 'ar';
+            const img = document.createElement('img');
+            img.src = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+            img.style.width = '1px';
+            anchor.appendChild(img);
+        } else {
+            // Fallback: download the USDZ file
+            const cityName = currentCity ? currentCity.name.replace(/\s+/g, '_') : 'frame';
+            anchor.download = `${cityName}_map.usdz`;
+        }
+
+        document.body.appendChild(anchor);
+        anchor.click();
+
+        setTimeout(() => {
+            document.body.removeChild(anchor);
+            URL.revokeObjectURL(url);
+        }, 2000);
+    } catch (err) {
+        console.error('USDZ export failed:', err);
+    } finally {
+        if (arBtn) {
+            arBtn.disabled = false;
+            arBtn.innerHTML = '<ion-icon name="cube-outline" class="mr-1 align-middle" aria-hidden="true"></ion-icon> View in AR';
+        }
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════
