@@ -3,16 +3,19 @@ const MAPTILER_KEY = "2Q7XT8l9Iqoe1Z9gbvHw";
 
 // === COLOR PALETTES (5 best for social media) ===
 const PALETTES = {
-    'Noir': { bg: '#111111', roads: '#EEEEEE', water: '#111111', buildings: '#111111', parks: '#111111' },
-    'Blueprint': { bg: '#0d1c87', roads: '#FFFFFF', water: '#0d1c87', buildings: '#0d1c87', parks: '#0d1c87' },
-    'Emerald': { bg: '#064e3b', roads: '#a7f3d0', water: '#064e3b', buildings: '#064e3b', parks: '#064e3b' },
-    'Rose': { bg: '#4c0519', roads: '#fda4af', water: '#4c0519', buildings: '#4c0519', parks: '#4c0519' },
-    'Minimal': { bg: '#ffffff', roads: '#222222', water: '#dce6f0', buildings: '#ffffff', parks: '#ffffff' },
+    'Noir': { bg: '#111111', roads: '#EEEEEE', water: '#111111' },
+    'Blueprint': { bg: '#0d1c87', roads: '#FFFFFF', water: '#0d1c87' },
+    'Emerald': { bg: '#064e3b', roads: '#a7f3d0', water: '#064e3b' },
+    'Tangerine': { bg: '#000000', roads: '#ff4b00', water: '#ffffff' },
+    'Minimal': { bg: '#ffffff', roads: '#222222', water: '#dce6f0' },
 };
 
 const PALETTE_CATEGORIES = [
-    { label: 'Themes', keys: ['Noir', 'Blueprint', 'Emerald', 'Rose', 'Minimal'] },
+    { label: 'Themes', keys: ['Noir', 'Blueprint', 'Emerald', 'Tangerine', 'Minimal'] },
 ];
+
+// Discrete speed multiplier steps for the speed slider
+const SPEED_STEPS = [0.25, 0.5, 1, 1.5, 2];
 
 // Extra pixels around the visible frame to preload tiles and prevent flickering
 const MAP_OVERFLOW = 200;
@@ -126,11 +129,21 @@ function t(key) {
 }
 
 // === UTILITY FUNCTIONS ===
+const toRad = d => d * Math.PI / 180;
+const toDeg = r => r * 180 / Math.PI;
+
+function parseHex(hex) {
+    const h = hex.replace('#', '');
+    return [parseInt(h.substr(0, 2), 16), parseInt(h.substr(2, 2), 16), parseInt(h.substr(4, 2), 16)];
+}
+
+function hexToRgba(hex, opacity, alphaBoost = 1) {
+    const [r, g, b] = parseHex(hex);
+    return `rgba(${r},${g},${b},${Math.min(opacity * alphaBoost, 1)})`;
+}
+
 function isLightColor(hexColor) {
-    const hex = hexColor.replace('#', '');
-    const r = parseInt(hex.substr(0, 2), 16);
-    const g = parseInt(hex.substr(2, 2), 16);
-    const b = parseInt(hex.substr(4, 2), 16);
+    const [r, g, b] = parseHex(hexColor);
     return ((r * 299) + (g * 587) + (b * 114)) / 1000 > 155;
 }
 
@@ -145,43 +158,23 @@ function createMapStyle(palette) {
 
     const ensureContrast = (color, minDist) => {
         if (!isDark) return color;
-        const parse = (hex) => {
-            const h = hex.replace('#', '');
-            return [parseInt(h.substr(0, 2), 16), parseInt(h.substr(2, 2), 16), parseInt(h.substr(4, 2), 16)];
-        };
-        const [br, bgr, bb] = parse(palette.bg);
-        const [cr, cg, cb] = parse(color);
+        const [br, bgr, bb] = parseHex(palette.bg);
+        const [cr, cg, cb] = parseHex(color);
         const dist = Math.sqrt((br - cr) ** 2 + (bgr - cg) ** 2 + (bb - cb) ** 2);
         if (dist >= minDist) return color;
         const offset = Math.ceil(minDist / 1.73) + 1;
-        const nr = Math.min(255, br + offset);
-        const ng = Math.min(255, bgr + offset);
-        const nb = Math.min(255, bb + offset);
-        return '#' + [nr, ng, nb].map(v => v.toString(16).padStart(2, '0')).join('');
+        return '#' + [br, bgr, bb].map(v => Math.min(255, v + offset).toString(16).padStart(2, '0')).join('');
     };
 
     const waterColor = ensureContrast(palette.water, 35);
-    const buildingColor = palette.buildings ? ensureContrast(palette.buildings, 30) : null;
 
     const w = (z4, z6, z8, z10, z12, z14, z16, z18) => [
         'interpolate', ['exponential', 1.4], ['zoom'],
         4, z4, 6, z6, 8, z8, 10, z10, 12, z12, 14, z14, 16, z16, 18, z18
     ];
 
-    const roadsAlpha = (opacity) => {
-        const hex = palette.roads.replace('#', '');
-        const r = parseInt(hex.substr(0, 2), 16);
-        const g = parseInt(hex.substr(2, 2), 16);
-        const b = parseInt(hex.substr(4, 2), 16);
-        return `rgba(${r},${g},${b},${Math.min(opacity * alphaBoost, 1)})`;
-    };
-    const waterAlpha = (opacity) => {
-        const hex = palette.water.replace('#', '');
-        const r = parseInt(hex.substr(0, 2), 16);
-        const g = parseInt(hex.substr(2, 2), 16);
-        const b = parseInt(hex.substr(4, 2), 16);
-        return `rgba(${r},${g},${b},${Math.min(opacity * alphaBoost, 1)})`;
-    };
+    const roadsAlpha = (opacity) => hexToRgba(palette.roads, opacity, alphaBoost);
+    const waterAlpha = (opacity) => hexToRgba(palette.water, opacity, alphaBoost);
 
     return {
         version: 8,
@@ -194,12 +187,41 @@ function createMapStyle(palette) {
         glyphs: `https://api.maptiler.com/fonts/{fontstack}/{range}.pbf?key=${MAPTILER_KEY}`,
         layers: [
             { id: 'background', type: 'background', paint: { 'background-color': palette.bg } },
+
+            // ── Landcover (terrain texture) ───────────────────────────────
+            { id: 'landcover_wood', type: 'fill', source: 'openmaptiles', 'source-layer': 'landcover', filter: ['==', 'class', 'wood'], paint: { 'fill-color': roadsAlpha(0.06), 'fill-opacity': 1 } },
+            { id: 'landcover_grass', type: 'fill', source: 'openmaptiles', 'source-layer': 'landcover', filter: ['in', 'class', 'grass', 'meadow', 'heath'], paint: { 'fill-color': roadsAlpha(0.04), 'fill-opacity': 1 } },
+            { id: 'landcover_sand', type: 'fill', source: 'openmaptiles', 'source-layer': 'landcover', filter: ['in', 'class', 'sand', 'beach', 'bare_rock', 'rock'], paint: { 'fill-color': roadsAlpha(0.05), 'fill-opacity': 1 } },
+            { id: 'landcover_ice', type: 'fill', source: 'openmaptiles', 'source-layer': 'landcover', filter: ['in', 'class', 'ice', 'glacier', 'snow'], paint: { 'fill-color': waterAlpha(0.15), 'fill-opacity': 1 } },
+
+            // ── Water ─────────────────────────────────────────────────────
             { id: 'water', type: 'fill', source: 'openmaptiles', 'source-layer': 'water', paint: { 'fill-color': waterColor } },
             { id: 'waterway', type: 'line', source: 'openmaptiles', 'source-layer': 'waterway', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': waterColor, 'line-width': w(0, 0.3, 0.5, 0.8, 1.2, 1.8, 2.4, 3.0), 'line-opacity': 0.85 } },
+
+            // ── Boundaries ────────────────────────────────────────────────
+            { id: 'boundary_country', type: 'line', source: 'openmaptiles', 'source-layer': 'boundary', filter: ['==', 'admin_level', 2], layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': roadsAlpha(0.35), 'line-width': ['interpolate', ['linear'], ['zoom'], 2, 0.4, 6, 0.7, 10, 1.0], 'line-dasharray': [4, 3] } },
+
+            // ── Roads ─────────────────────────────────────────────────────
             { id: 'highway_major', type: 'line', source: 'openmaptiles', 'source-layer': 'transportation', filter: ['in', 'class', 'motorway', 'trunk', 'primary'], layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': palette.roads, 'line-width': w(0.1, 0.2, 0.4, 0.8, 1.4, 2.0, 2.8, 3.4) } },
             { id: 'highway_minor', type: 'line', source: 'openmaptiles', 'source-layer': 'transportation', filter: ['in', 'class', 'secondary', 'tertiary'], minzoom: 7, layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': palette.roads, 'line-width': w(0, 0.1, 0.3, 0.6, 1.0, 1.6, 2.2, 2.8) } },
             { id: 'highway_other', type: 'line', source: 'openmaptiles', 'source-layer': 'transportation', filter: ['in', 'class', 'minor', 'service', 'track'], minzoom: 12, layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': palette.roads, 'line-width': w(0, 0, 0.1, 0.3, 0.6, 1.0, 1.4, 1.8), 'line-opacity': 0.5 } },
-            { id: 'railway', type: 'line', source: 'openmaptiles', 'source-layer': 'transportation', filter: ['in', 'class', 'rail', 'transit'], minzoom: 9, layout: { 'line-cap': 'butt', 'line-join': 'miter' }, paint: { 'line-color': roadsAlpha(0.4), 'line-width': w(0, 0.1, 0.3, 0.5, 0.8, 1.0, 1.3, 1.6), 'line-dasharray': [3, 2] } }
+            { id: 'railway', type: 'line', source: 'openmaptiles', 'source-layer': 'transportation', filter: ['in', 'class', 'rail', 'transit'], minzoom: 9, layout: { 'line-cap': 'butt', 'line-join': 'miter' }, paint: { 'line-color': roadsAlpha(0.4), 'line-width': w(0, 0.1, 0.3, 0.5, 0.8, 1.0, 1.3, 1.6), 'line-dasharray': [3, 2] } },
+
+            // ── Buildings ─────────────────────────────────────────────────
+            { id: 'building', type: 'fill', source: 'openmaptiles', 'source-layer': 'building', minzoom: 12, paint: { 'fill-color': roadsAlpha(0.12), 'fill-opacity': 1 } },
+            { id: 'building_outline', type: 'line', source: 'openmaptiles', 'source-layer': 'building', minzoom: 14, paint: { 'line-color': roadsAlpha(0.15), 'line-width': 0.4 } },
+
+            // ── Mountain peaks (dots only) ────────────────────────────
+            {
+                id: 'mountain_peak', type: 'circle', source: 'openmaptiles', 'source-layer': 'mountain_peak',
+                minzoom: 7,
+                filter: ['>', 'rank', 0],
+                paint: {
+                    'circle-radius': ['interpolate', ['linear'], ['zoom'], 7, 1.5, 12, 3],
+                    'circle-color': roadsAlpha(0.2),
+                    'circle-stroke-width': 0
+                }
+            }
         ]
     };
 }
@@ -354,9 +376,6 @@ const PLANE_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="1
 
 // === GREAT CIRCLE ARC ===
 function generateGreatCircleArc(origin, destination, numPoints = 200) {
-    const toRad = d => d * Math.PI / 180;
-    const toDeg = r => r * 180 / Math.PI;
-
     const lat1 = toRad(origin.lat), lon1 = toRad(origin.lon);
     const lat2 = toRad(destination.lat), lon2 = toRad(destination.lon);
 
@@ -380,16 +399,12 @@ function generateGreatCircleArc(origin, destination, numPoints = 200) {
         const x = A * Math.cos(lat1) * Math.cos(lon1) + B * Math.cos(lat2) * Math.cos(lon2);
         const y = A * Math.cos(lat1) * Math.sin(lon1) + B * Math.cos(lat2) * Math.sin(lon2);
         const z = A * Math.sin(lat1) + B * Math.sin(lat2);
-        const lat = toDeg(Math.atan2(z, Math.sqrt(x * x + y * y)));
-        const lon = toDeg(Math.atan2(y, x));
-        points.push([lon, lat]);
+        points.push([toDeg(Math.atan2(y, x)), toDeg(Math.atan2(z, Math.sqrt(x * x + y * y)))]);
     }
     return points;
 }
 
 function calculateBearing(lat1, lon1, lat2, lon2) {
-    const toRad = d => d * Math.PI / 180;
-    const toDeg = r => r * 180 / Math.PI;
     const dLon = toRad(lon2 - lon1);
     const y = Math.sin(dLon) * Math.cos(toRad(lat2));
     const x = Math.cos(toRad(lat1)) * Math.sin(toRad(lat2)) -
@@ -399,11 +414,23 @@ function calculateBearing(lat1, lon1, lat2, lon2) {
 
 function calculateDistance(lat1, lon1, lat2, lon2) {
     const R = 6371;
-    const toRad = d => d * Math.PI / 180;
     const dLat = toRad(lat2 - lat1);
     const dLon = toRad(lon2 - lon1);
     const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+// === GeoJSON helpers ===
+function lineFeature(coords) {
+    return { type: 'Feature', geometry: { type: 'LineString', coordinates: coords } };
+}
+
+function pointFeature(lon, lat, props = {}) {
+    return { type: 'Feature', geometry: { type: 'Point', coordinates: [lon, lat] }, properties: props };
+}
+
+function waitForLayer(layerId, cb) {
+    if (map.getLayer(layerId)) { cb(); } else { setTimeout(() => waitForLayer(layerId, cb), 100); }
 }
 
 // === MAP FUNCTIONS ===
@@ -422,6 +449,7 @@ function initMap(center, zoom, style) {
 
 function getPlaneIconColor() {
     const palette = PALETTES[currentStyle];
+    if (currentStyle === 'Tangerine') return palette.roads;
     return isLightColor(palette.bg) ? '#000000' : '#FFFFFF';
 }
 
@@ -466,7 +494,7 @@ function setupFlightLayers() {
 
     map.addSource('flight-path', {
         type: 'geojson',
-        data: { type: 'Feature', geometry: { type: 'LineString', coordinates: [] } }
+        data: lineFeature([])
     });
 
     map.addLayer({
@@ -483,7 +511,7 @@ function setupFlightLayers() {
 
     map.addSource('flight-traveled', {
         type: 'geojson',
-        data: { type: 'Feature', geometry: { type: 'LineString', coordinates: [] } }
+        data: lineFeature([])
     });
 
     map.addLayer({
@@ -499,7 +527,7 @@ function setupFlightLayers() {
 
     map.addSource('plane-point', {
         type: 'geojson',
-        data: { type: 'Feature', geometry: { type: 'Point', coordinates: [0, 0] }, properties: { bearing: 0 } }
+        data: pointFeature(0, 0, { bearing: 0 })
     });
 
     createPlaneImage().then(imageData => {
@@ -551,10 +579,7 @@ function setupFlightLayers() {
 
 function updateFlightPath() {
     if (!map.getSource('flight-path')) return;
-    map.getSource('flight-path').setData({
-        type: 'Feature',
-        geometry: { type: 'LineString', coordinates: arcCoordinates }
-    });
+    map.getSource('flight-path').setData(lineFeature(arcCoordinates));
 }
 
 function updateEndpoints() {
@@ -562,8 +587,8 @@ function updateEndpoints() {
     map.getSource('endpoints').setData({
         type: 'FeatureCollection',
         features: [
-            { type: 'Feature', geometry: { type: 'Point', coordinates: [originCoords.lon, originCoords.lat] } },
-            { type: 'Feature', geometry: { type: 'Point', coordinates: [destCoords.lon, destCoords.lat] } }
+            pointFeature(originCoords.lon, originCoords.lat),
+            pointFeature(destCoords.lon, destCoords.lat)
         ]
     });
 }
@@ -581,7 +606,7 @@ function animateFlight(timestamp) {
     const deltaMs = Math.min(timestamp - lastFrameTime, 50); // cap at 50ms to avoid jumps
     lastFrameTime = timestamp;
 
-    const speedMult = parseFloat(el.speedSlider.value) || 1;
+    const speedMult = SPEED_STEPS[parseInt(el.speedSlider.value)] ?? 1;
     const phaseMult = getPhaseSpeedMult(flightProgress);
     flightProgress += flightSpeed * speedMult * phaseMult * (deltaMs / 16.67);
 
@@ -603,11 +628,7 @@ function animateFlight(timestamp) {
     );
 
     if (map.getSource('plane-point')) {
-        map.getSource('plane-point').setData({
-            type: 'Feature',
-            geometry: { type: 'Point', coordinates: [currentLon, currentLat] },
-            properties: { bearing: bearing }
-        });
+        map.getSource('plane-point').setData(pointFeature(currentLon, currentLat, { bearing }));
     }
 
     // Throttle heavy GeoJSON updates (traveled path) to reduce flicker
@@ -616,10 +637,7 @@ function animateFlight(timestamp) {
         lastGeoJsonUpdate = timestamp;
         const traveledCoords = arcCoordinates.slice(0, i + 1).concat([[currentLon, currentLat]]);
         if (map.getSource('flight-traveled')) {
-            map.getSource('flight-traveled').setData({
-                type: 'Feature',
-                geometry: { type: 'LineString', coordinates: traveledCoords }
-            });
+            map.getSource('flight-traveled').setData(lineFeature(traveledCoords));
         }
     }
 
@@ -674,23 +692,16 @@ function startFlight() {
 
     // Clear traveled path
     if (map.getSource('flight-traveled')) {
-        map.getSource('flight-traveled').setData({
-            type: 'Feature',
-            geometry: { type: 'LineString', coordinates: [] }
-        });
+        map.getSource('flight-traveled').setData(lineFeature([]));
     }
 
     // Place plane at origin
     if (map.getSource('plane-point')) {
         const initBearing = calculateBearing(originCoords.lat, originCoords.lon, destCoords.lat, destCoords.lon);
-        map.getSource('plane-point').setData({
-            type: 'Feature',
-            geometry: { type: 'Point', coordinates: [originCoords.lon, originCoords.lat] },
-            properties: { bearing: initBearing }
-        });
+        map.getSource('plane-point').setData(pointFeature(originCoords.lon, originCoords.lat, { bearing: initBearing }));
     }
-    // Show plane (may not exist yet if async — showPlaneWhenReady handles it)
-    showPlaneWhenReady();
+    // Show plane (may not exist yet if async)
+    waitForLayer('plane-layer', () => map.setLayoutProperty('plane-layer', 'visibility', 'visible'));
 
     // Update HUD
     const etaHours = flightDistance / 900;
@@ -710,15 +721,6 @@ function startFlight() {
     el.resetBtn.classList.remove('hidden');
 
     setStatus(t('flying'));
-
-    function showPlaneWhenReady() {
-        if (map.getLayer('plane-layer')) {
-            map.setLayoutProperty('plane-layer', 'visibility', 'visible');
-        } else {
-            // Plane layer created async — retry shortly
-            setTimeout(showPlaneWhenReady, 100);
-        }
-    }
 
     // Cinematic start: fly to origin city at street level, then begin animation
     cameraFollow = true;
@@ -785,22 +787,16 @@ function resetFlight() {
     cameraFollow = true;
 
     if (map.getSource('flight-traveled')) {
-        map.getSource('flight-traveled').setData({
-            type: 'Feature', geometry: { type: 'LineString', coordinates: [] }
-        });
+        map.getSource('flight-traveled').setData(lineFeature([]));
     }
     if (map.getSource('plane-point')) {
-        map.getSource('plane-point').setData({
-            type: 'Feature', geometry: { type: 'Point', coordinates: [0, 0] }, properties: { bearing: 0 }
-        });
+        map.getSource('plane-point').setData(pointFeature(0, 0, { bearing: 0 }));
     }
     if (map.getLayer('plane-layer')) {
         map.setLayoutProperty('plane-layer', 'visibility', 'none');
     }
     if (map.getSource('flight-path')) {
-        map.getSource('flight-path').setData({
-            type: 'Feature', geometry: { type: 'LineString', coordinates: [] }
-        });
+        map.getSource('flight-path').setData(lineFeature([]));
     }
     if (map.getSource('endpoints')) {
         map.getSource('endpoints').setData({ type: 'FeatureCollection', features: [] });
@@ -823,30 +819,25 @@ function setStatus(msg) {
 function getLocalCityMatches(query) {
     const norm = normalize(query);
     if (!norm) return [];
-    const results = [];
-    for (const [city, data] of Object.entries(WORLD_CITIES)) {
-        if (normalize(city).startsWith(norm)) {
-            results.push({ name: city, subtitle: data[APP_LANG] || data.en, lat: data.lat, lon: data.lon });
-        }
-    }
-    if (results.length < 5) {
-        for (const [city, data] of Object.entries(WORLD_CITIES)) {
-            if (!normalize(city).startsWith(norm) && normalize(city).includes(norm)) {
-                results.push({ name: city, subtitle: data[APP_LANG] || data.en, lat: data.lat, lon: data.lon });
-            }
-            if (results.length >= 5) break;
-        }
-    }
+    const entries = Object.entries(WORLD_CITIES);
+    const scored = entries
+        .map(([city, data]) => {
+            const n = normalize(city);
+            const priority = n.startsWith(norm) ? 0 : n.includes(norm) ? 1 : -1;
+            return priority >= 0 ? { name: city, subtitle: data[APP_LANG] || data.en, lat: data.lat, lon: data.lon, priority } : null;
+        })
+        .filter(Boolean);
+
     if (APP_LANG === 'es') {
         for (const [alias, key] of Object.entries(CITY_ALIASES_ES)) {
-            if (normalize(alias).includes(norm) && WORLD_CITIES[key] && !results.some(r => r.name === key)) {
+            if (normalize(alias).includes(norm) && WORLD_CITIES[key] && !scored.some(r => r.name === key)) {
                 const data = WORLD_CITIES[key];
-                results.push({ name: key, subtitle: data.es || data.en, lat: data.lat, lon: data.lon });
+                scored.push({ name: key, subtitle: data.es || data.en, lat: data.lat, lon: data.lon, priority: 2 });
             }
-            if (results.length >= 5) break;
         }
     }
-    return results.slice(0, 5);
+
+    return scored.sort((a, b) => a.priority - b.priority).slice(0, 5);
 }
 
 async function getApiCityMatches(query, abortSignal) {
@@ -983,23 +974,23 @@ function changeMapStyle(styleKey) {
             const idx = Math.floor(flightProgress * totalPoints);
             const traveledCoords = arcCoordinates.slice(0, idx + 1);
             if (map.getSource('flight-traveled')) {
-                map.getSource('flight-traveled').setData({
-                    type: 'Feature',
-                    geometry: { type: 'LineString', coordinates: traveledCoords }
-                });
+                map.getSource('flight-traveled').setData(lineFeature(traveledCoords));
             }
 
-            // Restore plane position
+            // Restore plane position and visibility
             if (idx < totalPoints && map.getSource('plane-point')) {
                 const bearing = calculateBearing(
                     arcCoordinates[idx][1], arcCoordinates[idx][0],
                     arcCoordinates[Math.min(idx + 1, totalPoints)][1], arcCoordinates[Math.min(idx + 1, totalPoints)][0]
                 );
-                map.getSource('plane-point').setData({
-                    type: 'Feature',
-                    geometry: { type: 'Point', coordinates: arcCoordinates[idx] },
-                    properties: { bearing }
-                });
+                map.getSource('plane-point').setData(
+                    pointFeature(arcCoordinates[idx][0], arcCoordinates[idx][1], { bearing })
+                );
+            }
+
+            // Plane layer is created async — restore visibility once it's ready
+            if (flightProgress > 0 && flightProgress < 1.0) {
+                waitForLayer('plane-layer', () => map.setLayoutProperty('plane-layer', 'visibility', 'visible'));
             }
         }
         if (wasPlaying && flightProgress < 1.0) {
@@ -1093,7 +1084,7 @@ function setupEventListeners() {
     el.resetBtn.addEventListener('click', resetFlight);
 
     el.speedSlider.addEventListener('input', () => {
-        el.speedValue.textContent = `${el.speedSlider.value}x`;
+        el.speedValue.textContent = `${SPEED_STEPS[parseInt(el.speedSlider.value)] ?? 1}x`;
     });
 
     el.cameraModeBtn.addEventListener('click', () => {
