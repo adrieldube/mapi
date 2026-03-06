@@ -18,6 +18,9 @@
   <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />
   <script defer src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 
+  <!-- Three.js for 3D Globe -->
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
   <!-- App Script -->
   <script defer src="js/flight.js"></script>
 
@@ -42,6 +45,17 @@
       </a>
       <p class="m-0 text-md tracking-wide opacity-90 hidden md:block">Flight Simulator</p>
       <div class="flex items-center gap-2">
+        <div id="modeToggle"
+          class="flex items-center bg-[#3509b8] rounded-lg overflow-hidden border-2 border-[#d2e823]">
+          <button id="modeFlatBtn" type="button" title="Flat Map" aria-label="Flat map mode"
+            class="mode-btn active cursor-pointer px-4 py-2 text-[13px] font-bold transition-all duration-200 text-[#d2e823]">
+            Flat
+          </button>
+          <button id="mode3dBtn" type="button" title="3D Globe" aria-label="3D globe mode"
+            class="mode-btn cursor-pointer px-4 py-2 text-[13px] font-bold transition-all duration-200 text-[#d2e823] opacity-50">
+            3D
+          </button>
+        </div>
         <button id="panelToggleBtn" type="button" title="Controls" aria-label="Toggle controls panel"
           aria-expanded="false"
           class="cursor-pointer rounded-xl border border-[#d2e823] px-3 py-2.5 text-[13px] font-semibold transition-all duration-200 bg-[#440edf] text-[#d2e823] hover:bg-[#d2e823] hover:text-[#000] hover:shadow-lg flex items-center justify-center">
@@ -133,6 +147,8 @@
             Follow
           </button>
 
+
+
           <div class="mt-3">
             <label for="formatSelect" class="block text-[11px] font-medium text-[#666] mb-1">Video Format</label>
             <select id="formatSelect"
@@ -172,6 +188,8 @@
         style="width:540px;height:960px;max-width:100%;max-height:100%;">
         <div id="mapContainer" class="absolute rounded-lg" style="width:940px;height:1360px;top:-200px;left:-200px;">
         </div>
+        <!-- 3D Globe Container -->
+        <div id="globe3dContainer" class="absolute inset-0 rounded-lg hidden" style="z-index:5;"></div>
 
         <!-- Flight HUD -->
         <div id="flightHud" class="flight-hud hidden">

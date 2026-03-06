@@ -1,5 +1,33 @@
 /* --- Flight Page Styles --- */
 
+/* Mode Toggle */
+#modeToggle {
+    box-shadow: 0 0 0 1px rgba(210, 232, 35, 0.3);
+}
+
+.mode-btn {
+    position: relative;
+    min-width: 44px;
+    text-align: center;
+}
+
+.mode-btn.active {
+    background: rgba(210, 232, 35, 0.2);
+    opacity: 1 !important;
+}
+
+/* 3D Globe Container */
+#globe3dContainer {
+    width: 100%;
+    height: 100%;
+}
+
+#globe3dContainer canvas {
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: inherit;
+}
+
 /* Panel Toggle (same pattern as styles.css) */
 #controls {
     transition: margin-left 0.3s ease, opacity 0.3s ease;

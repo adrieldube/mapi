@@ -255,6 +255,9 @@ const el = {
     statusText: document.getElementById('statusText'),
     formatSelect: document.getElementById('formatSelect'),
     formatSizeText: document.getElementById('formatSizeText'),
+    modeFlatBtn: document.getElementById('modeFlatBtn'),
+    mode3dBtn: document.getElementById('mode3dBtn'),
+    globe3dContainer: document.getElementById('globe3dContainer'),
 };
 
 // === STATE ===
@@ -273,6 +276,26 @@ let destName = 'Paris';
 let flightLayersAdded = false;
 let flightDistance = 0; // km
 let canvasFormat = 'free'; // 'free', 'reel', 'feed', 'square', 'landscape'
+let viewMode = 'flat'; // 'flat' or '3d'
+
+
+// === THREE.JS 3D GLOBE STATE ===
+let globe3d = {
+    scene: null,
+    camera: null,
+    renderer: null,
+    controls: null,
+    globe: null,
+    globeGroup: null,
+    atmosMesh: null,
+    flightArcLine: null,
+    traveledArcLine: null,
+    planeMarker: null,
+    cityMarkers: [],
+    cityPulses: [],
+    endpointMarkers: [],
+    animId: null,
+};
 
 // Social media video formats (CSS px — renders at 2× on Retina for native upload resolution)
 const CANVAS_FORMATS = {
@@ -320,10 +343,10 @@ function getFlightZoom(progress) {
 function getPhaseSpeedMult(progress) {
     if (progress <= TAKEOFF_PHASE) {
         const t = progress / TAKEOFF_PHASE;
-        return 0.05 + 0.95 * smootherStep(t);
+        return 0.25 + 0.75 * smootherStep(t);
     } else if (progress >= LANDING_PHASE) {
         const t = (progress - LANDING_PHASE) / (1 - LANDING_PHASE);
-        return 1.0 - 0.95 * smootherStep(t);
+        return 1.0 - 0.75 * smootherStep(t);
     }
     return 1.0;
 }
@@ -608,7 +631,9 @@ function animateFlight(timestamp) {
 
     const speedMult = SPEED_STEPS[parseInt(el.speedSlider.value)] ?? 1;
     const phaseMult = getPhaseSpeedMult(flightProgress);
-    flightProgress += flightSpeed * speedMult * phaseMult * (deltaMs / 16.67);
+    // 3D mode uses higher speed since you're viewing from far away
+    const modeMult = viewMode === '3d' ? 3.0 : 1.0;
+    flightProgress += flightSpeed * speedMult * phaseMult * modeMult * (deltaMs / 16.67);
 
     const completed = flightProgress >= 1.0;
     if (completed) flightProgress = 1.0;
@@ -648,11 +673,19 @@ function animateFlight(timestamp) {
 
     // Cinematic camera: instant center tracking (smooth zoom comes from easing functions)
     if (cameraFollow) {
-        const targetZoom = getFlightZoom(flightProgress);
-        map.jumpTo({
-            center: [currentLon, currentLat],
-            zoom: targetZoom
-        });
+        if (viewMode === 'flat') {
+            const targetZoom = getFlightZoom(flightProgress);
+            map.jumpTo({
+                center: [currentLon, currentLat],
+                zoom: targetZoom
+            });
+        }
+    }
+
+    // Update 3D view — always update plane + path (guard against destroyed globe)
+    if (viewMode === '3d' && globe3d.globeGroup) {
+        update3DTraveledPath(flightProgress);
+        update3DPlane(flightProgress);
     }
 
     if (completed) {
@@ -661,6 +694,9 @@ function animateFlight(timestamp) {
         setStatus(t('flightComplete'));
         if (map.getLayer('plane-layer')) {
             map.setLayoutProperty('plane-layer', 'visibility', 'none');
+        }
+        if (viewMode === '3d') {
+            // Camera stays at fixed orbital position
         }
         return;
     }
@@ -685,6 +721,10 @@ function startFlight() {
     flightProgress = 0;
     lastFrameTime = 0;
     flightDistance = calculateDistance(originCoords.lat, originCoords.lon, destCoords.lat, destCoords.lon);
+
+    // Pre-compute 3D arc for smooth animation (cache once)
+    const arcAlt3d = Math.min(flightDistance / 40000, 0.15) + 0.02;
+    globe3d._arcCache = generateGreatCircleArc3D(originCoords, destCoords, 300, arcAlt3d);
 
     setupFlightLayers();
     updateFlightPath();
@@ -721,6 +761,28 @@ function startFlight() {
     el.resetBtn.classList.remove('hidden');
 
     setStatus(t('flying'));
+
+    // Update 3D flight path if in 3D mode
+    if (viewMode === '3d') {
+        // Cancel any lingering rotation animation before starting new one
+        if (globe3d._rotateAnimId) {
+            cancelAnimationFrame(globe3d._rotateAnimId);
+            globe3d._rotateAnimId = null;
+        }
+        update3DFlightPath();
+        update3DTraveledPath(0);
+        update3DPlane(0);
+        // Rotate globe to show origin city (takeoff) — trajectory unfolds as plane moves
+        rotateGlobeToCoords(originCoords.lat, originCoords.lon, true);
+        // Wait for globe rotation to finish before starting flight
+        startFlightTimer = setTimeout(() => {
+            startFlightTimer = null;
+            isPlaying = true;
+            lastFrameTime = 0;
+            animationId = requestAnimationFrame(animateFlight);
+        }, 1500);
+        return;
+    }
 
     // Cinematic start: fly to origin city at street level, then begin animation
     cameraFollow = true;
@@ -800,6 +862,39 @@ function resetFlight() {
     }
     if (map.getSource('endpoints')) {
         map.getSource('endpoints').setData({ type: 'FeatureCollection', features: [] });
+    }
+
+    // Clear 3D state
+    if (viewMode === '3d' && globe3d.globeGroup) {
+        if (globe3d.flightArcLine) {
+            globe3d.globeGroup.remove(globe3d.flightArcLine);
+            if (globe3d.flightArcLine.geometry) globe3d.flightArcLine.geometry.dispose();
+            if (globe3d.flightArcLine.material) globe3d.flightArcLine.material.dispose();
+            globe3d.flightArcLine = null;
+        }
+        if (globe3d.traveledArcLine) {
+            globe3d.globeGroup.remove(globe3d.traveledArcLine);
+            if (globe3d.traveledArcLine.geometry) globe3d.traveledArcLine.geometry.dispose();
+            if (globe3d.traveledArcLine.material) globe3d.traveledArcLine.material.dispose();
+            globe3d.traveledArcLine = null;
+        }
+        if (globe3d.planeMarker) {
+            globe3d.globeGroup.remove(globe3d.planeMarker);
+            if (globe3d.planeMarker.geometry) globe3d.planeMarker.geometry.dispose();
+            if (globe3d.planeMarker.material) {
+                if (globe3d.planeMarker.material.map) globe3d.planeMarker.material.map.dispose();
+                globe3d.planeMarker.material.dispose();
+            }
+            globe3d.planeMarker = null;
+        }
+        globe3d.endpointMarkers.forEach(m => {
+            globe3d.globeGroup.remove(m);
+            if (m.geometry) m.geometry.dispose();
+            if (m.material) m.material.dispose();
+        });
+        globe3d.endpointMarkers = [];
+        globe3d._arcCache = null;
+
     }
 
     el.flightHud.classList.add('hidden');
@@ -963,6 +1058,11 @@ function changeMapStyle(styleKey) {
     flightLayersAdded = false;
     map = initMap([lng, lat], zoom, styleKey);
 
+    // Refresh 3D globe if active (palette cycling is independent of flat theme)
+    if (viewMode === '3d' && globe3d.renderer) {
+        // 3D globe uses its own cycling palettes, no need to rebuild
+    }
+
     map.on('load', () => {
         setupFlightLayers();
         if (arcCoordinates.length) {
@@ -1123,6 +1223,16 @@ function setupEventListeners() {
         applyCanvasFormat(el.formatSelect.value);
     });
 
+    // Mode toggle: Flat / 3D
+    el.modeFlatBtn.addEventListener('click', () => {
+        if (viewMode === 'flat') return;
+        switchToFlat();
+    });
+    el.mode3dBtn.addEventListener('click', () => {
+        if (viewMode === '3d') return;
+        switchTo3D();
+    });
+
 
 
     initDualAutocomplete(el.originInput, el.originAutocomplete, (name, coords) => {
@@ -1168,6 +1278,709 @@ function init() {
             resizeRaf = requestAnimationFrame(() => { if (map) map.resize(); });
         }).observe(mapContainer);
     }
+}
+
+// === 3D GLOBE ===
+const GLOBE_RADIUS = 1.0;
+const EARTH_WATER_URL = 'https://unpkg.com/three-globe@2.31.1/example/img/earth-water.png';
+const EARTH_TOPO_URL = 'https://unpkg.com/three-globe@2.31.1/example/img/earth-topology.png';
+
+// Camera faces +Z → the "front" of the globe is the +Z direction.
+// To show a given lat/lon, we need a quaternion that rotates that point's
+// direction vector to face +Z. setFromUnitVectors handles shortest-path
+// automatically, no Euler wrapping issues.
+const _FRONT = typeof THREE !== 'undefined' ? new THREE.Vector3(0, 0, 1) : null;
+let _dragQuatX, _dragQuatY;
+
+function globeQuatForLatLon(lat, lon) {
+    const dir = latLonToVec3(lat, lon, 1).normalize();
+    return new THREE.Quaternion().setFromUnitVectors(dir, _FRONT);
+}
+
+function applyGlobeDragRotation(dx, dy) {
+    if (!globe3d.globeGroup) return;
+    if (!_dragQuatX) { _dragQuatX = new THREE.Quaternion(); _dragQuatY = new THREE.Quaternion(); }
+    // Rotate around world Y for horizontal drag, world X for vertical drag
+    _dragQuatY.setFromAxisAngle(new THREE.Vector3(0, 1, 0), dx * 0.005);
+    _dragQuatX.setFromAxisAngle(new THREE.Vector3(1, 0, 0), dy * 0.005);
+    globe3d.globeGroup.quaternion.premultiply(_dragQuatY).premultiply(_dragQuatX);
+}
+
+function latLonToVec3(lat, lon, radius) {
+    const phi = toRad(90 - lat);
+    const theta = toRad(lon + 180);
+    return new THREE.Vector3(
+        -radius * Math.sin(phi) * Math.cos(theta),
+        radius * Math.cos(phi),
+        radius * Math.sin(phi) * Math.sin(theta)
+    );
+}
+
+function generateGreatCircleArc3D(origin, dest, numPoints, altitude) {
+    const start = latLonToVec3(origin.lat, origin.lon, GLOBE_RADIUS);
+    const end = latLonToVec3(dest.lat, dest.lon, GLOBE_RADIUS);
+    const angle = start.angleTo(end);
+    const points = [];
+    for (let i = 0; i <= numPoints; i++) {
+        const t = i / numPoints;
+        // Proper spherical interpolation (slerp)
+        const sinAngle = Math.sin(angle);
+        let p;
+        if (sinAngle < 0.0001) {
+            p = new THREE.Vector3().copy(start).lerp(end, t).normalize();
+        } else {
+            const a = Math.sin((1 - t) * angle) / sinAngle;
+            const b = Math.sin(t * angle) / sinAngle;
+            p = new THREE.Vector3(
+                start.x * a + end.x * b,
+                start.y * a + end.y * b,
+                start.z * a + end.z * b
+            ).normalize();
+        }
+        // Parabolic altitude arc
+        const alt = altitude * 4 * t * (1 - t);
+        p.multiplyScalar(GLOBE_RADIUS + alt);
+        points.push(p);
+    }
+    return points;
+}
+
+// Globe palettes — same cycling set as the index page for visual consistency
+const GLOBE_PALETTES = [
+    { name: 'Midnight Navy & Gold', land: '#D4AF37', water: '#1A1A2E' },
+    { name: 'Neon Green & Black', land: '#39FF14', water: '#0D0D0D' },
+    { name: 'Sage Green & Terracotta', land: '#C67B5C', water: '#A8B5A0' },
+    { name: 'Pure Black & White', land: '#000000', water: '#FFFFFF' },
+    { name: 'Coral Red & Navy Blue', land: '#FF6B6B', water: '#001F3F' },
+    { name: 'Digital Lavender & Noir', land: '#B4A7D6', water: '#121212' },
+    { name: 'Mocha Mousse & Cream', land: '#A47764', water: '#FAF6F1' },
+    { name: 'Emerald Green & Bone', land: '#047857', water: '#F8F5F0' },
+    { name: 'Rose Gold & Charcoal', land: '#B76E79', water: '#2C2C2C' },
+    { name: 'Electric Blue & White', land: '#0066FF', water: '#FAFAFA' },
+    { name: 'Sakura & Charcoal', land: '#FFB7C5', water: '#2E2E32' },
+    { name: 'Art Deco Gold & Black', land: '#C9A227', water: '#0D0D0D' },
+];
+
+const GLOBE_PALETTE_DURATION = 3.0; // seconds per palette
+
+function hexToVec3(hex) {
+    const c = hex.replace('#', '');
+    return {
+        r: parseInt(c.substr(0, 2), 16) / 255,
+        g: parseInt(c.substr(2, 2), 16) / 255,
+        b: parseInt(c.substr(4, 2), 16) / 255
+    };
+}
+
+function createGlobeShaderMaterial() {
+    const loader = new THREE.TextureLoader();
+    const landMask = loader.load(EARTH_WATER_URL);
+    const bumpTexture = loader.load(EARTH_TOPO_URL);
+
+    const uniforms = {
+        landMap: { value: landMask },
+        topoMap: { value: bumpTexture },
+        landColor: { value: new THREE.Color(GLOBE_PALETTES[0].land) },
+        waterColor: { value: new THREE.Color(GLOBE_PALETTES[0].water) },
+        targetLandColor: { value: new THREE.Color(GLOBE_PALETTES[1].land) },
+        targetWaterColor: { value: new THREE.Color(GLOBE_PALETTES[1].water) },
+        blendFactor: { value: 0.0 },
+        displacementScale: { value: GLOBE_RADIUS * 0.08 }
+    };
+
+    return new THREE.ShaderMaterial({
+        uniforms,
+        vertexShader: `
+            uniform sampler2D topoMap;
+            uniform float displacementScale;
+            varying vec2 vUv;
+            varying vec3 vNormal;
+            varying vec3 vWorldPos;
+            varying float vElevation;
+
+            void main() {
+                vUv = uv;
+                float topo = texture2D(topoMap, uv).r;
+                vElevation = topo;
+                // Stronger displacement with power curve for exaggerated peaks
+                float displaced = pow(topo, 0.7) * displacementScale;
+                vec3 displacedPos = position + normal * displaced;
+                vNormal = normalize(normalMatrix * normal);
+                vWorldPos = (modelMatrix * vec4(displacedPos, 1.0)).xyz;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(displacedPos, 1.0);
+            }
+        `,
+        fragmentShader: `
+            uniform sampler2D landMap;
+            uniform sampler2D topoMap;
+            uniform vec3 landColor;
+            uniform vec3 waterColor;
+            uniform vec3 targetLandColor;
+            uniform vec3 targetWaterColor;
+            uniform float blendFactor;
+            varying vec2 vUv;
+            varying vec3 vNormal;
+            varying vec3 vWorldPos;
+            varying float vElevation;
+
+            void main() {
+                vec4 mask = texture2D(landMap, vUv);
+                float isWater = mask.r;
+                float topo = texture2D(topoMap, vUv).r;
+
+                vec3 curLand = mix(landColor, targetLandColor, blendFactor);
+                vec3 curWater = mix(waterColor, targetWaterColor, blendFactor);
+
+                // Elevation-based shading: valleys darker, peaks lighter
+                float elevFactor = pow(topo, 0.6);
+                vec3 landShaded = curLand * (0.5 + 0.7 * elevFactor);
+                // Water depth: deeper areas darker
+                vec3 waterShaded = curWater * (0.8 + 0.2 * (1.0 - topo));
+
+                vec3 baseColor = mix(landShaded, waterShaded, isWater);
+
+                // Compute normal from topology for per-pixel bump lighting
+                float texel = 1.0 / 2048.0;
+                float hL = texture2D(topoMap, vUv + vec2(-texel, 0.0)).r;
+                float hR = texture2D(topoMap, vUv + vec2(texel, 0.0)).r;
+                float hU = texture2D(topoMap, vUv + vec2(0.0, texel)).r;
+                float hD = texture2D(topoMap, vUv + vec2(0.0, -texel)).r;
+                vec3 bumpNormal = normalize(vNormal + vec3((hL - hR) * 3.0, (hD - hU) * 3.0, 0.0));
+
+                // Directional lighting — subdued for realism
+                vec3 lightDir = normalize(vec3(0.8, 0.4, 0.6));
+                float NdotL = dot(bumpNormal, lightDir);
+                float wrap = max(NdotL * 0.5 + 0.5, 0.0);
+
+                // Subtle specular on water only
+                vec3 viewDir = normalize(cameraPosition - vWorldPos);
+                vec3 halfDir = normalize(lightDir + viewDir);
+                float spec = pow(max(dot(bumpNormal, halfDir), 0.0), 60.0) * 0.15 * isWater;
+
+                // Soft Fresnel rim
+                float fresnel = 1.0 - max(dot(vNormal, viewDir), 0.0);
+                float rim = pow(fresnel, 4.0) * 0.12;
+
+                // Final compositing — lower ambient for moodier look
+                vec3 finalColor = baseColor * (0.45 + 0.55 * wrap) + spec + rim * curLand;
+                gl_FragColor = vec4(finalColor, 1.0);
+            }
+        `
+    });
+}
+
+function initGlobe3D() {
+    if (globe3d.renderer) return; // already initialized
+
+    const container = el.globe3dContainer;
+    const rect = container.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return;
+
+    // Scene — transparent background like index page
+    const scene = new THREE.Scene();
+    globe3d.scene = scene;
+
+    // Camera
+    const camera = new THREE.PerspectiveCamera(45, rect.width / rect.height, 0.01, 100);
+    camera.position.set(0, 0, 4.2);
+    globe3d.camera = camera;
+
+    // Renderer — alpha:true for transparent bg matching index page
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(rect.width, rect.height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setClearColor(0x000000, 0);
+    container.appendChild(renderer.domElement);
+
+    // Handle WebGL context loss gracefully — prevent page crash
+    renderer.domElement.addEventListener('webglcontextlost', e => {
+        e.preventDefault();
+        if (globe3d.animId) { cancelAnimationFrame(globe3d.animId); globe3d.animId = null; }
+    });
+    renderer.domElement.addEventListener('webglcontextrestored', () => {
+        destroyGlobe3D();
+        initGlobe3D();
+    });
+    globe3d.renderer = renderer;
+
+    // Lighting — same as index page
+    scene.add(new THREE.AmbientLight(0xffffff, 0.35));
+    const sunLight = new THREE.DirectionalLight(0xffffff, 0.4);
+    sunLight.position.set(5, 3, 5);
+    scene.add(sunLight);
+
+    // Globe group for rotation
+    const globeGroup = new THREE.Group();
+    scene.add(globeGroup);
+    globe3d.globeGroup = globeGroup;
+
+    // Palette cycling state — same as index page
+    globe3d._paletteIndex = 0;
+    globe3d._paletteNextIndex = 1;
+    globe3d._paletteLerp = 0;
+
+    // Globe sphere with cycling shader — matches index page exactly
+    const globeGeo = new THREE.SphereGeometry(GLOBE_RADIUS, 200, 200);
+    const globeMat = createGlobeShaderMaterial();
+    const globe = new THREE.Mesh(globeGeo, globeMat);
+    globeGroup.add(globe);
+    globe3d.globe = globe;
+
+    // Atmosphere glow — matches current cycling palette
+    const atmosGeo = new THREE.SphereGeometry(GLOBE_RADIUS * 1.04, 64, 64);
+    const atmosMat = new THREE.MeshBasicMaterial({
+        color: new THREE.Color(GLOBE_PALETTES[0].land),
+        transparent: true,
+        opacity: 0.06,
+        side: THREE.BackSide,
+    });
+    globe3d.atmosMesh = new THREE.Mesh(atmosGeo, atmosMat);
+    globeGroup.add(globe3d.atmosMesh);
+
+    // No city markers — only origin/destination shown during flight
+
+    // Mouse drag rotation (same pattern as index page)
+    globe3d.isDragging = false;
+    globe3d.previousMouse = { x: 0, y: 0 };
+    globe3d.rotationSpeed = { x: 0, y: 0 };
+
+    renderer.domElement.addEventListener('mousedown', e => {
+        globe3d.isDragging = true;
+        globe3d.previousMouse = { x: e.clientX, y: e.clientY };
+        globe3d.rotationSpeed = { x: 0, y: 0 };
+    });
+    renderer.domElement.addEventListener('mousemove', e => {
+        if (!globe3d.isDragging) return;
+        const dx = e.clientX - globe3d.previousMouse.x;
+        const dy = e.clientY - globe3d.previousMouse.y;
+        applyGlobeDragRotation(dx, dy);
+        globe3d.rotationSpeed = { x: dy * 0.005, y: dx * 0.005 };
+        globe3d.previousMouse = { x: e.clientX, y: e.clientY };
+    });
+    window.addEventListener('mouseup', () => { globe3d.isDragging = false; });
+
+    renderer.domElement.addEventListener('touchstart', e => {
+        globe3d.isDragging = true;
+        globe3d.previousMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        globe3d.rotationSpeed = { x: 0, y: 0 };
+    }, { passive: true });
+    renderer.domElement.addEventListener('touchmove', e => {
+        if (!globe3d.isDragging) return;
+        const dx = e.touches[0].clientX - globe3d.previousMouse.x;
+        const dy = e.touches[0].clientY - globe3d.previousMouse.y;
+        applyGlobeDragRotation(dx, dy);
+        globe3d.rotationSpeed = { x: dy * 0.005, y: dx * 0.005 };
+        globe3d.previousMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    }, { passive: true });
+    renderer.domElement.addEventListener('touchend', () => { globe3d.isDragging = false; }, { passive: true });
+
+    // Scroll to zoom
+    renderer.domElement.addEventListener('wheel', e => {
+        e.preventDefault();
+        camera.position.z = Math.max(1.8, Math.min(8, camera.position.z + e.deltaY * 0.003));
+    }, { passive: false });
+
+    // Handle resize
+    const resizeObserver = new ResizeObserver(() => {
+        const r = container.getBoundingClientRect();
+        if (r.width > 0 && r.height > 0) {
+            camera.aspect = r.width / r.height;
+            camera.updateProjectionMatrix();
+            renderer.setSize(r.width, r.height);
+        }
+    });
+    resizeObserver.observe(container);
+    globe3d._resizeObserver = resizeObserver;
+
+    // Render loop with palette cycling — matches index page
+    let time = 0;
+    function renderLoop() {
+        if (!globe3d.renderer || !globe3d.scene) return; // destroyed — stop loop
+        globe3d.animId = requestAnimationFrame(renderLoop);
+        if (!globe3d.globe || !globe3d.atmosMesh) return;
+        time += 0.016;
+
+        // --- Palette cycling (same logic as index page) ---
+        globe3d._paletteLerp += 0.016 / GLOBE_PALETTE_DURATION;
+        if (globe3d._paletteLerp >= 1.0) {
+            globe3d._paletteLerp = 0;
+            globe3d._paletteIndex = globe3d._paletteNextIndex;
+            globe3d._paletteNextIndex = (globe3d._paletteNextIndex + 1) % GLOBE_PALETTES.length;
+
+            const uniforms = globe3d.globe.material.uniforms;
+            uniforms.landColor.value.set(GLOBE_PALETTES[globe3d._paletteIndex].land);
+            uniforms.waterColor.value.set(GLOBE_PALETTES[globe3d._paletteIndex].water);
+            uniforms.targetLandColor.value.set(GLOBE_PALETTES[globe3d._paletteNextIndex].land);
+            uniforms.targetWaterColor.value.set(GLOBE_PALETTES[globe3d._paletteNextIndex].water);
+        }
+
+        // Smooth easing for palette blend
+        const pl = globe3d._paletteLerp;
+        const ease = pl < 0.5 ? 2 * pl * pl : 1 - Math.pow(-2 * pl + 2, 2) / 2;
+        globe3d.globe.material.uniforms.blendFactor.value = ease;
+
+        // Update glow color to match current blended palette
+        const curLand = hexToVec3(GLOBE_PALETTES[globe3d._paletteIndex].land);
+        const nxtLand = hexToVec3(GLOBE_PALETTES[globe3d._paletteNextIndex].land);
+        if (!globe3d._blendColor) globe3d._blendColor = new THREE.Color();
+        globe3d._blendColor.setRGB(
+            curLand.r + (nxtLand.r - curLand.r) * ease,
+            curLand.g + (nxtLand.g - curLand.g) * ease,
+            curLand.b + (nxtLand.b - curLand.b) * ease
+        );
+        globe3d.atmosMesh.material.color.copy(globe3d._blendColor);
+
+        // Inertia rotation when not dragging (+ gentle auto-rotate when idle)
+        if (!globe3d.isDragging && !isPlaying) {
+            applyGlobeDragRotation(0.08, 0); // gentle auto-rotate
+            if (Math.abs(globe3d.rotationSpeed.x) > 0.0001 || Math.abs(globe3d.rotationSpeed.y) > 0.0001) {
+                applyGlobeDragRotation(globe3d.rotationSpeed.y / 0.005, globe3d.rotationSpeed.x / 0.005);
+                globe3d.rotationSpeed.x *= 0.95;
+                globe3d.rotationSpeed.y *= 0.95;
+            }
+        }
+
+        // Update world matrices before camera follow reads them
+        globeGroup.updateMatrixWorld(true);
+
+        renderer.render(scene, camera);
+    }
+    renderLoop();
+}
+
+// Brand accent color for markers — matches index page
+const GLOBE_MARKER_ACCENT = '#d2e823';
+
+function update3DFlightPath() {
+    if (!globe3d.globeGroup) return;
+
+    // Remove old flight line and dispose resources
+    if (globe3d.flightArcLine) {
+        globe3d.globeGroup.remove(globe3d.flightArcLine);
+        if (globe3d.flightArcLine.geometry) globe3d.flightArcLine.geometry.dispose();
+        if (globe3d.flightArcLine.material) globe3d.flightArcLine.material.dispose();
+        globe3d.flightArcLine = null;
+    }
+
+    if (!arcCoordinates.length) return;
+
+    // Ensure arc cache exists
+    if (!globe3d._arcCache || globe3d._arcCache.length < 2) {
+        const arcAlt = Math.min(flightDistance / 40000, 0.15) + 0.02;
+        globe3d._arcCache = generateGreatCircleArc3D(originCoords, destCoords, 300, arcAlt);
+    }
+
+    const points = globe3d._arcCache;
+
+    const geo = new THREE.BufferGeometry().setFromPoints(points);
+    const mat = new THREE.LineBasicMaterial({
+        color: new THREE.Color(GLOBE_MARKER_ACCENT),
+        transparent: true,
+        opacity: 0.4,
+    });
+    globe3d.flightArcLine = new THREE.Line(geo, mat);
+    globe3d.globeGroup.add(globe3d.flightArcLine);
+
+    // Endpoints
+    globe3d.endpointMarkers.forEach(m => globe3d.globeGroup.remove(m));
+    globe3d.endpointMarkers = [];
+
+    const endGeo = new THREE.SphereGeometry(0.018, 12, 12);
+    const endMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(GLOBE_MARKER_ACCENT) });
+
+    const originPos = latLonToVec3(originCoords.lat, originCoords.lon, GLOBE_RADIUS * 1.008);
+    const originMarker = new THREE.Mesh(endGeo, endMat);
+    originMarker.position.copy(originPos);
+    globe3d.globeGroup.add(originMarker);
+    globe3d.endpointMarkers.push(originMarker);
+
+    const destPos = latLonToVec3(destCoords.lat, destCoords.lon, GLOBE_RADIUS * 1.008);
+    const destMarker = new THREE.Mesh(endGeo, endMat);
+    destMarker.position.copy(destPos);
+    globe3d.globeGroup.add(destMarker);
+    globe3d.endpointMarkers.push(destMarker);
+}
+
+function update3DTraveledPath(progress) {
+    if (!globe3d.globeGroup) return;
+    if (!globe3d._arcCache || globe3d._arcCache.length < 2) return;
+
+    const allPoints = globe3d._arcCache;
+    const numTraveled = progress <= 0 ? 0 : Math.max(2, Math.floor(progress * allPoints.length));
+
+    // Create line once with full arc geometry, then update draw range
+    if (!globe3d.traveledArcLine) {
+        const geo = new THREE.BufferGeometry().setFromPoints(allPoints);
+        const mat = new THREE.LineBasicMaterial({
+            color: new THREE.Color(GLOBE_MARKER_ACCENT),
+            transparent: true,
+            opacity: 0.9,
+        });
+        globe3d.traveledArcLine = new THREE.Line(geo, mat);
+        globe3d.globeGroup.add(globe3d.traveledArcLine);
+    }
+
+    // Reveal traveled portion via draw range (no new allocations)
+    globe3d.traveledArcLine.geometry.setDrawRange(0, numTraveled);
+    globe3d.traveledArcLine.visible = numTraveled > 0;
+}
+
+function createPlaneBillboard(color) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 128;
+    canvas.height = 128;
+    const ctx = canvas.getContext('2d');
+    const hex = typeof color === 'string' ? color : '#' + color.getHexString();
+    const svg = PLANE_SVG.replace('{COLOR}', hex);
+    const img = new Image();
+    const texture = new THREE.CanvasTexture(canvas);
+    img.onload = () => {
+        ctx.drawImage(img, 0, 0, 128, 128);
+        texture.needsUpdate = true;
+    };
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    const geo = new THREE.PlaneGeometry(1, 1);
+    const mat = new THREE.MeshBasicMaterial({ map: texture, transparent: true, depthTest: false, side: THREE.DoubleSide });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.renderOrder = 999;
+    return mesh;
+}
+
+// Reusable objects to avoid per-frame GC pressure
+let _planePos, _planePn, _planeTangent, _planeWorldPos, _planeWorldTangent;
+let _groupWorldQuat, _groupWorldQuatInv, _camWorldQuat, _localQuat, _camRight, _camUp;
+const PLANE_SCREEN_SIZE = 0.035; // fixed apparent size multiplier
+
+function _ensurePlaneVecs() {
+    if (!_planePos) {
+        _planePos = new THREE.Vector3();
+        _planePn = new THREE.Vector3();
+        _planeTangent = new THREE.Vector3();
+        _planeWorldPos = new THREE.Vector3();
+        _planeWorldTangent = new THREE.Vector3();
+        _groupWorldQuat = new THREE.Quaternion();
+        _groupWorldQuatInv = new THREE.Quaternion();
+        _camWorldQuat = new THREE.Quaternion();
+        _localQuat = new THREE.Quaternion();
+        _camRight = new THREE.Vector3();
+        _camUp = new THREE.Vector3();
+    }
+}
+
+function update3DPlane(progress) {
+    if (!globe3d.globeGroup || !globe3d.camera) return;
+
+    if (progress <= 0 || progress >= 1.0) {
+        if (globe3d.planeMarker) globe3d.planeMarker.visible = false;
+        return;
+    }
+
+    if (!globe3d._arcCache || globe3d._arcCache.length < 2) return;
+    _ensurePlaneVecs();
+
+    const allPoints = globe3d._arcCache;
+    const totalPts = allPoints.length - 1;
+    const exactIdx = progress * totalPts;
+    const i0 = Math.floor(exactIdx);
+    const i1 = Math.min(i0 + 1, totalPts);
+    const frac = exactIdx - i0;
+    const sf = frac * frac * (3 - 2 * frac);
+    _planePos.lerpVectors(allPoints[i0], allPoints[i1], sf);
+
+    if (!globe3d.planeMarker) {
+        globe3d.planeMarker = createPlaneBillboard(GLOBE_MARKER_ACCENT);
+        globe3d.globeGroup.add(globe3d.planeMarker);
+    }
+
+    globe3d.planeMarker.visible = true;
+
+    // Lift above the arc surface
+    _planePn.copy(_planePos).normalize();
+    globe3d.planeMarker.position.copy(_planePos).addScaledVector(_planePn, 0.012);
+
+    // --- Directional billboard: face camera + rotate nose along trajectory ---
+
+    // Get globeGroup world quaternion
+    globe3d.globeGroup.updateMatrixWorld(true);
+    globe3d.globeGroup.matrixWorld.decompose(_planeWorldPos, _groupWorldQuat, _camRight /*reuse as temp scale*/);
+    _groupWorldQuatInv.copy(_groupWorldQuat).invert();
+
+    // Billboard: set mesh quaternion to camera's quaternion in globeGroup local space
+    _camWorldQuat.copy(globe3d.camera.quaternion);
+    _localQuat.copy(_groupWorldQuatInv).multiply(_camWorldQuat);
+    globe3d.planeMarker.quaternion.copy(_localQuat);
+
+    // Compute trajectory tangent in globe local space (wide look-ahead for smoothness)
+    const lookAhead = Math.min(i0 + 8, totalPts);
+    const lookBehind = Math.max(i0 - 4, 0);
+    _planeTangent.subVectors(allPoints[lookAhead], allPoints[lookBehind]).normalize();
+
+    // Transform tangent to world space
+    _planeWorldTangent.copy(_planeTangent).applyQuaternion(_groupWorldQuat);
+
+    // Project tangent onto screen plane using camera right & up vectors
+    _camRight.set(1, 0, 0).applyQuaternion(_camWorldQuat);
+    _camUp.set(0, 1, 0).applyQuaternion(_camWorldQuat);
+    const sx = _planeWorldTangent.dot(_camRight);
+    const sy = _planeWorldTangent.dot(_camUp);
+
+    // Rotate around local Z so nose (SVG points up = +Y) aligns with trajectory screen direction
+    const heading = Math.atan2(-sx, sy);
+    globe3d.planeMarker.rotateZ(heading);
+
+    // Fixed screen size: scale based on camera distance
+    globe3d.planeMarker.getWorldPosition(_planeWorldPos);
+    const dist = globe3d.camera.position.distanceTo(_planeWorldPos);
+    const s = PLANE_SCREEN_SIZE * dist;
+    globe3d.planeMarker.scale.set(s, s, 1);
+
+    // Rotate globe so plane stays visible — quaternion slerp for shortest-path tracking
+    // (no Euler wrapping issues on routes crossing the date line)
+    if (isPlaying) {
+        if (!globe3d._trackQuat) globe3d._trackQuat = new THREE.Quaternion();
+        // Target: rotate globe so current plane position faces camera
+        globe3d._trackQuat.setFromUnitVectors(_planePn, _FRONT);
+        const lerpSpeed = progress < 0.05 ? 0.08 : 0.04;
+        globe3d.globeGroup.quaternion.slerp(globe3d._trackQuat, lerpSpeed);
+    }
+}
+
+function rotateGlobeToCoords(lat, lon, animated) {
+    if (!globe3d.globeGroup) return;
+
+    // Cancel any previous rotation animation
+    if (globe3d._rotateAnimId) {
+        cancelAnimationFrame(globe3d._rotateAnimId);
+        globe3d._rotateAnimId = null;
+    }
+
+    const targetQuat = globeQuatForLatLon(lat, lon);
+
+    if (animated) {
+        const startQuat = globe3d.globeGroup.quaternion.clone();
+        let t = 0;
+        function animRotate() {
+            t += 0.02;
+            if (t > 1) t = 1;
+            const ease = t * t * (3 - 2 * t);
+            globe3d.globeGroup.quaternion.copy(startQuat).slerp(targetQuat, ease);
+            if (t < 1) {
+                globe3d._rotateAnimId = requestAnimationFrame(animRotate);
+            } else {
+                globe3d._rotateAnimId = null;
+            }
+        }
+        animRotate();
+    } else {
+        globe3d.globeGroup.quaternion.copy(targetQuat);
+    }
+}
+
+
+
+function destroyGlobe3D() {
+    if (globe3d._rotateAnimId) {
+        cancelAnimationFrame(globe3d._rotateAnimId);
+        globe3d._rotateAnimId = null;
+    }
+    if (globe3d.animId) {
+        cancelAnimationFrame(globe3d.animId);
+        globe3d.animId = null;
+    }
+    if (globe3d._resizeObserver) {
+        globe3d._resizeObserver.disconnect();
+        globe3d._resizeObserver = null;
+    }
+    if (globe3d.renderer) {
+        globe3d.renderer.dispose();
+        const canvas = globe3d.renderer.domElement;
+        if (canvas.parentNode) canvas.parentNode.removeChild(canvas);
+    }
+    if (globe3d.scene) {
+        globe3d.scene.traverse(obj => {
+            if (obj.geometry) obj.geometry.dispose();
+            if (obj.material) {
+                if (obj.material.map) obj.material.map.dispose();
+                if (obj.material.uniforms) {
+                    Object.values(obj.material.uniforms).forEach(u => {
+                        if (u.value && u.value.dispose) u.value.dispose();
+                    });
+                }
+                obj.material.dispose();
+            }
+        });
+    }
+    globe3d = {
+        scene: null, camera: null, renderer: null, controls: null,
+        globe: null, globeGroup: null, atmosMesh: null,
+        flightArcLine: null, traveledArcLine: null,
+        planeMarker: null, cityMarkers: [], cityPulses: [],
+        endpointMarkers: [], animId: null,
+    };
+}
+
+function switchTo3D() {
+    viewMode = '3d';
+    el.modeFlatBtn.classList.remove('active');
+    el.modeFlatBtn.classList.add('opacity-50');
+    el.mode3dBtn.classList.add('active');
+    el.mode3dBtn.classList.remove('opacity-50');
+
+
+
+    // Hide flat map, show 3D
+    document.getElementById('mapContainer').style.display = 'none';
+    el.globe3dContainer.classList.remove('hidden');
+
+    initGlobe3D();
+
+    // Ensure arc cache if flight data exists
+    if (arcCoordinates.length && (!globe3d._arcCache || globe3d._arcCache.length < 2)) {
+        const arcAlt = Math.min(flightDistance / 40000, 0.15) + 0.02;
+        globe3d._arcCache = generateGreatCircleArc3D(originCoords, destCoords, 300, arcAlt);
+    }
+
+    // If flight is in progress, show arc on globe
+    if (arcCoordinates.length) {
+        update3DFlightPath();
+        update3DTraveledPath(flightProgress);
+        update3DPlane(flightProgress);
+        if (originCoords && destCoords) {
+            // If in-flight, rotate globe so current plane position faces camera
+            if (flightProgress > 0 && flightProgress < 1.0 && globe3d._arcCache) {
+                const idx = Math.floor(flightProgress * (globe3d._arcCache.length - 1));
+                const dir = globe3d._arcCache[idx].clone().normalize();
+                const targetQ = new THREE.Quaternion().setFromUnitVectors(dir, _FRONT);
+                globe3d.globeGroup.quaternion.copy(targetQ);
+            } else {
+                rotateGlobeToCoords(originCoords.lat, originCoords.lon, true);
+            }
+        }
+    }
+}
+
+function switchToFlat() {
+    viewMode = 'flat';
+    el.mode3dBtn.classList.remove('active');
+    el.mode3dBtn.classList.add('opacity-50');
+    el.modeFlatBtn.classList.add('active');
+    el.modeFlatBtn.classList.remove('opacity-50');
+
+
+
+    // Show flat map, hide 3D
+    document.getElementById('mapContainer').style.display = '';
+    el.globe3dContainer.classList.add('hidden');
+
+    destroyGlobe3D();
+
+    if (map) setTimeout(() => map.resize(), 50);
+}
+
+function refreshGlobe3DStyle() {
+    // 3D globe uses its own palette cycling (independent of flat map theme)
+    // Only rebuild if structure needs updating
+    if (viewMode !== '3d' || !globe3d.scene) return;
 }
 
 init();

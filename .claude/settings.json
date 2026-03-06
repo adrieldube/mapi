@@ -1,10 +1,11 @@
 {
   "permissions": {
+    "allow": [
+      "Bash(git -C /Users/adrieldubemarante/Projects/mapi log --oneline -10)",
+      "Bash(node -c js/flight.js)"
+    ],
     "additionalDirectories": [
       "/tmp"
-    ],
-    "allow": [
-      "Bash(git -C /Users/adrieldubemarante/Projects/mapi log --oneline -10)"
     ]
   }
 }
