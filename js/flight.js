@@ -729,6 +729,16 @@ function startFlight() {
         map.getSource('endpoints').setData({ type: 'FeatureCollection', features: [] });
     }
 
+    // Google Analytics event
+    if (typeof gtag === 'function') {
+        gtag('event', 'start_flight', {
+            origin: originName,
+            destination: destName,
+            video_format: el.formatSelect.value,
+            speed: SPEED_STEPS[parseInt(el.speedSlider.value)] ?? 1
+        });
+    }
+
     arcCoordinates = generateGreatCircleArc(originCoords, destCoords, 300);
     flightProgress = 0;
     lastFrameTime = 0;
