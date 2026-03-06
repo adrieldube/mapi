@@ -366,6 +366,7 @@ let mapTexture = null;
 let hiddenMap = null;
 let currentFrameStyle = 'slim-black';
 let currentColorTheme = 'Pure Black & White';
+let introPreviewPalette = null;
 let currentCity = null;
 let currentZoom = 12;
 let maxAnisotropy = 1;
@@ -963,6 +964,14 @@ function closeIntroModal(cityName, lat, lon) {
     const modal = document.getElementById('introModal');
     if (!modal) return;
 
+    // Apply the random palette from the intro preview to the main viewer
+    if (introPreviewPalette && PALETTES[introPreviewPalette]) {
+        currentColorTheme = introPreviewPalette;
+        const select = document.getElementById('frameThemeSelect');
+        if (select) select.value = introPreviewPalette;
+        updateFrameThemePreview(introPreviewPalette);
+    }
+
     modal.classList.add('closing');
     let fired = false;
     const onEnd = () => {
@@ -1077,7 +1086,9 @@ function initIntroPreview() {
     document.body.appendChild(previewMapContainer);
 
     const paletteKeys = Object.keys(PALETTES);
-    const mapStyle = createMapStyle(PALETTES[paletteKeys[Math.floor(Math.random() * paletteKeys.length)]]);
+    const randomPaletteName = paletteKeys[Math.floor(Math.random() * paletteKeys.length)];
+    introPreviewPalette = randomPaletteName;
+    const mapStyle = createMapStyle(PALETTES[randomPaletteName]);
     try {
         const previewMap = new maplibregl.Map({
             container: previewMapContainer,
