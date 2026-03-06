@@ -1393,6 +1393,12 @@ async function exportToUSDZ() {
         const scaleFactor = realHeightMeters / posterHeight;
         exportGroup.scale.set(scaleFactor, scaleFactor, scaleFactor);
 
+        // AR Quick Look vertical placement rotates the model +90° around X
+        // (tipping the floor-plane onto the wall), which points the frame's
+        // front face downward.  Counter-rotate by -90° so the frame ends up
+        // flush against the wall with the artwork facing outward.
+        exportGroup.rotation.x = -Math.PI / 2;
+
         const exportScene = new THREE.Scene();
         exportScene.add(exportGroup);
         exportScene.updateMatrixWorld(true);
