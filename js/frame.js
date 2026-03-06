@@ -357,6 +357,9 @@ const FRAME_STYLES = {
 };
 
 // === STATE ===
+const POSTER_HEIGHT = 2.0;
+const POSTER_ASPECT = 5 / 7; // 50×70 cm
+
 let scene, camera, renderer, controls, sceneContainer;
 let frameGroup = null;
 let mapTexture = null;
@@ -365,6 +368,7 @@ let currentFrameStyle = 'slim-black';
 let currentColorTheme = 'Pure Black & White';
 let currentCity = null;
 let currentZoom = 12;
+let maxAnisotropy = 1;
 
 // === UTILITY ===
 function parseHex(hex) {
@@ -567,14 +571,13 @@ function buildFrameGroup(style, texture, { includeBevels = true } = {}) {
     const group = new THREE.Group();
     const config = FRAME_STYLES[style];
 
-    const posterHeight = 2.0;
-    const posterWidth = posterHeight * (5 / 7); // 50×70 cm aspect ratio
+    const posterWidth = POSTER_HEIGHT * POSTER_ASPECT;
     const fw = config.frameWidth;
     const fd = config.frameDepth;
     const mw = config.matWidth;
 
     // ─── Map canvas (the poster image) ───
-    const canvasGeo = new THREE.PlaneGeometry(posterWidth, posterHeight);
+    const canvasGeo = new THREE.PlaneGeometry(posterWidth, POSTER_HEIGHT);
     const canvasMat = new THREE.MeshBasicMaterial({ map: texture });
     const canvasMesh = new THREE.Mesh(canvasGeo, canvasMat);
     canvasMesh.position.z = -fd * 0.4;
@@ -582,7 +585,7 @@ function buildFrameGroup(style, texture, { includeBevels = true } = {}) {
 
     // ─── Mat / passepartout ───
     const matOuterW = posterWidth + mw * 2;
-    const matOuterH = posterHeight + mw * 2;
+    const matOuterH = POSTER_HEIGHT + mw * 2;
 
     if (mw > 0) {
         const matShape = new THREE.Shape();
@@ -593,11 +596,11 @@ function buildFrameGroup(style, texture, { includeBevels = true } = {}) {
         matShape.lineTo(-matOuterW / 2, -matOuterH / 2);
 
         const hole = new THREE.Path();
-        hole.moveTo(-posterWidth / 2, -posterHeight / 2);
-        hole.lineTo(-posterWidth / 2, posterHeight / 2);
-        hole.lineTo(posterWidth / 2, posterHeight / 2);
-        hole.lineTo(posterWidth / 2, -posterHeight / 2);
-        hole.lineTo(-posterWidth / 2, -posterHeight / 2);
+        hole.moveTo(-posterWidth / 2, -POSTER_HEIGHT / 2);
+        hole.lineTo(-posterWidth / 2, POSTER_HEIGHT / 2);
+        hole.lineTo(posterWidth / 2, POSTER_HEIGHT / 2);
+        hole.lineTo(posterWidth / 2, -POSTER_HEIGHT / 2);
+        hole.lineTo(-posterWidth / 2, -POSTER_HEIGHT / 2);
         matShape.holes.push(hole);
 
         const matGeo = new THREE.ShapeGeometry(matShape);
@@ -671,7 +674,7 @@ function buildFrameGroup(style, texture, { includeBevels = true } = {}) {
     }
 
     // ─── Glass pane ───
-    const glassGeo = new THREE.PlaneGeometry(posterWidth + 0.005, posterHeight + 0.005);
+    const glassGeo = new THREE.PlaneGeometry(posterWidth + 0.005, POSTER_HEIGHT + 0.005);
     const glassMat = new THREE.MeshStandardMaterial({
         color: 0xffffff, transparent: true, opacity: 0.03, roughness: 0.0, metalness: 0.1,
     });
@@ -1388,9 +1391,9 @@ async function exportToUSDZ() {
         // USDZExporter skips the root object's transform, so we wrap in a
         // Scene and apply the scale on the inner group (a child node whose
         // local matrix IS written to the USDZ file).
-        const posterHeight = 2.0;
+        const POSTER_HEIGHT = 2.0;
         const realHeightMeters = 0.70; // poster is 70 cm tall
-        const scaleFactor = realHeightMeters / posterHeight;
+        const scaleFactor = realHeightMeters / POSTER_HEIGHT;
         exportGroup.scale.set(scaleFactor, scaleFactor, scaleFactor);
 
         // AR Quick Look vertical placement rotates the model +90° around X
