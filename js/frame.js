@@ -3,6 +3,10 @@
 // Self-contained page logic: data, Three.js scene, frame, map, autocomplete
 // ═══════════════════════════════════════════════════════════════
 
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { USDZExporter } from 'three/addons/exporters/USDZExporter.js';
+
 // === CONFIGURATION ===
 const MAPTILER_KEY = "2Q7XT8l9Iqoe1Z9gbvHw";
 
@@ -382,6 +386,10 @@ function normalize(str) {
     return str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
 
+function escapeHtml(str) {
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
 // === MAP STYLE (from app.js — self-contained copy) ===
 function createMapStyle(palette) {
     const isDark = !isLightColor(palette.bg);
@@ -471,13 +479,13 @@ function initScene() {
     renderer.setSize(rect.width, rect.height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = false;
-    renderer.toneMapping = THREE.LinearToneMapping;
+    renderer.toneMapping = THREE.NoToneMapping;
     renderer.toneMappingExposure = 1.0;
-    renderer.outputEncoding = THREE.sRGBEncoding;
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
     sceneContainer.appendChild(renderer.domElement);
 
     // OrbitControls
-    controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
     controls.minDistance = 1.5;
@@ -495,17 +503,19 @@ function initScene() {
 }
 
 function setupLighting(targetScene) {
-    targetScene.add(new THREE.AmbientLight(0xffffff, 0.8));
+    // r183 uses physically-correct light units by default.
+    // Intensity values are scaled from r147 equivalents (×π for directional/ambient).
+    targetScene.add(new THREE.AmbientLight(0xffffff, 2.4));
 
-    const keyLight = new THREE.DirectionalLight(0xfff8f0, 1.0);
+    const keyLight = new THREE.DirectionalLight(0xfff8f0, 3.0);
     keyLight.position.set(3, 4, 5);
     targetScene.add(keyLight);
 
-    const fillLight = new THREE.DirectionalLight(0xeef2ff, 0.5);
+    const fillLight = new THREE.DirectionalLight(0xeef2ff, 1.5);
     fillLight.position.set(-2, 2, -3);
     targetScene.add(fillLight);
 
-    const pointLight = new THREE.PointLight(0xffffff, 0.4, 10);
+    const pointLight = new THREE.PointLight(0xffffff, 5.0, 10);
     pointLight.position.set(0, 0, 5);
     targetScene.add(pointLight);
 }
@@ -698,12 +708,7 @@ function buildFrame(style, texture) {
 // ═══════════════════════════════════════════════════════════════
 
 function showLoading(visible) {
-    const overlay = document.getElementById('loadingOverlay');
-    if (visible) {
-        overlay.classList.add('visible');
-    } else {
-        overlay.classList.remove('visible');
-    }
+    document.getElementById('loadingOverlay')?.classList.toggle('visible', visible);
 }
 
 function initHiddenMap(center, zoom, styleName) {
@@ -751,7 +756,10 @@ function captureMapTexture() {
 
     if (mapTexture) mapTexture.dispose();
     mapTexture = new THREE.CanvasTexture(snapshot);
-    mapTexture.encoding = THREE.sRGBEncoding;
+    mapTexture.colorSpace = THREE.SRGBColorSpace;
+    mapTexture.minFilter = THREE.LinearMipmapLinearFilter;
+    mapTexture.magFilter = THREE.LinearFilter;
+    mapTexture.anisotropy = renderer.capabilities.getMaxAnisotropy();
     mapTexture.needsUpdate = true;
 
     buildFrame(currentFrameStyle, mapTexture);
@@ -867,10 +875,10 @@ function createAutocomplete(inputId, listId, onSelect) {
             return;
         }
         list.innerHTML = items.map((item, i) => `
-            <li role="option" data-index="${i}" data-name="${item.name.replace(/"/g, '&quot;')}" data-city="${(item.city || item.name).replace(/"/g, '&quot;')}" data-lat="${item.lat}" data-lon="${item.lon}"${i === activeIndex ? ' class="active"' : ''}>
+            <li role="option" data-index="${i}" data-name="${escapeHtml(item.name)}" data-city="${escapeHtml(item.city || item.name)}" data-lat="${item.lat}" data-lon="${item.lon}"${i === activeIndex ? ' class="active"' : ''}>
                 <span class="ac-icon"><ion-icon name="location-outline"></ion-icon></span>
-                <span class="ac-city">${item.name}</span>
-                <span class="ac-subtitle">${item.subtitle}</span>
+                <span class="ac-city">${escapeHtml(item.name)}</span>
+                <span class="ac-subtitle">${escapeHtml(item.subtitle)}</span>
             </li>
         `).join('');
         list.classList.add('open');
@@ -953,9 +961,11 @@ function closeIntroModal(cityName, lat, lon) {
     if (!modal) return;
 
     modal.classList.add('closing');
+    let fired = false;
     const onEnd = () => {
+        if (fired) return;
+        fired = true;
         modal.remove();
-        // Show the app layout
         const layout = document.getElementById('appLayout');
         if (layout) layout.style.opacity = '1';
 
@@ -1004,9 +1014,9 @@ function initIntroPreview() {
     const previewRenderer = new THREE.WebGLRenderer({ antialias: true });
     previewRenderer.setSize(rect.width, rect.height);
     previewRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    previewRenderer.toneMapping = THREE.LinearToneMapping;
+    previewRenderer.toneMapping = THREE.NoToneMapping;
     previewRenderer.toneMappingExposure = 1.0;
-    previewRenderer.outputEncoding = THREE.sRGBEncoding;
+    previewRenderer.outputColorSpace = THREE.SRGBColorSpace;
     container.appendChild(previewRenderer.domElement);
 
     setupLighting(previewScene);
@@ -1024,13 +1034,13 @@ function initIntroPreview() {
     ctx.fillRect(0, 0, 512, 640);
 
     const previewTexture = new THREE.CanvasTexture(texCanvas);
-    previewTexture.encoding = THREE.sRGBEncoding;
+    previewTexture.colorSpace = THREE.SRGBColorSpace;
 
     const { group: previewGroup, canvasMat } = buildFrameGroup('slim-black', previewTexture, { includeBevels: false });
     previewScene.add(previewGroup);
 
     // Slow auto-rotate
-    const previewControls = new THREE.OrbitControls(previewCamera, previewRenderer.domElement);
+    const previewControls = new OrbitControls(previewCamera, previewRenderer.domElement);
     previewControls.enableDamping = true;
     previewControls.dampingFactor = 0.05;
     previewControls.autoRotate = true;
@@ -1079,7 +1089,7 @@ function initIntroPreview() {
             setTimeout(() => {
                 const mapCanvas = previewMap.getCanvas();
                 const realTexture = new THREE.CanvasTexture(mapCanvas);
-                realTexture.encoding = THREE.sRGBEncoding;
+                realTexture.colorSpace = THREE.SRGBColorSpace;
                 realTexture.needsUpdate = true;
                 canvasMat.map = realTexture;
                 canvasMat.needsUpdate = true;
@@ -1373,8 +1383,17 @@ async function exportToUSDZ() {
 
     try {
         const exportGroup = prepareGroupForUSDZ(frameGroup);
-        const exporter = new THREE.USDZExporter();
-        const arraybuffer = await exporter.parse(exportGroup);
+
+        // Scale to real-world size: 70 cm tall frame for AR wall preview
+        const config = FRAME_STYLES[currentFrameStyle];
+        const posterHeight = 2.0;
+        const outerH = posterHeight + config.matWidth * 2 + config.frameWidth * 2;
+        const realHeightMeters = 0.70; // 70 cm
+        const scaleFactor = realHeightMeters / outerH;
+        exportGroup.scale.set(scaleFactor, scaleFactor, scaleFactor);
+
+        const exporter = new USDZExporter();
+        const arraybuffer = await exporter.parseAsync(exportGroup);
         const blob = new Blob([arraybuffer], { type: 'model/vnd.usdz+zip' });
         const url = URL.createObjectURL(blob);
 

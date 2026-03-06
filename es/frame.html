@@ -53,10 +53,15 @@
   <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />
   <script defer src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 
-  <!-- Three.js r128 -->
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <!-- OrbitControls -->
-  <script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <!-- Three.js r183 + addons (ES modules via import map) -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.183.2/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.183.2/examples/jsm/"
+    }
+  }
+  </script>
 
   <!-- Ionicons -->
   <script type="module" src="https://unpkg.com/ionicons@8.0.13/dist/ionicons/ionicons.esm.js"></script>
@@ -91,7 +96,7 @@
   <link href="../css/frame-styles.css" rel="stylesheet" />
 
   <!-- Frame page script -->
-  <script defer src="../js/frame.js"></script>
+  <script type="module" src="../js/frame.js"></script>
 </head>
 
 <body class="bg-[#440edf] text-[#111] font-sans m-0 h-screen overflow-hidden">
@@ -228,7 +233,7 @@
 
   <!-- ─── Contenedor de mapa oculto (fuera de pantalla, renderiza el mapa para captura de textura) ─── -->
   <div id="hiddenMapContainer"
-    style="position:absolute; left:-9999px; top:0; width:1100px; height:1400px; overflow:hidden;"></div>
+    style="position:absolute; left:-9999px; top:0; width:2200px; height:2800px; overflow:hidden;"></div>
 
   <!-- ─── Diseño Principal (contenedor redondeado con barra lateral + área principal) ─── -->
   <div id="appLayout"
