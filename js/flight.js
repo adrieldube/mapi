@@ -717,6 +717,18 @@ function startFlight() {
     cancelAnimationFrame(animationId);
     if (startFlightTimer) { clearTimeout(startFlightTimer); startFlightTimer = null; }
 
+    // Clear previous flight from both flat map and 3D globe
+    clear3DFlightObjects();
+    if (map.getSource('flight-traveled')) {
+        map.getSource('flight-traveled').setData(lineFeature([]));
+    }
+    if (map.getSource('flight-path')) {
+        map.getSource('flight-path').setData(lineFeature([]));
+    }
+    if (map.getSource('endpoints')) {
+        map.getSource('endpoints').setData({ type: 'FeatureCollection', features: [] });
+    }
+
     arcCoordinates = generateGreatCircleArc(originCoords, destCoords, 300);
     flightProgress = 0;
     lastFrameTime = 0;
@@ -840,6 +852,38 @@ function togglePause() {
     }
 }
 
+function clear3DFlightObjects() {
+    if (!globe3d.globeGroup) return;
+    if (globe3d.flightArcLine) {
+        globe3d.globeGroup.remove(globe3d.flightArcLine);
+        if (globe3d.flightArcLine.geometry) globe3d.flightArcLine.geometry.dispose();
+        if (globe3d.flightArcLine.material) globe3d.flightArcLine.material.dispose();
+        globe3d.flightArcLine = null;
+    }
+    if (globe3d.traveledArcLine) {
+        globe3d.globeGroup.remove(globe3d.traveledArcLine);
+        if (globe3d.traveledArcLine.geometry) globe3d.traveledArcLine.geometry.dispose();
+        if (globe3d.traveledArcLine.material) globe3d.traveledArcLine.material.dispose();
+        globe3d.traveledArcLine = null;
+    }
+    if (globe3d.planeMarker) {
+        globe3d.globeGroup.remove(globe3d.planeMarker);
+        if (globe3d.planeMarker.geometry) globe3d.planeMarker.geometry.dispose();
+        if (globe3d.planeMarker.material) {
+            if (globe3d.planeMarker.material.map) globe3d.planeMarker.material.map.dispose();
+            globe3d.planeMarker.material.dispose();
+        }
+        globe3d.planeMarker = null;
+    }
+    globe3d.endpointMarkers.forEach(m => {
+        globe3d.globeGroup.remove(m);
+        if (m.geometry) m.geometry.dispose();
+        if (m.material) m.material.dispose();
+    });
+    globe3d.endpointMarkers = [];
+    globe3d._arcCache = null;
+}
+
 function resetFlight() {
     isPlaying = false;
     cancelAnimationFrame(animationId);
@@ -865,37 +909,7 @@ function resetFlight() {
     }
 
     // Clear 3D state
-    if (viewMode === '3d' && globe3d.globeGroup) {
-        if (globe3d.flightArcLine) {
-            globe3d.globeGroup.remove(globe3d.flightArcLine);
-            if (globe3d.flightArcLine.geometry) globe3d.flightArcLine.geometry.dispose();
-            if (globe3d.flightArcLine.material) globe3d.flightArcLine.material.dispose();
-            globe3d.flightArcLine = null;
-        }
-        if (globe3d.traveledArcLine) {
-            globe3d.globeGroup.remove(globe3d.traveledArcLine);
-            if (globe3d.traveledArcLine.geometry) globe3d.traveledArcLine.geometry.dispose();
-            if (globe3d.traveledArcLine.material) globe3d.traveledArcLine.material.dispose();
-            globe3d.traveledArcLine = null;
-        }
-        if (globe3d.planeMarker) {
-            globe3d.globeGroup.remove(globe3d.planeMarker);
-            if (globe3d.planeMarker.geometry) globe3d.planeMarker.geometry.dispose();
-            if (globe3d.planeMarker.material) {
-                if (globe3d.planeMarker.material.map) globe3d.planeMarker.material.map.dispose();
-                globe3d.planeMarker.material.dispose();
-            }
-            globe3d.planeMarker = null;
-        }
-        globe3d.endpointMarkers.forEach(m => {
-            globe3d.globeGroup.remove(m);
-            if (m.geometry) m.geometry.dispose();
-            if (m.material) m.material.dispose();
-        });
-        globe3d.endpointMarkers = [];
-        globe3d._arcCache = null;
-
-    }
+    clear3DFlightObjects();
 
     el.flightHud.classList.add('hidden');
     el.progressBar.classList.add('hidden');
@@ -1469,6 +1483,33 @@ function createGlobeShaderMaterial() {
     });
 }
 
+// Recompute camera FOV + Z so the globe fits edge-to-edge without clipping,
+// regardless of portrait/landscape/square frame.
+// Strategy: adjust the vertical FOV so the globe always subtends the same
+// angular size relative to the *narrower* dimension, then position camera
+// at the exact tangent-grazing distance.
+function fitGlobeCameraToFrame() {
+    if (!globe3d.camera) return;
+    const aspect = globe3d.camera.aspect;
+    // Base half-angle: how large we want the globe to appear (bigger = tighter fit)
+    const baseHalfAngle = toRad(26); // ~52° span → globe nearly fills the frame
+    // The narrower dimension constrains the fit.
+    // Convert to the vertical half-FOV the camera needs:
+    let vHalfFov;
+    if (aspect >= 1) {
+        // Landscape/square: height is the narrow side → use base angle as vertical
+        vHalfFov = baseHalfAngle;
+    } else {
+        // Portrait: width is the narrow side → derive vertical FOV from horizontal
+        // hHalfFov = baseHalfAngle, vHalfFov = atan(tan(hHalfFov) / aspect)
+        vHalfFov = Math.atan(Math.tan(baseHalfAngle) / aspect);
+    }
+    globe3d.camera.fov = toDeg(vHalfFov * 2);
+    globe3d.camera.updateProjectionMatrix();
+    // Position camera at exact tangent distance for the constraining dimension
+    globe3d.camera.position.z = GLOBE_RADIUS / Math.sin(baseHalfAngle);
+}
+
 function initGlobe3D() {
     if (globe3d.renderer) return; // already initialized
 
@@ -1480,10 +1521,11 @@ function initGlobe3D() {
     const scene = new THREE.Scene();
     globe3d.scene = scene;
 
-    // Camera
-    const camera = new THREE.PerspectiveCamera(45, rect.width / rect.height, 0.01, 100);
-    camera.position.set(0, 0, 4.2);
+    // Camera — position so globe fills the frame edge-to-edge
+    const aspect = rect.width / rect.height;
+    const camera = new THREE.PerspectiveCamera(45, aspect, 0.01, 100);
     globe3d.camera = camera;
+    fitGlobeCameraToFrame();
 
     // Renderer — alpha:true for transparent bg matching index page
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -1580,13 +1622,13 @@ function initGlobe3D() {
         camera.position.z = Math.max(1.8, Math.min(8, camera.position.z + e.deltaY * 0.003));
     }, { passive: false });
 
-    // Handle resize
+    // Handle resize — refit globe to frame on format change
     const resizeObserver = new ResizeObserver(() => {
         const r = container.getBoundingClientRect();
         if (r.width > 0 && r.height > 0) {
             camera.aspect = r.width / r.height;
-            camera.updateProjectionMatrix();
             renderer.setSize(r.width, r.height);
+            fitGlobeCameraToFrame(); // recalculates FOV, Z, and calls updateProjectionMatrix
         }
     });
     resizeObserver.observe(container);
@@ -1685,7 +1727,7 @@ function update3DFlightPath() {
     globe3d.endpointMarkers.forEach(m => globe3d.globeGroup.remove(m));
     globe3d.endpointMarkers = [];
 
-    const endGeo = new THREE.SphereGeometry(0.018, 12, 12);
+    const endGeo = new THREE.SphereGeometry(0.009, 12, 12);
     const endMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(GLOBE_MARKER_ACCENT) });
 
     const originPos = latLonToVec3(originCoords.lat, originCoords.lon, GLOBE_RADIUS * 1.008);
