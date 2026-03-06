@@ -568,7 +568,7 @@ function buildFrameGroup(style, texture, { includeBevels = true } = {}) {
     const config = FRAME_STYLES[style];
 
     const posterHeight = 2.0;
-    const posterWidth = posterHeight * (11 / 14);
+    const posterWidth = posterHeight * (5 / 7); // 50×70 cm aspect ratio
     const fw = config.frameWidth;
     const fd = config.frameDepth;
     const mw = config.matWidth;
@@ -1024,14 +1024,14 @@ function initIntroPreview() {
 
     // Build a preview frame with a gradient placeholder texture
     const texCanvas = document.createElement('canvas');
-    texCanvas.width = 512;
-    texCanvas.height = 640;
+    texCanvas.width = 500;
+    texCanvas.height = 700;
     const ctx = texCanvas.getContext('2d');
-    const gradient = ctx.createLinearGradient(0, 0, 0, 640);
+    const gradient = ctx.createLinearGradient(0, 0, 0, 700);
     gradient.addColorStop(0, '#f0f0f5');
     gradient.addColorStop(1, '#e8e8f0');
     ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, 512, 640);
+    ctx.fillRect(0, 0, 500, 700);
 
     const previewTexture = new THREE.CanvasTexture(texCanvas);
     previewTexture.colorSpace = THREE.SRGBColorSpace;
@@ -1070,7 +1070,7 @@ function initIntroPreview() {
 
     // Load actual map texture into the preview
     const previewMapContainer = document.createElement('div');
-    previewMapContainer.style.cssText = 'position:absolute;left:-9999px;top:0;width:512px;height:640px;overflow:hidden;';
+    previewMapContainer.style.cssText = 'position:absolute;left:-9999px;top:0;width:500px;height:700px;overflow:hidden;';
     document.body.appendChild(previewMapContainer);
 
     const paletteKeys = Object.keys(PALETTES);
@@ -1384,12 +1384,10 @@ async function exportToUSDZ() {
     try {
         const exportGroup = prepareGroupForUSDZ(frameGroup);
 
-        // Scale to real-world size: 70 cm tall frame for AR wall preview
-        const config = FRAME_STYLES[currentFrameStyle];
+        // Scale to real-world size: poster = 50×70 cm for AR wall preview
         const posterHeight = 2.0;
-        const outerH = posterHeight + config.matWidth * 2 + config.frameWidth * 2;
-        const realHeightMeters = 0.70; // 70 cm
-        const scaleFactor = realHeightMeters / outerH;
+        const realHeightMeters = 0.70; // poster is 70 cm tall
+        const scaleFactor = realHeightMeters / posterHeight;
         exportGroup.scale.set(scaleFactor, scaleFactor, scaleFactor);
 
         const exporter = new USDZExporter();
