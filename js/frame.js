@@ -6,6 +6,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { USDZExporter } from 'three/addons/exporters/USDZExporter.js';
+import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 
 // === CONFIGURATION ===
 const MAPTILER_KEY = "2Q7XT8l9Iqoe1Z9gbvHw";
@@ -240,10 +241,12 @@ const I18N = {
     en: {
         toggleShowAll: 'Show all',
         toggleShowLess: 'Show less',
+        arButton: 'View in AR',
     },
     es: {
         toggleShowAll: 'Mostrar todos',
         toggleShowLess: 'Mostrar menos',
+        arButton: 'Ver en RA',
     },
 };
 
@@ -1318,18 +1321,17 @@ function setupControls() {
         controls.reset();
     });
 
-    // AR Quick Look — iOS check disabled for testing, always show button
-    // if (isIOSDevice()) {
+    // AR — show on all platforms (iOS = USDZ Quick Look, Android = GLB Scene Viewer, other = GLB download)
+    const arSection = document.getElementById('arSection');
     const arBtn = document.getElementById('viewInARBtn');
     if (arBtn) {
-        arBtn.classList.remove('hidden');
-        arBtn.addEventListener('click', exportToUSDZ);
+        if (arSection) arSection.classList.remove('hidden');
+        arBtn.addEventListener('click', viewInAR);
     }
-    // }
 }
 
 // ═══════════════════════════════════════════════════════════════
-// AR QUICK LOOK (USDZ EXPORT)
+// AR PREVIEW (USDZ for iOS, GLB for Android / Web)
 // ═══════════════════════════════════════════════════════════════
 
 function isIOSDevice() {
@@ -1337,7 +1339,11 @@ function isIOSDevice() {
         (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 }
 
-function prepareGroupForUSDZ(sourceGroup) {
+function isAndroidDevice() {
+    return /Android/i.test(navigator.userAgent);
+}
+
+function prepareGroupForExport(sourceGroup) {
     const clone = sourceGroup.clone(true);
     const toRemove = [];
 
@@ -1348,13 +1354,13 @@ function prepareGroupForUSDZ(sourceGroup) {
         child.material = child.material.clone();
         const mat = child.material;
 
-        // Skip glass and near-invisible meshes — USDZ handles transparency poorly
+        // Skip glass and near-invisible meshes — exporters handle transparency poorly
         if (mat.transparent && mat.opacity < 0.1) {
             toRemove.push(child);
             return;
         }
 
-        // USDZ doesn't support BackSide — flip geometry normals instead
+        // BackSide not well supported — flip geometry normals instead
         if (mat.side === THREE.BackSide) {
             mat.side = THREE.FrontSide;
             child.geometry = child.geometry.clone();
@@ -1368,7 +1374,7 @@ function prepareGroupForUSDZ(sourceGroup) {
             normals.needsUpdate = true;
         }
 
-        // USDZExporter only supports MeshStandardMaterial
+        // Convert MeshBasicMaterial → MeshStandardMaterial (required by both exporters)
         if (mat.isMeshBasicMaterial) {
             child.material = new THREE.MeshStandardMaterial({
                 map: mat.map,
@@ -1386,7 +1392,99 @@ function prepareGroupForUSDZ(sourceGroup) {
     return clone;
 }
 
-async function exportToUSDZ() {
+function buildExportScene() {
+    const exportGroup = prepareGroupForExport(frameGroup);
+
+    // Scale to real-world size: poster = 50×70 cm for AR wall preview
+    const POSTER_HEIGHT = 2.0;
+    const realHeightMeters = 0.70;
+    const scaleFactor = realHeightMeters / POSTER_HEIGHT;
+    exportGroup.scale.set(scaleFactor, scaleFactor, scaleFactor);
+
+    // Counter-rotate so the frame sits flush on a vertical wall
+    exportGroup.rotation.x = -Math.PI / 2;
+
+    const exportScene = new THREE.Scene();
+    exportScene.add(exportGroup);
+    exportScene.updateMatrixWorld(true);
+    return exportScene;
+}
+
+async function exportToUSDZ(exportScene) {
+    const exporter = new USDZExporter();
+    const arraybuffer = await exporter.parseAsync(exportScene, {
+        ar: {
+            anchoring: { type: 'plane' },
+            planeAnchoring: { alignment: 'vertical' },
+        },
+        quickLookCompatible: true,
+    });
+    return new Blob([arraybuffer], { type: 'model/vnd.usdz+zip' });
+}
+
+async function exportToGLB(exportScene) {
+    const exporter = new GLTFExporter();
+    const glb = await exporter.parseAsync(exportScene, { binary: true });
+    return new Blob([glb], { type: 'model/gltf-binary' });
+}
+
+function triggerARQuickLook(blob) {
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.rel = 'ar';
+    const img = document.createElement('img');
+    img.src = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+    img.style.width = '1px';
+    anchor.appendChild(img);
+    document.body.appendChild(anchor);
+    anchor.click();
+    setTimeout(() => {
+        document.body.removeChild(anchor);
+        URL.revokeObjectURL(url);
+    }, 2000);
+}
+
+function triggerAndroidSceneViewer(blob) {
+    const url = URL.createObjectURL(blob);
+    // Android Scene Viewer intent — works in Chrome on Android.
+    // Since Scene Viewer requires a reachable URL and blob URLs are local,
+    // we first attempt the intent with a fallback to direct download.
+    const fallbackUrl = url;
+    const intentUrl =
+        `intent://arvr.google.com/scene-viewer/1.0?` +
+        `file=${encodeURIComponent(fallbackUrl)}` +
+        `&mode=ar_preferred` +
+        `#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;end;`;
+
+    const anchor = document.createElement('a');
+    anchor.href = intentUrl;
+    document.body.appendChild(anchor);
+    anchor.click();
+
+    // If Scene Viewer doesn't open (blob URL not supported), fall back to download
+    setTimeout(() => {
+        document.body.removeChild(anchor);
+        triggerDownload(blob, 'glb');
+        URL.revokeObjectURL(url);
+    }, 3000);
+}
+
+function triggerDownload(blob, ext) {
+    const url = URL.createObjectURL(blob);
+    const cityName = currentCity ? currentCity.name.replace(/\s+/g, '_') : 'frame';
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = `${cityName}_map.${ext}`;
+    document.body.appendChild(anchor);
+    anchor.click();
+    setTimeout(() => {
+        document.body.removeChild(anchor);
+        URL.revokeObjectURL(url);
+    }, 2000);
+}
+
+async function viewInAR() {
     if (!frameGroup) return;
 
     const arBtn = document.getElementById('viewInARBtn');
@@ -1396,67 +1494,25 @@ async function exportToUSDZ() {
     }
 
     try {
-        const exportGroup = prepareGroupForUSDZ(frameGroup);
-
-        // Scale to real-world size: poster = 50×70 cm for AR wall preview
-        // USDZExporter skips the root object's transform, so we wrap in a
-        // Scene and apply the scale on the inner group (a child node whose
-        // local matrix IS written to the USDZ file).
-        const POSTER_HEIGHT = 2.0;
-        const realHeightMeters = 0.70; // poster is 70 cm tall
-        const scaleFactor = realHeightMeters / POSTER_HEIGHT;
-        exportGroup.scale.set(scaleFactor, scaleFactor, scaleFactor);
-
-        // AR Quick Look vertical placement rotates the model +90° around X
-        // (tipping the floor-plane onto the wall), which points the frame's
-        // front face downward.  Counter-rotate by -90° so the frame ends up
-        // flush against the wall with the artwork facing outward.
-        exportGroup.rotation.x = -Math.PI / 2;
-
-        const exportScene = new THREE.Scene();
-        exportScene.add(exportGroup);
-        exportScene.updateMatrixWorld(true);
-
-        const exporter = new USDZExporter();
-        const arraybuffer = await exporter.parseAsync(exportScene, {
-            ar: {
-                anchoring: { type: 'plane' },
-                planeAnchoring: { alignment: 'vertical' },
-            },
-            quickLookCompatible: true,
-        });
-        const blob = new Blob([arraybuffer], { type: 'model/vnd.usdz+zip' });
-        const url = URL.createObjectURL(blob);
-
-        const anchor = document.createElement('a');
-        anchor.href = url;
+        const exportScene = buildExportScene();
 
         if (isIOSDevice()) {
-            // AR Quick Look requires rel="ar" and a child <img>
-            anchor.rel = 'ar';
-            const img = document.createElement('img');
-            img.src = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
-            img.style.width = '1px';
-            anchor.appendChild(img);
+            const blob = await exportToUSDZ(exportScene);
+            triggerARQuickLook(blob);
+        } else if (isAndroidDevice()) {
+            const blob = await exportToGLB(exportScene);
+            triggerAndroidSceneViewer(blob);
         } else {
-            // Fallback: download the USDZ file
-            const cityName = currentCity ? currentCity.name.replace(/\s+/g, '_') : 'frame';
-            anchor.download = `${cityName}_map.usdz`;
+            // Desktop / other — download GLB
+            const blob = await exportToGLB(exportScene);
+            triggerDownload(blob, 'glb');
         }
-
-        document.body.appendChild(anchor);
-        anchor.click();
-
-        setTimeout(() => {
-            document.body.removeChild(anchor);
-            URL.revokeObjectURL(url);
-        }, 2000);
     } catch (err) {
-        console.error('USDZ export failed:', err);
+        console.error('AR export failed:', err);
     } finally {
         if (arBtn) {
             arBtn.disabled = false;
-            arBtn.innerHTML = '<ion-icon name="cube-outline" class="mr-1 align-middle" aria-hidden="true"></ion-icon> View in AR';
+            arBtn.innerHTML = '<ion-icon name="cube-outline" class="mr-1 align-middle" aria-hidden="true"></ion-icon> ' + t('arButton');
         }
     }
 }

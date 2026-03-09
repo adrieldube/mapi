@@ -386,11 +386,41 @@
           class="group cursor-pointer bg-[#440edf] text-white font-semibold px-7 py-2.5 rounded-full text-sm transition-all duration-300 hover:bg-[#3308b8] hover:shadow-lg hover:shadow-purple-500/30 w-full text-center">
           Reset
         </button>
-        <button id="viewInARBtn"
-          class="group cursor-pointer bg-[#111] text-white font-semibold px-7 py-2.5 rounded-full text-sm transition-all duration-300 hover:bg-[#333] hover:shadow-lg w-full text-center mt-2 hidden">
-          <ion-icon name="cube-outline" class="mr-1 align-middle" aria-hidden="true"></ion-icon>
-          View in AR
-        </button>
+        <div id="arSection" class="mt-4 hidden">
+          <div class="flex items-center gap-2 mb-3">
+            <div class="w-1 h-4 bg-[#440edf] rounded-full"></div>
+            <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">Augmented Reality</span>
+          </div>
+          <button id="viewInARBtn"
+            class="group cursor-pointer bg-[#440edf] text-white font-semibold px-7 py-2.5 rounded-full text-sm transition-all duration-300 hover:bg-[#3308b8] hover:shadow-lg hover:shadow-purple-500/30 w-full text-center">
+            <ion-icon name="cube-outline" class="mr-1 align-middle text-base" aria-hidden="true"></ion-icon>
+            View in AR
+          </button>
+          <div class="mt-2 p-3 bg-white rounded-lg shadow-sm">
+            <div class="flex items-start gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-[#440edf]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <ion-icon name="phone-portrait-outline" class="text-[#440edf] text-base" aria-hidden="true"></ion-icon>
+              </div>
+              <div class="min-w-0">
+                <p class="text-[11px] font-semibold text-[#333] leading-snug">Preview on your wall</p>
+                <p class="text-[10px] text-[#888] leading-relaxed mt-0.5">
+                  Tap the button and point your phone camera at any wall to see how this frame looks in your space.
+                </p>
+                <div class="flex items-center gap-2 mt-1.5">
+                  <span class="inline-flex items-center gap-1 text-[9px] text-[#888] bg-[#f5f5f5] rounded-md px-1.5 py-0.5">
+                    <ion-icon name="logo-apple" class="text-[10px]" aria-hidden="true"></ion-icon> iPhone
+                  </span>
+                  <span class="inline-flex items-center gap-1 text-[9px] text-[#888] bg-[#f5f5f5] rounded-md px-1.5 py-0.5">
+                    <ion-icon name="logo-android" class="text-[10px]" aria-hidden="true"></ion-icon> Android
+                  </span>
+                  <span class="inline-flex items-center gap-1 text-[9px] text-[#888] bg-[#f5f5f5] rounded-md px-1.5 py-0.5">
+                    <ion-icon name="desktop-outline" class="text-[10px]" aria-hidden="true"></ion-icon> Desktop
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Attribution -->
