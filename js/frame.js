@@ -1453,10 +1453,12 @@ function triggerARQuickLook(blob) {
             URL.revokeObjectURL(url);
         }, 2000);
     } else {
-        // Chrome / Firefox / other browsers on iOS — download USDZ,
-        // iOS will offer to open it in Quick Look from the share sheet
-        triggerDownload(blob, 'usdz');
-        URL.revokeObjectURL(url);
+        // Chrome / Firefox / other browsers on iOS —
+        // <a download> doesn't work on iOS Chrome. Instead, navigate
+        // directly to the blob URL so the system recognises the USDZ
+        // MIME type and opens the Quick Look preview.
+        window.location.href = url;
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
     }
 }
 
