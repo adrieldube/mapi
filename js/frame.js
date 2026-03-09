@@ -1339,6 +1339,12 @@ function isIOSDevice() {
         (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 }
 
+function isSafari() {
+    const ua = navigator.userAgent;
+    // Safari has "Safari/" but not "CriOS" (Chrome), "FxiOS" (Firefox), "EdgiOS" (Edge)
+    return /Safari\//.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS/.test(ua);
+}
+
 function isAndroidDevice() {
     return /Android/i.test(navigator.userAgent);
 }
@@ -1430,19 +1436,28 @@ async function exportToGLB(exportScene) {
 
 function triggerARQuickLook(blob) {
     const url = URL.createObjectURL(blob);
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    anchor.rel = 'ar';
-    const img = document.createElement('img');
-    img.src = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
-    img.style.width = '1px';
-    anchor.appendChild(img);
-    document.body.appendChild(anchor);
-    anchor.click();
-    setTimeout(() => {
-        document.body.removeChild(anchor);
+
+    if (isSafari()) {
+        // Safari supports rel="ar" for inline AR Quick Look
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        anchor.rel = 'ar';
+        const img = document.createElement('img');
+        img.src = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+        img.style.width = '1px';
+        anchor.appendChild(img);
+        document.body.appendChild(anchor);
+        anchor.click();
+        setTimeout(() => {
+            document.body.removeChild(anchor);
+            URL.revokeObjectURL(url);
+        }, 2000);
+    } else {
+        // Chrome / Firefox / other browsers on iOS — download USDZ,
+        // iOS will offer to open it in Quick Look from the share sheet
+        triggerDownload(blob, 'usdz');
         URL.revokeObjectURL(url);
-    }, 2000);
+    }
 }
 
 function triggerAndroidSceneViewer(blob) {
