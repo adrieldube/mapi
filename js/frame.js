@@ -1339,6 +1339,10 @@ function isIOSDevice() {
         (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 }
 
+function isSafari() {
+    return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+}
+
 
 function prepareGroupForExport(sourceGroup) {
     const clone = sourceGroup.clone(true);
@@ -1450,9 +1454,34 @@ async function viewInAR() {
     try {
         const exportScene = buildExportScene();
         const iosDevice = isIOSDevice();
-        const blob = iosDevice ? await exportToUSDZ(exportScene) : await exportToGLB(exportScene);
-        const ext = iosDevice ? 'usdz' : 'glb';
-        triggerDownload(blob, ext);
+        const safari = isSafari();
+
+        if (iosDevice && safari) {
+            const blob = await exportToUSDZ(exportScene);
+            const url = URL.createObjectURL(blob);
+            const anchor = document.createElement('a');
+            anchor.rel = 'ar';
+            anchor.href = url;
+            anchor.download = `${cityName}_map.usdz`;
+            anchor.className = 'inline-display';
+
+            const img = document.createElement('img');
+            img.src = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+            img.width = 1;
+            img.height = 1;
+            anchor.appendChild(img);
+
+            document.body.appendChild(anchor);
+            anchor.click();
+            setTimeout(() => {
+                document.body.removeChild(anchor);
+                URL.revokeObjectURL(url);
+            }, 2000);
+        } else {
+            const blob = iosDevice ? await exportToUSDZ(exportScene) : await exportToGLB(exportScene);
+            const ext = iosDevice ? 'usdz' : 'glb';
+            triggerDownload(blob, ext);
+        }
     } catch (err) {
         console.error('AR export failed:', err);
     } finally {
