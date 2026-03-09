@@ -1339,15 +1339,6 @@ function isIOSDevice() {
         (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 }
 
-function isSafari() {
-    const ua = navigator.userAgent;
-    // Safari has "Safari/" but not "CriOS" (Chrome), "FxiOS" (Firefox), "EdgiOS" (Edge)
-    return /Safari\//.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS/.test(ua);
-}
-
-function isAndroidDevice() {
-    return /Android/i.test(navigator.userAgent);
-}
 
 function prepareGroupForExport(sourceGroup) {
     const clone = sourceGroup.clone(true);
@@ -1356,8 +1347,6 @@ function prepareGroupForExport(sourceGroup) {
     clone.traverse((child) => {
         if (!child.isMesh) return;
 
-        // Clone material so we don't mutate the live scene
-        child.material = child.material.clone();
         const mat = child.material;
 
         // Skip glass and near-invisible meshes — exporters handle transparency poorly
@@ -1368,7 +1357,8 @@ function prepareGroupForExport(sourceGroup) {
 
         // BackSide not well supported — flip geometry normals instead
         if (mat.side === THREE.BackSide) {
-            mat.side = THREE.FrontSide;
+            child.material = mat.clone();
+            child.material.side = THREE.FrontSide;
             child.geometry = child.geometry.clone();
             const normals = child.geometry.attributes.normal;
             for (let i = 0; i < normals.count; i++) {
@@ -1387,7 +1377,7 @@ function prepareGroupForExport(sourceGroup) {
                 color: mat.color,
                 roughness: 1.0,
                 metalness: 0.0,
-                side: mat.side,
+                side: child.material.side,
                 transparent: mat.transparent,
                 opacity: mat.opacity,
             });
@@ -1432,41 +1422,6 @@ async function exportToGLB(exportScene) {
     const exporter = new GLTFExporter();
     const glb = await exporter.parseAsync(exportScene, { binary: true });
     return new Blob([glb], { type: 'model/gltf-binary' });
-}
-
-function triggerARQuickLook(blob) {
-    const url = URL.createObjectURL(blob);
-
-    if (isSafari()) {
-        // Safari supports rel="ar" for inline AR Quick Look
-        const anchor = document.createElement('a');
-        anchor.href = url;
-        anchor.rel = 'ar';
-        const img = document.createElement('img');
-        img.src = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
-        img.style.width = '1px';
-        anchor.appendChild(img);
-        document.body.appendChild(anchor);
-        anchor.click();
-        setTimeout(() => {
-            document.body.removeChild(anchor);
-            URL.revokeObjectURL(url);
-        }, 2000);
-    } else {
-        // Chrome / Firefox / other browsers on iOS —
-        // <a download> doesn't work on iOS Chrome. Instead, navigate
-        // directly to the blob URL so the system recognises the USDZ
-        // MIME type and opens the Quick Look preview.
-        window.location.href = url;
-        setTimeout(() => URL.revokeObjectURL(url), 5000);
-    }
-}
-
-function triggerAndroidSceneViewer(blob) {
-    // Scene Viewer requires a network-accessible URL (not a blob URL),
-    // so we download the GLB file. Android will offer to open it with
-    // a 3D viewer or Scene Viewer if installed.
-    triggerDownload(blob, 'glb');
 }
 
 function triggerDownload(blob, ext) {
