@@ -1463,28 +1463,10 @@ function triggerARQuickLook(blob) {
 }
 
 function triggerAndroidSceneViewer(blob) {
-    const url = URL.createObjectURL(blob);
-    // Android Scene Viewer intent — works in Chrome on Android.
-    // Since Scene Viewer requires a reachable URL and blob URLs are local,
-    // we first attempt the intent with a fallback to direct download.
-    const fallbackUrl = url;
-    const intentUrl =
-        `intent://arvr.google.com/scene-viewer/1.0?` +
-        `file=${encodeURIComponent(fallbackUrl)}` +
-        `&mode=ar_preferred` +
-        `#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;end;`;
-
-    const anchor = document.createElement('a');
-    anchor.href = intentUrl;
-    document.body.appendChild(anchor);
-    anchor.click();
-
-    // If Scene Viewer doesn't open (blob URL not supported), fall back to download
-    setTimeout(() => {
-        document.body.removeChild(anchor);
-        triggerDownload(blob, 'glb');
-        URL.revokeObjectURL(url);
-    }, 3000);
+    // Scene Viewer requires a network-accessible URL (not a blob URL),
+    // so we download the GLB file. Android will offer to open it with
+    // a 3D viewer or Scene Viewer if installed.
+    triggerDownload(blob, 'glb');
 }
 
 function triggerDownload(blob, ext) {
