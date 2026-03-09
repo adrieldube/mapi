@@ -14,8 +14,7 @@ const PALETTE_CATEGORIES = [
     { label: 'Themes', keys: ['Noir', 'Blueprint', 'Emerald', 'Tangerine', 'Minimal'] },
 ];
 
-// Discrete speed multiplier steps for the speed slider
-const SPEED_STEPS = [0.25, 0.5, 1, 1.5, 2];
+// Speed is now read directly from the slider (min 0.25, max 2, step 0.25)
 
 // Extra pixels around the visible frame to preload tiles and prevent flickering
 const MAP_OVERFLOW = 200;
@@ -240,6 +239,11 @@ const el = {
     cameraModeBtn: document.getElementById('cameraModeBtn'),
     styleSelect: document.getElementById('styleSelect'),
     themesGrid: document.getElementById('themesGrid'),
+    selectedThemeSwatch: document.getElementById('selectedThemeSwatch'),
+    selectedThemeName: document.getElementById('selectedThemeName'),
+    selectedBgColor: document.getElementById('selectedBgColor'),
+    selectedRoadsColor: document.getElementById('selectedRoadsColor'),
+    selectedWaterColor: document.getElementById('selectedWaterColor'),
 
     hudOrigin: document.getElementById('hudOrigin'),
     hudDest: document.getElementById('hudDest'),
@@ -629,7 +633,7 @@ function animateFlight(timestamp) {
     const deltaMs = Math.min(timestamp - lastFrameTime, 50); // cap at 50ms to avoid jumps
     lastFrameTime = timestamp;
 
-    const speedMult = SPEED_STEPS[parseInt(el.speedSlider.value)] ?? 1;
+    const speedMult = parseFloat(el.speedSlider.value) || 1;
     const phaseMult = getPhaseSpeedMult(flightProgress);
     // 3D mode uses higher speed since you're viewing from far away
     const modeMult = viewMode === '3d' ? 3.0 : 1.0;
@@ -735,7 +739,7 @@ function startFlight() {
             origin: originName,
             destination: destName,
             video_format: el.formatSelect.value,
-            speed: SPEED_STEPS[parseInt(el.speedSlider.value)] ?? 1
+            speed: parseFloat(el.speedSlider.value) || 1
         });
     }
 
@@ -1120,6 +1124,30 @@ function changeMapStyle(styleKey) {
     });
 }
 
+function updateSelectedThemePreview(themeName) {
+    const palette = PALETTES[themeName];
+    if (!palette) return;
+
+    el.selectedThemeSwatch.style.setProperty('--swatch-bg', palette.bg);
+    el.selectedThemeSwatch.style.setProperty('--swatch-roads', palette.roads);
+    el.selectedThemeSwatch.style.setProperty('--swatch-water', palette.water);
+
+    el.selectedThemeSwatch.innerHTML = '';
+    const roads = document.createElement('div');
+    roads.className = 'roads';
+    el.selectedThemeSwatch.appendChild(roads);
+
+    el.selectedThemeName.textContent = themeName;
+
+    el.selectedBgColor.style.backgroundColor = palette.bg;
+    el.selectedRoadsColor.style.backgroundColor = palette.roads;
+    el.selectedWaterColor.style.backgroundColor = palette.water;
+
+    document.querySelectorAll('.theme-swatch').forEach(swatch => {
+        swatch.classList.toggle('selected', swatch.dataset.theme === themeName);
+    });
+}
+
 function generateThemesGrid() {
     el.themesGrid.innerHTML = '';
     Object.entries(PALETTES).forEach(([name, palette]) => {
@@ -1139,7 +1167,7 @@ function generateThemesGrid() {
         swatch.addEventListener('click', () => {
             el.styleSelect.value = name;
             changeMapStyle(name);
-            document.querySelectorAll('.theme-swatch').forEach(s => s.classList.toggle('selected', s.dataset.theme === name));
+            updateSelectedThemePreview(name);
         });
 
         el.themesGrid.appendChild(swatch);
@@ -1203,7 +1231,7 @@ function setupEventListeners() {
     el.resetBtn.addEventListener('click', resetFlight);
 
     el.speedSlider.addEventListener('input', () => {
-        el.speedValue.textContent = `${SPEED_STEPS[parseInt(el.speedSlider.value)] ?? 1}x`;
+        el.speedValue.textContent = `${parseFloat(el.speedSlider.value) || 1}x`;
     });
 
     el.cameraModeBtn.addEventListener('click', () => {
@@ -1235,7 +1263,7 @@ function setupEventListeners() {
     el.styleSelect.addEventListener('change', () => {
         const style = el.styleSelect.value;
         changeMapStyle(style);
-        document.querySelectorAll('.theme-swatch').forEach(s => s.classList.toggle('selected', s.dataset.theme === style));
+        updateSelectedThemePreview(style);
     });
 
     el.formatSelect.addEventListener('change', () => {
@@ -1288,6 +1316,7 @@ function init() {
     setupPanelToggle();
     populateStyleSelect();
     generateThemesGrid();
+    updateSelectedThemePreview(currentStyle);
 
     const mapContainer = document.getElementById('mapContainer');
     if (mapContainer && typeof ResizeObserver !== 'undefined') {

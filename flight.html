@@ -42,31 +42,20 @@
       <a href="index.html" aria-label="MAPI home" class="flex items-center gap-2 font-bold text-lg text-[#d2e823]">
         <ion-icon name="map-outline" class="text-2xl" aria-hidden="true"></ion-icon>
         <span class="text-xl">MAPI</span>
+        <span class="rounded bg-red-600 px-2 py-0 text-[9px] font-semibold text-white align-middle inline-block ml-1"
+          style="line-height:1.8;">Beta</span>
       </a>
       <p class="m-0 text-md tracking-wide opacity-90 hidden md:block">Flight Simulator</p>
-      <div class="flex items-center gap-2">
-        <div id="modeToggle"
-          class="flex items-center bg-[#3509b8] rounded-lg overflow-hidden border-2 border-[#d2e823]">
-          <button id="modeFlatBtn" type="button" title="Flat Map" aria-label="Flat map mode"
-            class="mode-btn active cursor-pointer px-4 py-2 text-[13px] font-bold transition-all duration-200 text-[#d2e823]">
-            Flat
-          </button>
-          <button id="mode3dBtn" type="button" title="3D Globe" aria-label="3D globe mode"
-            class="mode-btn cursor-pointer px-4 py-2 text-[13px] font-bold transition-all duration-200 text-[#d2e823] opacity-50">
-            3D
-          </button>
-        </div>
-        <button id="panelToggleBtn" type="button" title="Controls" aria-label="Toggle controls panel"
-          aria-expanded="false"
-          class="cursor-pointer rounded-xl border border-[#d2e823] px-3 py-2.5 text-[13px] font-semibold transition-all duration-200 bg-[#440edf] text-[#d2e823] hover:bg-[#d2e823] hover:text-[#000] hover:shadow-lg flex items-center justify-center">
-          <ion-icon name="options-outline" aria-hidden="true"></ion-icon>
-        </button>
-      </div>
+      <button id="panelToggleBtn" type="button" title="Controls" aria-label="Toggle controls panel"
+        aria-expanded="false"
+        class="cursor-pointer rounded-xl border border-[#d2e823] px-3 py-2.5 text-[13px] font-semibold transition-all duration-200 bg-[#440edf] text-[#d2e823] hover:bg-[#d2e823] hover:text-[#000] hover:shadow-lg flex items-center justify-center">
+        <ion-icon name="options-outline" aria-hidden="true"></ion-icon>
+      </button>
     </div>
   </header>
 
   <div id="container"
-    class="flex h-[calc(100vh-44px)] rounded-xl m-2 overflow-hidden max-[900px]:flex-col max-[900px]:h-auto">
+    class="flex h-[calc(100vh-74px)] rounded-xl m-2 overflow-hidden max-[900px]:flex-col max-[900px]:h-auto">
 
     <!-- Left Panel -->
     <section id="controls"
@@ -77,6 +66,26 @@
         </button>
       </div>
       <div class="controls-body">
+
+        <!-- View Mode Toggle -->
+        <div class="mb-6">
+          <div class="flex items-center gap-2 mb-3">
+            <div class="w-1 h-4 bg-[#440edf] rounded-full"></div>
+            <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">View Mode</span>
+          </div>
+          <div id="modeToggle" class="flex gap-1.5">
+            <button id="modeFlatBtn" type="button" title="Flat Map" aria-label="Flat map mode"
+              class="mode-btn active cursor-pointer flex-1 px-4 py-2.5 text-[13px] font-semibold rounded-full transition-all duration-200 flex items-center justify-center gap-2">
+              <ion-icon name="map-outline" class="text-base" aria-hidden="true"></ion-icon>
+              Flat
+            </button>
+            <button id="mode3dBtn" type="button" title="3D Globe" aria-label="3D globe mode"
+              class="mode-btn cursor-pointer flex-1 px-4 py-2.5 text-[13px] font-semibold rounded-full transition-all duration-200 flex items-center justify-center gap-2">
+              <ion-icon name="globe-outline" class="text-base" aria-hidden="true"></ion-icon>
+              3D
+            </button>
+          </div>
+        </div>
 
         <!-- Flight Section -->
         <div class="mb-6">
@@ -90,7 +99,7 @@
             <label for="originInput" class="block text-[11px] font-medium text-[#666] mb-1">Origin</label>
             <div class="relative">
               <input id="originInput" type="text" placeholder="e.g. New York"
-                class="w-full px-3 py-2 text-[13px] border border-[#ddd] rounded-lg focus:outline-none focus:border-[#440edf] focus:ring-1 focus:ring-[#440edf]/20" />
+                class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20" />
               <ul id="originAutocomplete" class="autocomplete-list" role="listbox"></ul>
             </div>
           </div>
@@ -100,14 +109,14 @@
             <label for="destInput" class="block text-[11px] font-medium text-[#666] mb-1">Destination</label>
             <div class="relative">
               <input id="destInput" type="text" placeholder="e.g. Paris"
-                class="w-full px-3 py-2 text-[13px] border border-[#ddd] rounded-lg focus:outline-none focus:border-[#440edf] focus:ring-1 focus:ring-[#440edf]/20" />
+                class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20" />
               <ul id="destAutocomplete" class="autocomplete-list" role="listbox"></ul>
             </div>
           </div>
 
           <!-- Start Button -->
           <button id="startFlightBtn" type="button"
-            class="w-full cursor-pointer bg-[#440edf] text-white font-semibold px-4 py-2.5 rounded-lg text-[13px] transition-all duration-200 hover:bg-[#3308b8] hover:shadow-lg flex items-center justify-center gap-2">
+            class="group w-full cursor-pointer bg-[#440edf] text-white font-semibold px-7 py-2.5 rounded-full text-sm transition-all duration-300 hover:bg-[#3308b8] hover:shadow-lg hover:shadow-purple-500/30 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2">
             <ion-icon name="airplane-outline" aria-hidden="true"></ion-icon>
             Start Flight
           </button>
@@ -115,11 +124,11 @@
           <!-- Flight Controls -->
           <div class="flex gap-2 mt-3">
             <button id="pauseBtn" type="button"
-              class="hidden flex-1 cursor-pointer bg-[#f0f0f0] text-[#333] font-semibold px-3 py-2 rounded-lg text-[12px] transition-all duration-200 hover:bg-[#e0e0e0]">
+              class="hidden flex-1 cursor-pointer bg-white shadow-sm text-[#333] font-semibold px-3 py-2 rounded-full text-[12px] transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95">
               Pause
             </button>
             <button id="resetBtn" type="button"
-              class="hidden flex-1 cursor-pointer bg-[#f0f0f0] text-[#333] font-semibold px-3 py-2 rounded-lg text-[12px] transition-all duration-200 hover:bg-[#e0e0e0]">
+              class="hidden flex-1 cursor-pointer bg-white shadow-sm text-[#333] font-semibold px-3 py-2 rounded-full text-[12px] transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95">
               Reset
             </button>
           </div>
@@ -137,12 +146,14 @@
 
           <div class="mb-3">
             <label class="block text-[11px] font-medium text-[#666] mb-1">Speed: <span id="speedValue">1x</span></label>
-            <input id="speedSlider" type="range" min="0" max="4" step="1" value="2"
-              class="w-full h-1.5 bg-[#ddd] rounded-lg appearance-none cursor-pointer accent-[#440edf]" />
+            <input id="speedSlider" type="range" min="0.25" max="2" step="0.25" value="1"
+              class="w-full h-1.5 appearance-none bg-[#e5e5e5] rounded-full cursor-pointer
+              [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#440edf] [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md
+              [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-[#440edf] [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:shadow-md" />
           </div>
 
           <button id="cameraModeBtn" type="button"
-            class="w-full cursor-pointer bg-[#f0f0f0] text-[#333] font-semibold px-3 py-2 rounded-lg text-[12px] transition-all duration-200 hover:bg-[#e0e0e0] flex items-center justify-center gap-2">
+            class="w-full cursor-pointer bg-white shadow-sm text-[#333] font-semibold px-3 py-2.5 rounded-full text-[12px] transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95 flex items-center justify-center gap-2">
             <ion-icon name="videocam-outline" aria-hidden="true"></ion-icon>
             Follow
           </button>
@@ -150,7 +161,7 @@
           <div class="mt-3">
             <label for="formatSelect" class="block text-[11px] font-medium text-[#666] mb-1">Video Format</label>
             <select id="formatSelect"
-              class="w-full px-3 py-2 text-[13px] border border-[#ddd] rounded-lg focus:outline-none focus:border-[#440edf]">
+              class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20 cursor-pointer">
               <option value="free">Free (fill screen)</option>
               <option value="reel" selected>Reel / TikTok 9:16</option>
               <option value="feed">Feed Post 4:5</option>
@@ -169,11 +180,39 @@
             <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">Theme</span>
           </div>
 
-          <select id="styleSelect"
-            class="w-full px-3 py-2 text-[13px] border border-[#ddd] rounded-lg focus:outline-none focus:border-[#440edf] mb-3">
-          </select>
+          <!-- Selected Theme Preview -->
+          <div id="selectedThemePreview" class="mb-2 p-2 bg-white rounded-lg shadow-sm">
+            <div class="flex items-center gap-3">
+              <div id="selectedThemeSwatch" class="theme-swatch-large"></div>
+              <div class="flex-1 min-w-0">
+                <div id="selectedThemeName" class="text-[12px] font-semibold text-[#333] truncate">Noir</div>
+                <div class="flex gap-2 mt-1.5">
+                  <div class="flex items-center gap-1">
+                    <span id="selectedBgColor" class="color-dot"></span>
+                    <span class="text-[9px] text-[#888]">Background</span>
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <span id="selectedRoadsColor" class="color-dot"></span>
+                    <span class="text-[9px] text-[#888]">Roads</span>
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <span id="selectedWaterColor" class="color-dot"></span>
+                    <span class="text-[9px] text-[#888]">Water</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-          <div id="themesGrid" class="themes-grid"></div>
+          <!-- All Themes Grid -->
+          <div class="mb-2">
+            <span class="text-[10px] font-medium text-[#888] block mb-1">All Themes</span>
+            <div id="themesGrid" class="themes-grid"></div>
+          </div>
+
+          <select id="styleSelect"
+            class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20 cursor-pointer">
+          </select>
         </div>
 
       </div>
@@ -181,7 +220,7 @@
 
     <!-- Map Area -->
     <main
-      class="flex-1 relative bg-[#e5e5e5] overflow-hidden rounded-r-xl max-[900px]:rounded-xl max-[900px]:min-h-[70vh] flex items-center justify-center p-4">
+      class="flex-1 relative bg-[#fff] overflow-hidden flex items-center justify-center p-4 max-[900px]:min-h-[60vh] max-[480px]:p-1">
       <div id="mapArea" class="relative overflow-hidden rounded-lg"
         style="width:540px;height:960px;max-width:100%;max-height:100%;">
         <div id="mapContainer" class="absolute rounded-lg" style="width:940px;height:1360px;top:-200px;left:-200px;">
