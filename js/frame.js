@@ -1494,18 +1494,10 @@ async function viewInAR() {
 
     try {
         const exportScene = buildExportScene();
-
-        if (isIOSDevice()) {
-            const blob = await exportToUSDZ(exportScene);
-            triggerARQuickLook(blob);
-        } else if (isAndroidDevice()) {
-            const blob = await exportToGLB(exportScene);
-            triggerAndroidSceneViewer(blob);
-        } else {
-            // Desktop / other — download GLB
-            const blob = await exportToGLB(exportScene);
-            triggerDownload(blob, 'glb');
-        }
+        const iosDevice = isIOSDevice();
+        const blob = iosDevice ? await exportToUSDZ(exportScene) : await exportToGLB(exportScene);
+        const ext = iosDevice ? 'usdz' : 'glb';
+        triggerDownload(blob, ext);
     } catch (err) {
         console.error('AR export failed:', err);
     } finally {
