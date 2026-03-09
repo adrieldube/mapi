@@ -7,11 +7,11 @@ const PALETTES = {
     'Blueprint': { bg: '#0d1c87', roads: '#FFFFFF', water: '#0d1c87' },
     'Emerald': { bg: '#064e3b', roads: '#a7f3d0', water: '#064e3b' },
     'Tangerine': { bg: '#000000', roads: '#ff4b00', water: '#ffffff' },
-    'Minimal': { bg: '#ffffff', roads: '#222222', water: '#dce6f0' },
+    'Royal Blue': { bg: '#ffffff', roads: '#000000', water: '#2e22e0' },
 };
 
 const PALETTE_CATEGORIES = [
-    { label: 'Themes', keys: ['Noir', 'Blueprint', 'Emerald', 'Tangerine', 'Minimal'] },
+    { label: 'Themes', keys: ['Noir', 'Blueprint', 'Emerald', 'Tangerine', 'Royal Blue'] },
 ];
 
 // Speed is now read directly from the slider (min 0.25, max 2, step 0.25)
@@ -253,6 +253,7 @@ const el = {
     progressBar: document.getElementById('progressBar'),
     progressFill: document.getElementById('progressFill'),
     flightHud: document.getElementById('flightHud'),
+    hudToggleBtn: document.getElementById('hudToggleBtn'),
     panelToggleBtn: document.getElementById('panelToggleBtn'),
     panelCloseBtn: document.getElementById('panelCloseBtn'),
     controls: document.getElementById('controls'),
@@ -482,9 +483,7 @@ function initMap(center, zoom, style) {
 }
 
 function getPlaneIconColor() {
-    const palette = PALETTES[currentStyle];
-    if (currentStyle === 'Tangerine') return palette.roads;
-    return isLightColor(palette.bg) ? '#000000' : '#FFFFFF';
+    return GLOBE_MARKER_ACCENT;
 }
 
 function createPlaneImage() {
@@ -523,8 +522,7 @@ function createPlaneImage() {
 function setupFlightLayers() {
     if (flightLayersAdded) return;
 
-    const palette = PALETTES[currentStyle];
-    const pathColor = palette.roads;
+    const pathColor = GLOBE_MARKER_ACCENT;
 
     map.addSource('flight-path', {
         type: 'geojson',
@@ -602,9 +600,9 @@ function setupFlightLayers() {
         source: 'endpoints',
         paint: {
             'circle-radius': 6,
-            'circle-color': palette.roads,
+            'circle-color': GLOBE_MARKER_ACCENT,
             'circle-stroke-width': 2,
-            'circle-stroke-color': palette.bg
+            'circle-stroke-color': PALETTES[currentStyle].bg
         }
     });
 
@@ -783,6 +781,8 @@ function startFlight() {
     el.hudProgress.textContent = '0%';
     el.progressFill.style.width = '0%';
     el.flightHud.classList.remove('hidden');
+    el.hudToggleBtn.classList.remove('hidden');
+    el.hudToggleBtn.classList.add('hud-active');
     el.progressBar.classList.remove('hidden');
 
     el.pauseBtn.textContent = t('pause');
@@ -931,6 +931,8 @@ function resetFlight() {
     clear3DFlightObjects();
 
     el.flightHud.classList.add('hidden');
+    el.hudToggleBtn.classList.add('hidden');
+    el.hudToggleBtn.classList.remove('hud-active');
     el.progressBar.classList.add('hidden');
     el.pauseBtn.classList.add('hidden');
     el.resetBtn.classList.add('hidden');
@@ -1224,6 +1226,12 @@ function setupPanelToggle() {
         el.controls.classList.add('panel-hidden');
         syncPanelState();
         setTimeout(() => map.resize(), 310);
+    });
+
+    // Flight info toggle
+    el.hudToggleBtn.addEventListener('click', () => {
+        const isHidden = el.flightHud.classList.toggle('hidden');
+        el.hudToggleBtn.classList.toggle('hud-active', !isHidden);
     });
 
     mobileQuery.addEventListener('change', () => {
