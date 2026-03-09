@@ -810,6 +810,7 @@ function startFlight() {
             isPlaying = true;
             lastFrameTime = 0;
             animationId = requestAnimationFrame(animateFlight);
+            syncMobileFlight();
         }, 1500);
         return;
     }
@@ -834,6 +835,7 @@ function startFlight() {
                 isPlaying = true;
                 lastFrameTime = 0;
                 animationId = requestAnimationFrame(animateFlight);
+                syncMobileFlight();
             }, 150);
         }
         startWhenReady();
@@ -1311,10 +1313,11 @@ function setupEventListeners() {
     });
 
     el.mtPlayBtn.addEventListener('click', () => {
-        if (arcCoordinates.length) {
-            togglePause(); // resume
+        // If paused mid-flight, resume; otherwise start a new flight
+        if (arcCoordinates.length && !isPlaying && flightProgress > 0 && flightProgress < 1.0) {
+            togglePause(); // resume paused flight
         } else {
-            startFlight();
+            startFlight(); // start new flight (same as main Start Flight btn)
         }
     });
     el.mtPauseBtn.addEventListener('click', () => {
@@ -2080,9 +2083,21 @@ function syncMobileMode() {
 
 function syncMobileFlight() {
     const hasArc = arcCoordinates.length > 0;
-    el.mtPlayBtn.classList.toggle('hidden', isPlaying && hasArc);
-    el.mtPauseBtn.classList.toggle('hidden', !(isPlaying && hasArc));
+    const isPaused = hasArc && !isPlaying && flightProgress > 0 && flightProgress < 1.0;
+    // Play btn: show when idle, paused, or completed (to restart)
+    el.mtPlayBtn.classList.toggle('hidden', isPlaying);
+    // Pause btn: show only while actively flying
+    el.mtPauseBtn.classList.toggle('hidden', !isPlaying);
+    // Reset btn: show whenever there's a flight in progress or completed
     el.mtResetBtn.classList.toggle('hidden', !hasArc);
+
+    // Update play icon: show resume icon when paused, play when idle/complete
+    const playIcon = el.mtPlayBtn.querySelector('ion-icon');
+    if (playIcon) {
+        playIcon.setAttribute('name', isPaused ? 'play-forward' : 'play');
+    }
+    // Dim the play accent when paused to hint "resume" vs "start"
+    el.mtPlayBtn.classList.toggle('mt-play', !isPaused);
 }
 
 function switchTo3D() {
