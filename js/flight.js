@@ -641,7 +641,25 @@ function animateFlight(timestamp) {
     const speedMult = parseFloat(el.speedSlider.value) || 1;
     const phaseMult = getPhaseSpeedMult(flightProgress);
     // 3D mode uses higher speed since you're viewing from far away
-    const modeMult = viewMode === '3d' ? 3.0 : 1.0;
+    // Flat mode scales speed with zoom: slower when zoomed in (takeoff/landing) for smooth tile viewing
+    let modeMult;
+    if (viewMode === '3d') {
+        modeMult = 3.0;
+    } else {
+        const cruiseZoom = getCruiseZoom(flightDistance);
+        const zoom = getFlightZoom(flightProgress);
+        if (flightProgress <= TAKEOFF_PHASE) {
+            // Departure: exponential slowdown based on zoom for smooth tile viewing
+            const zoomDelta = Math.max(0, zoom - cruiseZoom);
+            modeMult = Math.pow(0.7, zoomDelta);
+        } else if (flightProgress >= LANDING_PHASE) {
+            // Landing: gentle linear slowdown that guarantees reaching destination
+            const t = (flightProgress - LANDING_PHASE) / (1 - LANDING_PHASE); // 0→1
+            modeMult = 0.4 - 0.25 * t; // 0.4 → 0.15
+        } else {
+            modeMult = 1.0;
+        }
+    }
     flightProgress += flightSpeed * speedMult * phaseMult * modeMult * (deltaMs / 16.67);
 
     const completed = flightProgress >= 1.0;
