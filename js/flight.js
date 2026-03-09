@@ -1468,10 +1468,22 @@ function hexToVec3(hex) {
     };
 }
 
-function createGlobeShaderMaterial() {
+function configureHDTexture(texture, renderer) {
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.minFilter = THREE.LinearMipmapLinearFilter;
+    texture.magFilter = THREE.LinearFilter;
+    texture.generateMipmaps = true;
+    if (renderer) {
+        texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+    }
+    texture.needsUpdate = true;
+    return texture;
+}
+
+function createGlobeShaderMaterial(renderer) {
     const loader = new THREE.TextureLoader();
-    const landMask = loader.load(EARTH_WATER_URL);
-    const bumpTexture = loader.load(EARTH_TOPO_URL);
+    const landMask = loader.load(EARTH_WATER_URL, tex => configureHDTexture(tex, renderer));
+    const bumpTexture = loader.load(EARTH_TOPO_URL, tex => configureHDTexture(tex, renderer));
 
     const uniforms = {
         landMap: { value: landMask },
@@ -1536,7 +1548,8 @@ function createGlobeShaderMaterial() {
                 vec3 baseColor = mix(landShaded, waterShaded, isWater);
 
                 // Compute normal from topology for per-pixel bump lighting
-                float texel = 1.0 / 2048.0;
+                // Use finer texel for sharper bump detail
+                float texel = 1.0 / 4096.0;
                 float hL = texture2D(topoMap, vUv + vec2(-texel, 0.0)).r;
                 float hR = texture2D(topoMap, vUv + vec2(texel, 0.0)).r;
                 float hU = texture2D(topoMap, vUv + vec2(0.0, texel)).r;
@@ -1609,10 +1622,14 @@ function initGlobe3D() {
     globe3d.camera = camera;
     fitGlobeCameraToFrame();
 
-    // Renderer — alpha:true for transparent bg matching index page
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    // Renderer — alpha:true for transparent bg, full device pixel ratio for HD
+    const renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: true,
+        powerPreference: 'high-performance'
+    });
     renderer.setSize(rect.width, rect.height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 3));
     renderer.setClearColor(0x000000, 0);
     container.appendChild(renderer.domElement);
 
@@ -1644,14 +1661,14 @@ function initGlobe3D() {
     globe3d._paletteLerp = 0;
 
     // Globe sphere with cycling shader — matches index page exactly
-    const globeGeo = new THREE.SphereGeometry(GLOBE_RADIUS, 200, 200);
-    const globeMat = createGlobeShaderMaterial();
+    const globeGeo = new THREE.SphereGeometry(GLOBE_RADIUS, 256, 256);
+    const globeMat = createGlobeShaderMaterial(renderer);
     const globe = new THREE.Mesh(globeGeo, globeMat);
     globeGroup.add(globe);
     globe3d.globe = globe;
 
     // Atmosphere glow — matches current cycling palette
-    const atmosGeo = new THREE.SphereGeometry(GLOBE_RADIUS * 1.04, 64, 64);
+    const atmosGeo = new THREE.SphereGeometry(GLOBE_RADIUS * 1.04, 128, 128);
     const atmosMat = new THREE.MeshBasicMaterial({
         color: new THREE.Color(GLOBE_PALETTES[0].land),
         transparent: true,
