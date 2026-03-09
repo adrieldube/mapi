@@ -260,6 +260,46 @@
     </main>
 
   </div>
+
+  <!-- Mobile Bottom Toolbar -->
+  <div id="mobileToolbar" class="mobile-toolbar">
+    <div class="mobile-toolbar-inner">
+
+      <!-- View Mode Segment -->
+      <div class="mt-segment">
+        <button id="mtFlatBtn" type="button" class="mt-seg-btn active" aria-label="Flat map">
+          <ion-icon name="map-outline" aria-hidden="true"></ion-icon>
+        </button>
+        <button id="mt3dBtn" type="button" class="mt-seg-btn" aria-label="3D globe">
+          <ion-icon name="globe-outline" aria-hidden="true"></ion-icon>
+        </button>
+      </div>
+
+      <!-- Divider -->
+      <div class="mt-divider"></div>
+
+      <!-- Flight Controls -->
+      <button id="mtPlayBtn" type="button" class="mt-action-btn mt-play" aria-label="Start flight">
+        <ion-icon name="play" aria-hidden="true"></ion-icon>
+      </button>
+      <button id="mtPauseBtn" type="button" class="mt-action-btn hidden" aria-label="Pause flight">
+        <ion-icon name="pause" aria-hidden="true"></ion-icon>
+      </button>
+      <button id="mtResetBtn" type="button" class="mt-action-btn hidden" aria-label="Reset flight">
+        <ion-icon name="refresh-outline" aria-hidden="true"></ion-icon>
+      </button>
+
+      <!-- Divider -->
+      <div class="mt-divider"></div>
+
+      <!-- Camera Toggle -->
+      <button id="mtCameraBtn" type="button" class="mt-action-btn" aria-label="Toggle camera mode">
+        <ion-icon name="videocam-outline" aria-hidden="true"></ion-icon>
+      </button>
+
+    </div>
+  </div>
+
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-P2YZSW5Z51"></script>
   <script>

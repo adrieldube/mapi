@@ -262,6 +262,13 @@ const el = {
     modeFlatBtn: document.getElementById('modeFlatBtn'),
     mode3dBtn: document.getElementById('mode3dBtn'),
     globe3dContainer: document.getElementById('globe3dContainer'),
+    // Mobile toolbar
+    mtFlatBtn: document.getElementById('mtFlatBtn'),
+    mt3dBtn: document.getElementById('mt3dBtn'),
+    mtPlayBtn: document.getElementById('mtPlayBtn'),
+    mtPauseBtn: document.getElementById('mtPauseBtn'),
+    mtResetBtn: document.getElementById('mtResetBtn'),
+    mtCameraBtn: document.getElementById('mtCameraBtn'),
 };
 
 // === STATE ===
@@ -695,6 +702,7 @@ function animateFlight(timestamp) {
     if (completed) {
         isPlaying = false;
         el.pauseBtn.classList.add('hidden');
+        syncMobileFlight();
         setStatus(t('flightComplete'));
         if (map.getLayer('plane-layer')) {
             map.setLayoutProperty('plane-layer', 'visibility', 'none');
@@ -780,6 +788,7 @@ function startFlight() {
     el.pauseBtn.textContent = t('pause');
     el.pauseBtn.classList.remove('hidden');
     el.resetBtn.classList.remove('hidden');
+    syncMobileFlight();
 
     setStatus(t('flying'));
 
@@ -859,6 +868,7 @@ function togglePause() {
         animationId = requestAnimationFrame(animateFlight);
         setStatus(t('flying'));
     }
+    syncMobileFlight();
 }
 
 function clear3DFlightObjects() {
@@ -927,6 +937,8 @@ function resetFlight() {
     el.progressFill.style.width = '0%';
     el.cameraModeBtn.textContent = t('follow');
     setStatus('');
+    syncMobileFlight();
+    el.mtCameraBtn.classList.add('mt-cam-follow');
 }
 
 function setStatus(msg) {
@@ -1280,7 +1292,35 @@ function setupEventListeners() {
         switchTo3D();
     });
 
+    // === Mobile Toolbar ===
+    el.mtFlatBtn.addEventListener('click', () => {
+        if (viewMode === 'flat') return;
+        switchToFlat();
+    });
+    el.mt3dBtn.addEventListener('click', () => {
+        if (viewMode === '3d') return;
+        switchTo3D();
+    });
 
+    el.mtPlayBtn.addEventListener('click', () => {
+        if (arcCoordinates.length) {
+            togglePause(); // resume
+        } else {
+            startFlight();
+        }
+    });
+    el.mtPauseBtn.addEventListener('click', () => {
+        togglePause();
+    });
+    el.mtResetBtn.addEventListener('click', () => {
+        resetFlight();
+    });
+
+    el.mtCameraBtn.addEventListener('click', () => {
+        el.cameraModeBtn.click(); // reuse existing logic
+        el.mtCameraBtn.classList.toggle('mt-cam-follow', cameraFollow);
+    });
+    el.mtCameraBtn.classList.toggle('mt-cam-follow', cameraFollow);
 
     initDualAutocomplete(el.originInput, el.originAutocomplete, (name, coords) => {
         originName = name;
@@ -2008,12 +2048,25 @@ function destroyGlobe3D() {
     };
 }
 
+function syncMobileMode() {
+    el.mtFlatBtn.classList.toggle('active', viewMode === 'flat');
+    el.mt3dBtn.classList.toggle('active', viewMode === '3d');
+}
+
+function syncMobileFlight() {
+    const hasArc = arcCoordinates.length > 0;
+    el.mtPlayBtn.classList.toggle('hidden', isPlaying && hasArc);
+    el.mtPauseBtn.classList.toggle('hidden', !(isPlaying && hasArc));
+    el.mtResetBtn.classList.toggle('hidden', !hasArc);
+}
+
 function switchTo3D() {
     viewMode = '3d';
     el.modeFlatBtn.classList.remove('active');
     el.modeFlatBtn.classList.add('opacity-50');
     el.mode3dBtn.classList.add('active');
     el.mode3dBtn.classList.remove('opacity-50');
+    syncMobileMode();
 
 
 
@@ -2054,6 +2107,7 @@ function switchToFlat() {
     el.mode3dBtn.classList.add('opacity-50');
     el.modeFlatBtn.classList.add('active');
     el.modeFlatBtn.classList.remove('opacity-50');
+    syncMobileMode();
 
 
 
