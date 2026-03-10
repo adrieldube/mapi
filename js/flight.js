@@ -302,19 +302,15 @@ let globe3d = {
     scene: null,
     camera: null,
     renderer: null,
-    controls: null,
     globe: null,
     globeGroup: null,
     atmosMesh: null,
-    cloudMesh: null,
     _nasaMode: false,
     _hdFadeStart: null,
     _hdAtmosphere: false,
     flightArcLine: null,
     traveledArcLine: null,
     planeMarker: null,
-    cityMarkers: [],
-    cityPulses: [],
     endpointMarkers: [],
     animId: null,
     _generation: 0, // incremented on destroy to invalidate async callbacks
@@ -475,8 +471,8 @@ function pointFeature(lon, lat, props = {}) {
     return { type: 'Feature', geometry: { type: 'Point', coordinates: [lon, lat] }, properties: props };
 }
 
-function waitForLayer(layerId, cb) {
-    if (map.getLayer(layerId)) { cb(); } else { setTimeout(() => waitForLayer(layerId, cb), 100); }
+function waitForLayer(layerId, cb, retries = 50) {
+    if (map.getLayer(layerId)) { cb(); } else if (retries > 0) { setTimeout(() => waitForLayer(layerId, cb, retries - 1), 100); }
 }
 
 // === MAP FUNCTIONS ===
@@ -547,6 +543,7 @@ function setupFlightLayers() {
     if (flightLayersAdded) return;
 
     const pathColor = getFlightAccent();
+    const currentMap = map; // capture to guard async callbacks against theme changes
 
     map.addSource('flight-path', {
         type: 'geojson',
@@ -587,6 +584,7 @@ function setupFlightLayers() {
     });
 
     createPlaneImage().then(imageData => {
+        if (currentMap !== map) return; // map was replaced (theme change) — discard
         if (map.hasImage('plane-icon')) map.removeImage('plane-icon');
         map.addImage('plane-icon', imageData, { sdf: false });
 
@@ -717,10 +715,13 @@ function animateFlight(timestamp) {
         }
     }
 
-    // Update HUD
+    // Update HUD (skip DOM writes when value unchanged)
     const pct = Math.round(flightProgress * 100);
-    el.hudProgress.textContent = `${pct}%`;
-    el.progressFill.style.width = `${pct}%`;
+    const pctStr = `${pct}%`;
+    if (el.hudProgress.textContent !== pctStr) {
+        el.hudProgress.textContent = pctStr;
+        el.progressFill.style.width = pctStr;
+    }
 
     // Cinematic camera: instant center tracking (smooth zoom comes from easing functions)
     if (cameraFollow) {
@@ -1446,21 +1447,24 @@ const GLOBE_RADIUS = 1.0;
 const EARTH_WATER_URL = 'https://unpkg.com/three-globe@2.31.1/example/img/earth-water.png';
 const EARTH_TOPO_URL = 'https://unpkg.com/three-globe@2.31.1/example/img/earth-topology.png';
 
-// HD textures for large screens — NASA Blue Marble + clouds
+// HD texture for large screens — NASA Blue Marble
 const HD_EARTH_TEXTURE_URL = 'https://unpkg.com/three-globe@2.31.1/example/img/earth-blue-marble.jpg';
-const HD_CLOUD_URL = 'https://unpkg.com/three-globe@2.31.1/example/img/earth-clouds.png';
 
 
 // Camera faces +Z → the "front" of the globe is the +Z direction.
 // To show a given lat/lon, we need a quaternion that rotates that point's
 // direction vector to face +Z. setFromUnitVectors handles shortest-path
 // automatically, no Euler wrapping issues.
-const _FRONT = typeof THREE !== 'undefined' ? new THREE.Vector3(0, 0, 1) : null;
+let _FRONT = null;
+function getFront() {
+    if (!_FRONT && typeof THREE !== 'undefined') _FRONT = new THREE.Vector3(0, 0, 1);
+    return _FRONT;
+}
 let _dragQuatX, _dragQuatY;
 
 function globeQuatForLatLon(lat, lon) {
     const dir = latLonToVec3(lat, lon, 1).normalize();
-    return new THREE.Quaternion().setFromUnitVectors(dir, _FRONT);
+    return new THREE.Quaternion().setFromUnitVectors(dir, getFront());
 }
 
 function applyGlobeDragRotation(dx, dy) {
@@ -1902,29 +1906,6 @@ function initGlobe3D() {
         globe3d._hdAtmosphere = true;
     }
 
-    // Cloud layer with slow rotation
-    {
-        const cloudGeo = new THREE.SphereGeometry(GLOBE_RADIUS * 1.01, 128, 128);
-        const cloudLoader = new THREE.TextureLoader();
-        cloudLoader.load(HD_CLOUD_URL, tex => {
-            if (globe3d._generation !== gen) { tex.dispose(); return; }
-            configureHDTexture(tex, renderer);
-            const cloudMat = new THREE.MeshBasicMaterial({
-                map: tex,
-                transparent: true,
-                opacity: 0.25,
-                depthWrite: false,
-                side: THREE.FrontSide,
-            });
-            const cloudMesh = new THREE.Mesh(cloudGeo, cloudMat);
-            cloudMesh.visible = globeNasaMode; // only visible in NASA mode
-            if (globe3d.globeGroup) {
-                globe3d.globeGroup.add(cloudMesh);
-                globe3d.cloudMesh = cloudMesh;
-            }
-        });
-    }
-
     // No city markers — only origin/destination shown during flight
 
     // Mouse drag rotation (same pattern as index page)
@@ -1945,7 +1926,8 @@ function initGlobe3D() {
         globe3d.rotationSpeed = { x: dy * 0.005, y: dx * 0.005 };
         globe3d.previousMouse = { x: e.clientX, y: e.clientY };
     });
-    window.addEventListener('mouseup', () => { globe3d.isDragging = false; });
+    globe3d._onWindowMouseUp = () => { globe3d.isDragging = false; };
+    window.addEventListener('mouseup', globe3d._onWindowMouseUp);
 
     renderer.domElement.addEventListener('touchstart', e => {
         globe3d.isDragging = true;
@@ -2032,13 +2014,10 @@ function initGlobe3D() {
         const pulse = 1.0 + Math.sin(time * 0.3) * 0.02;
 
         // Update atmosphere color
-        if (globe3d._hdAtmosphere && globe3d.atmosMesh.material.uniforms) {
+        if (globe3d.atmosMesh.material.uniforms) {
             globe3d.atmosMesh.material.uniforms.glowColor.value.copy(globe3d._blendColor);
             globe3d.atmosMesh.material.uniforms.viewVector.value.copy(camera.position);
             globe3d.atmosMesh.scale.setScalar(pulse);
-        } else {
-            globe3d.atmosMesh.material.color.copy(globe3d._blendColor);
-            globe3d.atmosMesh.material.opacity = 0.1 * pulse;
         }
 
         // HD satellite texture crossfade (1 second)
@@ -2047,11 +2026,6 @@ function initGlobe3D() {
             const blend = Math.min(elapsed / 1.0, 1.0);
             globe3d.globe.material.uniforms.hdBlend.value = blend;
             if (blend >= 1.0) globe3d._hdFadeStart = null;
-        }
-
-        // HD cloud layer slow drift
-        if (globe3d.cloudMesh) {
-            globe3d.cloudMesh.rotation.y += 0.0001;
         }
 
         // Inertia rotation when not dragging (+ gentle auto-rotate when idle)
@@ -2271,7 +2245,7 @@ function update3DPlane(progress) {
     if (isPlaying) {
         if (!globe3d._trackQuat) globe3d._trackQuat = new THREE.Quaternion();
         // Target: rotate globe so current plane position faces camera
-        globe3d._trackQuat.setFromUnitVectors(_planePn, _FRONT);
+        globe3d._trackQuat.setFromUnitVectors(_planePn, getFront());
         const lerpSpeed = progress < 0.05 ? 0.08 : 0.04;
         globe3d.globeGroup.quaternion.slerp(globe3d._trackQuat, lerpSpeed);
     }
@@ -2330,6 +2304,9 @@ function destroyGlobe3D() {
         globe3d._resizeObserver.disconnect();
         globe3d._resizeObserver = null;
     }
+    if (globe3d._onWindowMouseUp) {
+        window.removeEventListener('mouseup', globe3d._onWindowMouseUp);
+    }
 
     // Dispose all scene objects (geometries, materials, textures)
     if (globe3d.scene) {
@@ -2358,11 +2335,11 @@ function destroyGlobe3D() {
     }
 
     globe3d = {
-        scene: null, camera: null, renderer: preservedRenderer || null, controls: null,
+        scene: null, camera: null, renderer: preservedRenderer || null,
         globe: null, globeGroup: null, atmosMesh: null,
-        cloudMesh: null, _nasaMode: false, _hdFadeStart: null, _hdAtmosphere: false,
+        _nasaMode: false, _hdFadeStart: null, _hdAtmosphere: false,
         flightArcLine: null, traveledArcLine: null,
-        planeMarker: null, cityMarkers: [], cityPulses: [],
+        planeMarker: null,
         endpointMarkers: [], animId: null,
         _generation: nextGen,
     };
@@ -2437,7 +2414,7 @@ function switchTo3D() {
             if (flightProgress > 0 && flightProgress < 1.0 && globe3d._arcCache) {
                 const idx = Math.floor(flightProgress * (globe3d._arcCache.length - 1));
                 const dir = globe3d._arcCache[idx].clone().normalize();
-                const targetQ = new THREE.Quaternion().setFromUnitVectors(dir, _FRONT);
+                const targetQ = new THREE.Quaternion().setFromUnitVectors(dir, getFront());
                 globe3d.globeGroup.quaternion.copy(targetQ);
             } else {
                 rotateGlobeToCoords(originCoords.lat, originCoords.lon, true);
@@ -2481,16 +2458,6 @@ function setGlobeNasaMode(enabled) {
         globe3d.globe.material.uniforms.nasaMode.value = enabled ? 1.0 : 0.0;
     }
 
-    // Toggle cloud layer visibility — show clouds in NASA mode, hide in palette mode
-    if (globe3d.cloudMesh) {
-        globe3d.cloudMesh.visible = enabled;
-    }
-}
-
-function refreshGlobe3DStyle() {
-    // 3D globe uses its own palette cycling (independent of flat map theme)
-    // Only rebuild if structure needs updating
-    if (viewMode !== '3d' || !globe3d.scene) return;
 }
 
 init();
