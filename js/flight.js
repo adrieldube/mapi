@@ -1552,13 +1552,14 @@ function createGlobeShaderMaterial(renderer, hdMode) {
     ` : '';
 
     const hdFragmentBlend = hdMode ? `
-                // HD satellite texture blend
+                // HD satellite texture — adds surface detail while keeping palette colors
                 if (hdBlend > 0.0) {
                     vec3 satellite = texture2D(hdTexture, vUv).rgb;
-                    // Tint satellite with palette colors for cycling effect
-                    vec3 paletteTint = mix(curLand, curWater, isWater);
-                    vec3 tintedSatellite = satellite * 0.6 + satellite * paletteTint * 0.4;
-                    baseColor = mix(baseColor, tintedSatellite, hdBlend);
+                    // Extract luminance as detail overlay (coastlines, terrain texture)
+                    float detail = dot(satellite, vec3(0.299, 0.587, 0.114));
+                    // Modulate palette base color with satellite detail for texture/depth
+                    vec3 detailed = baseColor * (0.7 + 0.6 * detail);
+                    baseColor = mix(baseColor, detailed, hdBlend);
                 }
     ` : '';
 
@@ -1606,40 +1607,85 @@ function createGlobeShaderMaterial(renderer, hdMode) {
                 vec3 curLand = mix(landColor, targetLandColor, blendFactor);
                 vec3 curWater = mix(waterColor, targetWaterColor, blendFactor);
 
-                // Elevation-based shading: valleys darker, peaks lighter
-                float elevFactor = pow(topo, 0.6);
-                vec3 landShaded = curLand * (0.5 + 0.7 * elevFactor);
-                // Water depth: deeper areas darker
-                vec3 waterShaded = curWater * (0.8 + 0.2 * (1.0 - topo));
+                // --- Elevation-based shading with more depth ---
+                float elevFactor = pow(topo, 0.5);
+                // Land: gradient from dark valleys to bright peaks + subtle mid-tone variation
+                vec3 landDark = curLand * 0.55;
+                vec3 landMid = curLand * 0.85;
+                vec3 landBright = curLand * 1.15;
+                vec3 landShaded = elevFactor < 0.5
+                    ? mix(landDark, landMid, elevFactor * 2.0)
+                    : mix(landMid, landBright, (elevFactor - 0.5) * 2.0);
+
+                // Water: deeper = darker, shallow coasts = lighter
+                vec3 waterDeep = curWater * 0.75;
+                vec3 waterShallow = curWater * 1.1;
+                vec3 waterShaded = mix(waterDeep, waterShallow, topo);
 
                 vec3 baseColor = mix(landShaded, waterShaded, isWater);
 
                 ${hdFragmentBlend}
 
-                // Compute normal from topology for per-pixel bump lighting
-                float texel = 1.0 / 4096.0;
-                float hL = texture2D(topoMap, vUv + vec2(-texel, 0.0)).r;
-                float hR = texture2D(topoMap, vUv + vec2(texel, 0.0)).r;
-                float hU = texture2D(topoMap, vUv + vec2(0.0, texel)).r;
-                float hD = texture2D(topoMap, vUv + vec2(0.0, -texel)).r;
-                vec3 bumpNormal = normalize(vNormal + vec3((hL - hR) * 3.0, (hD - hU) * 3.0, 0.0));
+                // --- Per-pixel bump normal from topology (multi-scale) ---
+                float texelFine = 1.0 / 4096.0;
+                float texelCoarse = 3.0 / 4096.0;
+                // Fine detail
+                float hLf = texture2D(topoMap, vUv + vec2(-texelFine, 0.0)).r;
+                float hRf = texture2D(topoMap, vUv + vec2(texelFine, 0.0)).r;
+                float hUf = texture2D(topoMap, vUv + vec2(0.0, texelFine)).r;
+                float hDf = texture2D(topoMap, vUv + vec2(0.0, -texelFine)).r;
+                // Coarse shape
+                float hLc = texture2D(topoMap, vUv + vec2(-texelCoarse, 0.0)).r;
+                float hRc = texture2D(topoMap, vUv + vec2(texelCoarse, 0.0)).r;
+                float hUc = texture2D(topoMap, vUv + vec2(0.0, texelCoarse)).r;
+                float hDc = texture2D(topoMap, vUv + vec2(0.0, -texelCoarse)).r;
+                // Blend fine + coarse for rich bump
+                float bx = (hLf - hRf) * 4.0 + (hLc - hRc) * 2.0;
+                float by = (hDf - hUf) * 4.0 + (hDc - hUc) * 2.0;
+                // Reduce bump on water (ocean floor shouldn't be bumpy)
+                float bumpStrength = mix(1.0, 0.15, isWater);
+                vec3 bumpNormal = normalize(vNormal + vec3(bx, by, 0.0) * bumpStrength);
 
-                // Directional lighting — subdued for realism
-                vec3 lightDir = normalize(vec3(0.8, 0.4, 0.6));
-                float NdotL = dot(bumpNormal, lightDir);
-                float wrap = max(NdotL * 0.5 + 0.5, 0.0);
-
-                // Subtle specular on water only
+                // --- Two-light setup for depth ---
                 vec3 viewDir = normalize(cameraPosition - vWorldPos);
-                vec3 halfDir = normalize(lightDir + viewDir);
-                float spec = pow(max(dot(bumpNormal, halfDir), 0.0), 60.0) * 0.15 * isWater;
 
-                // Soft Fresnel rim
+                // Key light (warm, from upper-right)
+                vec3 keyLightDir = normalize(vec3(0.8, 0.5, 0.6));
+                float keyNdotL = dot(bumpNormal, keyLightDir);
+                float keyWrap = max(keyNdotL * 0.5 + 0.5, 0.0);
+
+                // Fill light (cool, from lower-left) — prevents pure black shadows
+                vec3 fillLightDir = normalize(vec3(-0.5, -0.3, 0.4));
+                float fillNdotL = dot(bumpNormal, fillLightDir);
+                float fillWrap = max(fillNdotL * 0.3 + 0.3, 0.0);
+
+                float totalLight = keyWrap * 0.7 + fillWrap * 0.3;
+
+                // --- Specular: glossy water, matte land ---
+                vec3 keyHalf = normalize(keyLightDir + viewDir);
+                // Water: sharp, bright specular (ocean glint)
+                float waterSpec = pow(max(dot(bumpNormal, keyHalf), 0.0), 120.0) * 0.4;
+                // Land: soft, subtle specular (rocky sheen)
+                float landSpec = pow(max(dot(bumpNormal, keyHalf), 0.0), 20.0) * 0.05;
+                float spec = mix(landSpec, waterSpec, isWater);
+
+                // --- Fresnel rim light (subtle edge glow) ---
                 float fresnel = 1.0 - max(dot(vNormal, viewDir), 0.0);
-                float rim = pow(fresnel, 4.0) * 0.12;
+                float rim = pow(fresnel, 3.5) * 0.15;
 
-                // Final compositing — lower ambient for moodier look
-                vec3 finalColor = baseColor * (0.45 + 0.55 * wrap) + spec + rim * curLand;
+                // --- Ambient occlusion from topology (valleys are darker) ---
+                float ao = 0.92 + 0.08 * elevFactor;
+                // Water doesn't need AO
+                ao = mix(ao, 1.0, isWater);
+
+                // --- Final compositing ---
+                vec3 ambient = baseColor * 0.4;
+                vec3 diffuse = baseColor * totalLight * 0.7;
+                vec3 finalColor = (ambient + diffuse) * ao + spec + rim * mix(curLand, curWater, isWater) * 0.5;
+
+                // Gentle tone mapping — preserve brightness
+                finalColor = finalColor / (finalColor + vec3(0.8)) * 1.3;
+
                 gl_FragColor = vec4(finalColor, 1.0);
             }
         `
@@ -1755,7 +1801,7 @@ function initGlobe3D() {
     // Atmosphere glow
     if (hdMode) {
         // HD: Fresnel-based atmosphere shader for realistic glow
-        const atmosGeo = new THREE.SphereGeometry(GLOBE_RADIUS * 1.06, 128, 128);
+        const atmosGeo = new THREE.SphereGeometry(GLOBE_RADIUS * 1.04, 128, 128);
         const atmosMat = new THREE.ShaderMaterial({
             uniforms: {
                 glowColor: { value: new THREE.Color(GLOBE_PALETTES[0].land) },
@@ -1767,7 +1813,7 @@ function initGlobe3D() {
                 void main() {
                     vec3 vNorm = normalize(normalMatrix * normal);
                     vec3 vView = normalize(normalMatrix * viewVector);
-                    intensity = pow(0.7 - dot(vNorm, vView), 3.0);
+                    intensity = pow(0.6 - dot(vNorm, vView), 4.0);
                     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
                 }
             `,
@@ -1775,7 +1821,7 @@ function initGlobe3D() {
                 uniform vec3 glowColor;
                 varying float intensity;
                 void main() {
-                    gl_FragColor = vec4(glowColor, intensity * 0.6);
+                    gl_FragColor = vec4(glowColor, intensity * 0.35);
                 }
             `,
             side: THREE.BackSide,
