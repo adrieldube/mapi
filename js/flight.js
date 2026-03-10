@@ -675,9 +675,9 @@ function animateFlight(timestamp) {
             const zoomDelta = Math.max(0, zoom - cruiseZoom);
             modeMult = Math.pow(0.7, zoomDelta);
         } else if (flightProgress >= LANDING_PHASE) {
-            // Landing: gentle linear slowdown that guarantees reaching destination
-            const t = (flightProgress - LANDING_PHASE) / (1 - LANDING_PHASE); // 0→1
-            modeMult = 0.4 - 0.25 * t; // 0.4 → 0.15
+            // Landing: exponential slowdown based on zoom (mirroring departure) for smooth tile viewing
+            const zoomDelta = Math.max(0, zoom - cruiseZoom);
+            modeMult = Math.pow(0.72, zoomDelta);
         } else {
             modeMult = 1.0;
         }
