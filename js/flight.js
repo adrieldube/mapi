@@ -472,7 +472,8 @@ function pointFeature(lon, lat, props = {}) {
 }
 
 function waitForLayer(layerId, cb, retries = 50) {
-    if (map.getLayer(layerId)) { cb(); } else if (retries > 0) { setTimeout(() => waitForLayer(layerId, cb, retries - 1), 100); }
+    const currentMap = map;
+    if (currentMap.getLayer(layerId)) { cb(); } else if (retries > 0) { setTimeout(() => { if (map !== currentMap) return; waitForLayer(layerId, cb, retries - 1); }, 100); }
 }
 
 // === MAP FUNCTIONS ===
@@ -556,9 +557,9 @@ function setupFlightLayers() {
         source: 'flight-path',
         paint: {
             'line-color': pathColor,
-            'line-width': 2.5,
-            'line-dasharray': [4, 4],
-            'line-opacity': 0.5
+            'line-width': 2,
+            'line-dasharray': [2, 6],
+            'line-opacity': 0.4
         }
     });
 
@@ -653,7 +654,7 @@ let lastGeoJsonUpdate = 0;
 const GEOJSON_THROTTLE = 80; // ms between heavy GeoJSON updates
 
 function animateFlight(timestamp) {
-    if (!isPlaying) return;
+    if (!isPlaying || arcCoordinates.length < 2) return;
 
     // Time-based animation — never pause for tiles, let fadeDuration handle tile appearance
     if (!lastFrameTime) lastFrameTime = timestamp;
@@ -1146,6 +1147,8 @@ function changeMapStyle(styleKey) {
         isPlaying = false;
         cancelAnimationFrame(animationId);
     }
+    if (startFlightTimer) { clearTimeout(startFlightTimer); startFlightTimer = null; }
+    _flightGeneration++;
 
     map.remove();
     currentStyle = styleKey;
@@ -1829,6 +1832,12 @@ function initGlobe3D() {
     // Apply NASA mode state if previously set
     globe3d._nasaMode = globeNasaMode;
 
+    // Pre-compute palette color vectors for render loop (avoids per-frame allocations)
+    globe3d._paletteVecs = GLOBE_PALETTES.map(p => ({
+        land: hexToVec3(p.land),
+        water: hexToVec3(p.water)
+    }));
+
     // Globe sphere with cycling shader — matches index page exactly
     const globeGeo = new THREE.SphereGeometry(GLOBE_RADIUS, 256, 256);
     const globeMat = createGlobeShaderMaterial(renderer);
@@ -1913,42 +1922,47 @@ function initGlobe3D() {
     globe3d.previousMouse = { x: 0, y: 0 };
     globe3d.rotationSpeed = { x: 0, y: 0 };
 
-    renderer.domElement.addEventListener('mousedown', e => {
+    // Store handler references for cleanup in destroyGlobe3D
+    globe3d._onMouseDown = e => {
         globe3d.isDragging = true;
         globe3d.previousMouse = { x: e.clientX, y: e.clientY };
         globe3d.rotationSpeed = { x: 0, y: 0 };
-    });
-    renderer.domElement.addEventListener('mousemove', e => {
+    };
+    globe3d._onMouseMove = e => {
         if (!globe3d.isDragging) return;
         const dx = e.clientX - globe3d.previousMouse.x;
         const dy = e.clientY - globe3d.previousMouse.y;
         applyGlobeDragRotation(dx, dy);
         globe3d.rotationSpeed = { x: dy * 0.005, y: dx * 0.005 };
         globe3d.previousMouse = { x: e.clientX, y: e.clientY };
-    });
+    };
     globe3d._onWindowMouseUp = () => { globe3d.isDragging = false; };
-    window.addEventListener('mouseup', globe3d._onWindowMouseUp);
-
-    renderer.domElement.addEventListener('touchstart', e => {
+    globe3d._onTouchStart = e => {
         globe3d.isDragging = true;
         globe3d.previousMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
         globe3d.rotationSpeed = { x: 0, y: 0 };
-    }, { passive: true });
-    renderer.domElement.addEventListener('touchmove', e => {
+    };
+    globe3d._onTouchMove = e => {
         if (!globe3d.isDragging) return;
         const dx = e.touches[0].clientX - globe3d.previousMouse.x;
         const dy = e.touches[0].clientY - globe3d.previousMouse.y;
         applyGlobeDragRotation(dx, dy);
         globe3d.rotationSpeed = { x: dy * 0.005, y: dx * 0.005 };
         globe3d.previousMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-    }, { passive: true });
-    renderer.domElement.addEventListener('touchend', () => { globe3d.isDragging = false; }, { passive: true });
-
-    // Scroll to zoom
-    renderer.domElement.addEventListener('wheel', e => {
+    };
+    globe3d._onTouchEnd = () => { globe3d.isDragging = false; };
+    globe3d._onWheel = e => {
         e.preventDefault();
-        camera.position.z = Math.max(2.4, Math.min(8, camera.position.z + e.deltaY * 0.003));
-    }, { passive: false });
+        if (globe3d.camera) globe3d.camera.position.z = Math.max(2.4, Math.min(8, globe3d.camera.position.z + e.deltaY * 0.003));
+    };
+
+    renderer.domElement.addEventListener('mousedown', globe3d._onMouseDown);
+    renderer.domElement.addEventListener('mousemove', globe3d._onMouseMove);
+    window.addEventListener('mouseup', globe3d._onWindowMouseUp);
+    renderer.domElement.addEventListener('touchstart', globe3d._onTouchStart, { passive: true });
+    renderer.domElement.addEventListener('touchmove', globe3d._onTouchMove, { passive: true });
+    renderer.domElement.addEventListener('touchend', globe3d._onTouchEnd, { passive: true });
+    renderer.domElement.addEventListener('wheel', globe3d._onWheel, { passive: false });
 
     // Handle resize — refit globe to frame on format change
     globe3d._resizeRafId = null;
@@ -1956,10 +1970,11 @@ function initGlobe3D() {
         if (globe3d._resizeRafId) return;
         globe3d._resizeRafId = requestAnimationFrame(() => {
             globe3d._resizeRafId = null;
+            if (!globe3d.camera || !globe3d.renderer) return;
             const r = container.getBoundingClientRect();
             if (r.width > 0 && r.height > 0) {
-                camera.aspect = r.width / r.height;
-                renderer.setSize(r.width, r.height);
+                globe3d.camera.aspect = r.width / r.height;
+                globe3d.renderer.setSize(r.width, r.height);
                 fitGlobeCameraToFrame();
             }
         });
@@ -1998,10 +2013,10 @@ function initGlobe3D() {
         globe3d.globe.material.uniforms.time.value = time;
 
         // Blend atmosphere color from both land + water for richer glow
-        const curLand = hexToVec3(GLOBE_PALETTES[globe3d._paletteIndex].land);
-        const nxtLand = hexToVec3(GLOBE_PALETTES[globe3d._paletteNextIndex].land);
-        const curWater = hexToVec3(GLOBE_PALETTES[globe3d._paletteIndex].water);
-        const nxtWater = hexToVec3(GLOBE_PALETTES[globe3d._paletteNextIndex].water);
+        const curLand = globe3d._paletteVecs[globe3d._paletteIndex].land;
+        const nxtLand = globe3d._paletteVecs[globe3d._paletteNextIndex].land;
+        const curWater = globe3d._paletteVecs[globe3d._paletteIndex].water;
+        const nxtWater = globe3d._paletteVecs[globe3d._paletteNextIndex].water;
         if (!globe3d._blendColor) globe3d._blendColor = new THREE.Color();
         // Mix land (70%) + water (30%) for atmosphere — land dominates but water tints it
         globe3d._blendColor.setRGB(
@@ -2304,8 +2319,22 @@ function destroyGlobe3D() {
         globe3d._resizeObserver.disconnect();
         globe3d._resizeObserver = null;
     }
+    // Preserve renderer to avoid WebGL context exhaustion (browsers limit ~16 contexts).
+    const preservedRenderer = globe3d.renderer;
+
     if (globe3d._onWindowMouseUp) {
         window.removeEventListener('mouseup', globe3d._onWindowMouseUp);
+    }
+
+    // Remove event listeners from renderer canvas to prevent accumulation
+    if (preservedRenderer && preservedRenderer.domElement) {
+        const domEl = preservedRenderer.domElement;
+        if (globe3d._onMouseDown) domEl.removeEventListener('mousedown', globe3d._onMouseDown);
+        if (globe3d._onMouseMove) domEl.removeEventListener('mousemove', globe3d._onMouseMove);
+        if (globe3d._onTouchStart) domEl.removeEventListener('touchstart', globe3d._onTouchStart);
+        if (globe3d._onTouchMove) domEl.removeEventListener('touchmove', globe3d._onTouchMove);
+        if (globe3d._onTouchEnd) domEl.removeEventListener('touchend', globe3d._onTouchEnd);
+        if (globe3d._onWheel) domEl.removeEventListener('wheel', globe3d._onWheel);
     }
 
     // Dispose all scene objects (geometries, materials, textures)
@@ -2324,9 +2353,7 @@ function destroyGlobe3D() {
         });
     }
 
-    // Preserve renderer to avoid WebGL context exhaustion (browsers limit ~16 contexts).
     // Just remove the canvas from DOM; clear render state without destroying the context.
-    const preservedRenderer = globe3d.renderer;
     if (preservedRenderer) {
         preservedRenderer.renderLists.dispose();
         preservedRenderer.info.reset();
