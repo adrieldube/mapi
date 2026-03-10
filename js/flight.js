@@ -311,6 +311,7 @@ let globe3d = {
     cityPulses: [],
     endpointMarkers: [],
     animId: null,
+    _generation: 0, // incremented on destroy to invalidate async callbacks
 };
 
 // Social media video formats (CSS px — renders at 2× on Retina for native upload resolution)
@@ -750,6 +751,7 @@ function animateFlight(timestamp) {
 }
 
 let startFlightTimer = null;
+let _flightGeneration = 0; // guards against stale async flight-start callbacks
 
 function startFlight() {
     if (!originCoords || !destCoords) {
@@ -761,6 +763,7 @@ function startFlight() {
     isPlaying = false;
     cancelAnimationFrame(animationId);
     if (startFlightTimer) { clearTimeout(startFlightTimer); startFlightTimer = null; }
+    _flightGeneration++; // invalidate any pending beginAnimation / startWhenReady callbacks
 
     // Clear previous flight from both flat map and 3D globe
     clear3DFlightObjects();
@@ -840,7 +843,9 @@ function startFlight() {
         // Rotate globe to show origin city (takeoff) — trajectory unfolds as plane moves
         rotateGlobeToCoords(originCoords.lat, originCoords.lon, true);
         // Wait for globe rotation to finish before starting flight
+        const flightGen = _flightGeneration;
         startFlightTimer = setTimeout(() => {
+            if (_flightGeneration !== flightGen) return; // stale — new flight started
             startFlightTimer = null;
             isPlaying = true;
             lastFrameTime = 0;
@@ -858,14 +863,18 @@ function startFlight() {
     const dist = Math.abs(currentCenter.lng - targetCenter[0]) + Math.abs(currentCenter.lat - targetCenter[1]);
     const zoomDiff = Math.abs(currentZoom - STREET_ZOOM);
 
+    const flightGen = _flightGeneration;
     function beginAnimation() {
+        if (_flightGeneration !== flightGen) return; // stale — new flight started
         // Wait for tiles to load then start immediately
         function startWhenReady() {
+            if (_flightGeneration !== flightGen) return; // stale
             if (!map.areTilesLoaded()) {
                 map.once('idle', startWhenReady);
                 return;
             }
             startFlightTimer = setTimeout(() => {
+                if (_flightGeneration !== flightGen) return; // stale
                 startFlightTimer = null;
                 isPlaying = true;
                 lastFrameTime = 0;
@@ -943,6 +952,7 @@ function clear3DFlightObjects() {
 function resetFlight() {
     isPlaying = false;
     cancelAnimationFrame(animationId);
+    _flightGeneration++; // invalidate any pending async callbacks
     if (startFlightTimer) { clearTimeout(startFlightTimer); startFlightTimer = null; }
     flightProgress = 0;
     lastFrameTime = 0;
@@ -966,6 +976,10 @@ function resetFlight() {
 
     // Clear 3D state
     clear3DFlightObjects();
+    globe3d._trackQuat = null;
+
+    // Release arc coordinate arrays
+    arcCoordinates = [];
 
     el.flightHud.classList.add('hidden');
     el.hudToggleBtn.classList.add('hidden');
@@ -1485,23 +1499,23 @@ function generateGreatCircleArc3D(origin, dest, numPoints, altitude) {
     return points;
 }
 
-// Globe palettes — same cycling set as the index page for visual consistency
+// Globe palettes — curated for maximum visual impact with high contrast
 const GLOBE_PALETTES = [
-    { name: 'Midnight Navy & Gold', land: '#D4AF37', water: '#1A1A2E' },
-    { name: 'Neon Green & Black', land: '#39FF14', water: '#0D0D0D' },
-    { name: 'Sage Green & Terracotta', land: '#C67B5C', water: '#A8B5A0' },
-    { name: 'Pure Black & White', land: '#000000', water: '#FFFFFF' },
-    { name: 'Coral Red & Navy Blue', land: '#FF6B6B', water: '#001F3F' },
-    { name: 'Digital Lavender & Noir', land: '#B4A7D6', water: '#121212' },
-    { name: 'Mocha Mousse & Cream', land: '#A47764', water: '#FAF6F1' },
-    { name: 'Emerald Green & Bone', land: '#047857', water: '#F8F5F0' },
-    { name: 'Rose Gold & Charcoal', land: '#B76E79', water: '#2C2C2C' },
-    { name: 'Electric Blue & White', land: '#0066FF', water: '#FAFAFA' },
-    { name: 'Sakura & Charcoal', land: '#FFB7C5', water: '#2E2E32' },
-    { name: 'Art Deco Gold & Black', land: '#C9A227', water: '#0D0D0D' },
+    { name: 'Midnight Navy & Gold', land: '#D4AF37', water: '#0F0F2A' },
+    { name: 'Neon Pulse', land: '#39FF14', water: '#050510' },
+    { name: 'Coral Reef', land: '#FF6B6B', water: '#001F3F' },
+    { name: 'Digital Lavender', land: '#B4A7D6', water: '#0A0A14' },
+    { name: 'Arctic Aurora', land: '#00E5A0', water: '#0B0B2A' },
+    { name: 'Solar Flare', land: '#FF6600', water: '#0D0820' },
+    { name: 'Rose Gold & Noir', land: '#E8A0B4', water: '#1A1A24' },
+    { name: 'Electric Sapphire', land: '#0088FF', water: '#050518' },
+    { name: 'Sakura Bloom', land: '#FFB7C5', water: '#1A1A28' },
+    { name: 'Art Deco', land: '#D4A828', water: '#080810' },
+    { name: 'Emerald Deep', land: '#00CC77', water: '#060614' },
+    { name: 'Cyber Violet', land: '#AA55FF', water: '#0A0A18' },
 ];
 
-const GLOBE_PALETTE_DURATION = 3.0; // seconds per palette
+const GLOBE_PALETTE_DURATION = 5.0; // seconds per palette — slower to appreciate each look
 
 function hexToVec3(hex) {
     const c = hex.replace('#', '');
@@ -1537,7 +1551,8 @@ function createGlobeShaderMaterial(renderer, hdMode) {
         targetLandColor: { value: new THREE.Color(GLOBE_PALETTES[1].land) },
         targetWaterColor: { value: new THREE.Color(GLOBE_PALETTES[1].water) },
         blendFactor: { value: 0.0 },
-        displacementScale: { value: GLOBE_RADIUS * 0.08 }
+        displacementScale: { value: GLOBE_RADIUS * 0.08 },
+        time: { value: 0.0 },
     };
 
     // HD mode: add satellite texture + blend uniform
@@ -1593,6 +1608,7 @@ function createGlobeShaderMaterial(renderer, hdMode) {
             uniform vec3 targetLandColor;
             uniform vec3 targetWaterColor;
             uniform float blendFactor;
+            uniform float time;
             ${hdTextureDefines}
             varying vec2 vUv;
             varying vec3 vNormal;
@@ -1626,6 +1642,10 @@ function createGlobeShaderMaterial(renderer, hdMode) {
 
                 ${hdFragmentBlend}
 
+                // --- Coastline edge glow: bright line where land meets water ---
+                float coastDist = abs(isWater - 0.5) * 2.0; // 0 at coast, 1 inland/deep
+                float coastGlow = smoothstep(0.15, 0.0, coastDist) * 0.6;
+
                 // --- Per-pixel bump normal from topology (multi-scale) ---
                 float texelFine = 1.0 / 4096.0;
                 float texelCoarse = 3.0 / 4096.0;
@@ -1646,16 +1666,21 @@ function createGlobeShaderMaterial(renderer, hdMode) {
                 float bumpStrength = mix(1.0, 0.15, isWater);
                 vec3 bumpNormal = normalize(vNormal + vec3(bx, by, 0.0) * bumpStrength);
 
-                // --- Two-light setup for depth ---
+                // --- Two-light setup with slowly rotating key light ---
                 vec3 viewDir = normalize(cameraPosition - vWorldPos);
 
-                // Key light (warm, from upper-right)
-                vec3 keyLightDir = normalize(vec3(0.8, 0.5, 0.6));
+                // Key light rotates slowly around Y axis for dynamic highlights
+                float sunAngle = time * 0.15;
+                vec3 keyLightDir = normalize(vec3(
+                    0.8 * cos(sunAngle) + 0.3 * sin(sunAngle),
+                    0.5,
+                    0.6 * cos(sunAngle) - 0.4 * sin(sunAngle)
+                ));
                 float keyNdotL = dot(bumpNormal, keyLightDir);
                 float keyWrap = max(keyNdotL * 0.5 + 0.5, 0.0);
 
-                // Fill light (cool, from lower-left) — prevents pure black shadows
-                vec3 fillLightDir = normalize(vec3(-0.5, -0.3, 0.4));
+                // Fill light (cool, opposite side) — prevents pure black shadows
+                vec3 fillLightDir = normalize(vec3(-keyLightDir.x * 0.6, -0.3, -keyLightDir.z * 0.6));
                 float fillNdotL = dot(bumpNormal, fillLightDir);
                 float fillWrap = max(fillNdotL * 0.3 + 0.3, 0.0);
 
@@ -1664,14 +1689,14 @@ function createGlobeShaderMaterial(renderer, hdMode) {
                 // --- Specular: glossy water, matte land ---
                 vec3 keyHalf = normalize(keyLightDir + viewDir);
                 // Water: sharp, bright specular (ocean glint)
-                float waterSpec = pow(max(dot(bumpNormal, keyHalf), 0.0), 120.0) * 0.4;
+                float waterSpec = pow(max(dot(bumpNormal, keyHalf), 0.0), 120.0) * 0.5;
                 // Land: soft, subtle specular (rocky sheen)
                 float landSpec = pow(max(dot(bumpNormal, keyHalf), 0.0), 20.0) * 0.05;
                 float spec = mix(landSpec, waterSpec, isWater);
 
-                // --- Fresnel rim light (subtle edge glow) ---
+                // --- Fresnel rim light (atmospheric edge glow) ---
                 float fresnel = 1.0 - max(dot(vNormal, viewDir), 0.0);
-                float rim = pow(fresnel, 3.5) * 0.15;
+                float rim = pow(fresnel, 2.5) * 0.35;
 
                 // --- Ambient occlusion from topology (valleys are darker) ---
                 float ao = 0.92 + 0.08 * elevFactor;
@@ -1681,10 +1706,15 @@ function createGlobeShaderMaterial(renderer, hdMode) {
                 // --- Final compositing ---
                 vec3 ambient = baseColor * 0.4;
                 vec3 diffuse = baseColor * totalLight * 0.7;
-                vec3 finalColor = (ambient + diffuse) * ao + spec + rim * mix(curLand, curWater, isWater) * 0.5;
+                // Atmosphere rim uses blended color of both land and water
+                vec3 rimColor = mix(curLand, curWater, 0.3) * 1.2;
+                vec3 finalColor = (ambient + diffuse) * ao + spec + rim * rimColor;
+
+                // Coastline glow — bright edge in the palette's land color
+                finalColor += coastGlow * curLand * 1.5;
 
                 // Gentle tone mapping — preserve brightness
-                finalColor = finalColor / (finalColor + vec3(0.8)) * 1.3;
+                finalColor = finalColor / (finalColor + vec3(0.7)) * 1.35;
 
                 gl_FragColor = vec4(finalColor, 1.0);
             }
@@ -1720,7 +1750,7 @@ function fitGlobeCameraToFrame() {
 }
 
 function initGlobe3D() {
-    if (globe3d.renderer) return; // already initialized
+    if (globe3d.scene) return; // already initialized (scene is the real indicator)
 
     const container = el.globe3dContainer;
     const rect = container.getBoundingClientRect();
@@ -1736,26 +1766,28 @@ function initGlobe3D() {
     globe3d.camera = camera;
     fitGlobeCameraToFrame();
 
-    // Renderer — alpha:true for transparent bg, full device pixel ratio for HD
-    const renderer = new THREE.WebGLRenderer({
-        antialias: true,
-        alpha: true,
-        powerPreference: 'high-performance'
-    });
+    // Reuse existing renderer if available (avoids WebGL context exhaustion)
+    let renderer = globe3d.renderer;
+    if (!renderer) {
+        renderer = new THREE.WebGLRenderer({
+            antialias: true,
+            alpha: true,
+            powerPreference: 'high-performance'
+        });
+        renderer.setClearColor(0x000000, 0);
+        // Handle WebGL context loss gracefully — prevent page crash
+        renderer.domElement.addEventListener('webglcontextlost', e => {
+            e.preventDefault();
+            if (globe3d.animId) { cancelAnimationFrame(globe3d.animId); globe3d.animId = null; }
+        });
+        renderer.domElement.addEventListener('webglcontextrestored', () => {
+            destroyGlobe3D();
+            initGlobe3D();
+        });
+    }
     renderer.setSize(rect.width, rect.height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 3));
-    renderer.setClearColor(0x000000, 0);
     container.appendChild(renderer.domElement);
-
-    // Handle WebGL context loss gracefully — prevent page crash
-    renderer.domElement.addEventListener('webglcontextlost', e => {
-        e.preventDefault();
-        if (globe3d.animId) { cancelAnimationFrame(globe3d.animId); globe3d.animId = null; }
-    });
-    renderer.domElement.addEventListener('webglcontextrestored', () => {
-        destroyGlobe3D();
-        initGlobe3D();
-    });
     globe3d.renderer = renderer;
 
     // Lighting — same as index page
@@ -1787,9 +1819,12 @@ function initGlobe3D() {
     globe3d.globe = globe;
 
     // HD: load satellite texture async, crossfade once ready
+    // Guard async callbacks with generation counter to prevent leaks after destroy
+    const gen = globe3d._generation;
     if (hdMode) {
         const hdLoader = new THREE.TextureLoader();
         hdLoader.load(HD_EARTH_TEXTURE_URL, tex => {
+            if (globe3d._generation !== gen) { tex.dispose(); return; }
             configureHDTexture(tex, renderer);
             if (globe3d.globe && globe3d.globe.material.uniforms.hdTexture) {
                 globe3d.globe.material.uniforms.hdTexture.value = tex;
@@ -1798,10 +1833,10 @@ function initGlobe3D() {
         });
     }
 
-    // Atmosphere glow
+    // Atmosphere glow — realistic scattering: color fades from palette tint near
+    // the surface to a thin blue-white at the outer edge, with non-uniform falloff
+    const atmosGeo = new THREE.SphereGeometry(GLOBE_RADIUS * 1.06, 128, 128);
     if (hdMode) {
-        // HD: Fresnel-based atmosphere shader for realistic glow
-        const atmosGeo = new THREE.SphereGeometry(GLOBE_RADIUS * 1.04, 128, 128);
         const atmosMat = new THREE.ShaderMaterial({
             uniforms: {
                 glowColor: { value: new THREE.Color(GLOBE_PALETTES[0].land) },
@@ -1809,19 +1844,36 @@ function initGlobe3D() {
             },
             vertexShader: `
                 uniform vec3 viewVector;
-                varying float intensity;
+                varying float vFresnel;
+                varying vec3 vWorldNormal;
                 void main() {
                     vec3 vNorm = normalize(normalMatrix * normal);
                     vec3 vView = normalize(normalMatrix * viewVector);
-                    intensity = pow(0.6 - dot(vNorm, vView), 4.0);
+                    vFresnel = clamp(1.0 - dot(vNorm, vView), 0.0, 1.0);
+                    vWorldNormal = normalize((modelMatrix * vec4(normal, 0.0)).xyz);
                     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
                 }
             `,
             fragmentShader: `
                 uniform vec3 glowColor;
-                varying float intensity;
+                varying float vFresnel;
+                varying vec3 vWorldNormal;
                 void main() {
-                    gl_FragColor = vec4(glowColor, intensity * 0.35);
+                    // Atmospheric scattering: thin blue-white at the limb,
+                    // palette tint closer to the surface
+                    vec3 scatterBlue = vec3(0.4, 0.6, 1.0);
+                    // Blend from palette color (near surface) to scatter blue (limb)
+                    float colorMix = smoothstep(0.2, 0.8, vFresnel);
+                    vec3 atmosColor = mix(glowColor, scatterBlue, colorMix * 0.5);
+
+                    // Non-uniform density: thicker near the horizon, fades smoothly
+                    float density = pow(vFresnel, 3.5) * 0.4;
+
+                    // Slight brightening on the sunlit side (upper hemisphere)
+                    float sunFacing = dot(vWorldNormal, normalize(vec3(0.5, 0.8, 0.4)));
+                    float sunBoost = 1.0 + max(sunFacing, 0.0) * 0.25;
+
+                    gl_FragColor = vec4(atmosColor * sunBoost, density);
                 }
             `,
             side: THREE.BackSide,
@@ -1833,12 +1885,10 @@ function initGlobe3D() {
         globeGroup.add(globe3d.atmosMesh);
         globe3d._hdAtmosphere = true;
     } else {
-        // Standard: simple BackSide glow
-        const atmosGeo = new THREE.SphereGeometry(GLOBE_RADIUS * 1.04, 128, 128);
         const atmosMat = new THREE.MeshBasicMaterial({
             color: new THREE.Color(GLOBE_PALETTES[0].land),
             transparent: true,
-            opacity: 0.06,
+            opacity: 0.08,
             side: THREE.BackSide,
         });
         globe3d.atmosMesh = new THREE.Mesh(atmosGeo, atmosMat);
@@ -1850,6 +1900,7 @@ function initGlobe3D() {
         const cloudGeo = new THREE.SphereGeometry(GLOBE_RADIUS * 1.01, 128, 128);
         const cloudLoader = new THREE.TextureLoader();
         cloudLoader.load(HD_CLOUD_URL, tex => {
+            if (globe3d._generation !== gen) { tex.dispose(); return; }
             configureHDTexture(tex, renderer);
             const cloudMat = new THREE.MeshBasicMaterial({
                 map: tex,
@@ -1953,21 +2004,33 @@ function initGlobe3D() {
         const ease = pl < 0.5 ? 2 * pl * pl : 1 - Math.pow(-2 * pl + 2, 2) / 2;
         globe3d.globe.material.uniforms.blendFactor.value = ease;
 
-        // Update glow color to match current blended palette
+        // Pass time to globe shader for rotating sunlight
+        globe3d.globe.material.uniforms.time.value = time;
+
+        // Blend atmosphere color from both land + water for richer glow
         const curLand = hexToVec3(GLOBE_PALETTES[globe3d._paletteIndex].land);
         const nxtLand = hexToVec3(GLOBE_PALETTES[globe3d._paletteNextIndex].land);
+        const curWater = hexToVec3(GLOBE_PALETTES[globe3d._paletteIndex].water);
+        const nxtWater = hexToVec3(GLOBE_PALETTES[globe3d._paletteNextIndex].water);
         if (!globe3d._blendColor) globe3d._blendColor = new THREE.Color();
+        // Mix land (70%) + water (30%) for atmosphere — land dominates but water tints it
         globe3d._blendColor.setRGB(
-            curLand.r + (nxtLand.r - curLand.r) * ease,
-            curLand.g + (nxtLand.g - curLand.g) * ease,
-            curLand.b + (nxtLand.b - curLand.b) * ease
+            (curLand.r + (nxtLand.r - curLand.r) * ease) * 0.7 + (curWater.r + (nxtWater.r - curWater.r) * ease) * 0.3,
+            (curLand.g + (nxtLand.g - curLand.g) * ease) * 0.7 + (curWater.g + (nxtWater.g - curWater.g) * ease) * 0.3,
+            (curLand.b + (nxtLand.b - curLand.b) * ease) * 0.7 + (curWater.b + (nxtWater.b - curWater.b) * ease) * 0.3
         );
-        // Update atmosphere color — HD uses Fresnel shader, standard uses material.color
+
+        // Subtle breathing pulse
+        const pulse = 1.0 + Math.sin(time * 0.3) * 0.02;
+
+        // Update atmosphere color
         if (globe3d._hdAtmosphere && globe3d.atmosMesh.material.uniforms) {
             globe3d.atmosMesh.material.uniforms.glowColor.value.copy(globe3d._blendColor);
             globe3d.atmosMesh.material.uniforms.viewVector.value.copy(camera.position);
+            globe3d.atmosMesh.scale.setScalar(pulse);
         } else {
             globe3d.atmosMesh.material.color.copy(globe3d._blendColor);
+            globe3d.atmosMesh.material.opacity = 0.1 * pulse;
         }
 
         // HD satellite texture crossfade (1 second)
@@ -2042,17 +2105,21 @@ function update3DFlightPath() {
     });
     globe3d.endpointMarkers = [];
 
-    const endGeo = new THREE.SphereGeometry(0.009, 12, 12);
-    const endMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(GLOBE_MARKER_ACCENT) });
-
+    // Use separate geometry/material per marker to avoid double-dispose
     const originPos = latLonToVec3(originCoords.lat, originCoords.lon, GLOBE_RADIUS * 1.008);
-    const originMarker = new THREE.Mesh(endGeo, endMat);
+    const originMarker = new THREE.Mesh(
+        new THREE.SphereGeometry(0.009, 12, 12),
+        new THREE.MeshBasicMaterial({ color: new THREE.Color(GLOBE_MARKER_ACCENT) })
+    );
     originMarker.position.copy(originPos);
     globe3d.globeGroup.add(originMarker);
     globe3d.endpointMarkers.push(originMarker);
 
     const destPos = latLonToVec3(destCoords.lat, destCoords.lon, GLOBE_RADIUS * 1.008);
-    const destMarker = new THREE.Mesh(endGeo, endMat);
+    const destMarker = new THREE.Mesh(
+        new THREE.SphereGeometry(0.009, 12, 12),
+        new THREE.MeshBasicMaterial({ color: new THREE.Color(GLOBE_MARKER_ACCENT) })
+    );
     destMarker.position.copy(destPos);
     globe3d.globeGroup.add(destMarker);
     globe3d.endpointMarkers.push(destMarker);
@@ -2236,6 +2303,9 @@ function rotateGlobeToCoords(lat, lon, animated) {
 
 
 function destroyGlobe3D() {
+    // Increment generation to invalidate any in-flight async texture loads
+    const nextGen = (globe3d._generation || 0) + 1;
+
     if (globe3d._rotateAnimId) {
         cancelAnimationFrame(globe3d._rotateAnimId);
         globe3d._rotateAnimId = null;
@@ -2252,11 +2322,8 @@ function destroyGlobe3D() {
         globe3d._resizeObserver.disconnect();
         globe3d._resizeObserver = null;
     }
-    if (globe3d.renderer) {
-        globe3d.renderer.dispose();
-        const canvas = globe3d.renderer.domElement;
-        if (canvas.parentNode) canvas.parentNode.removeChild(canvas);
-    }
+
+    // Dispose all scene objects (geometries, materials, textures)
     if (globe3d.scene) {
         globe3d.scene.traverse(obj => {
             if (obj.geometry) obj.geometry.dispose();
@@ -2271,13 +2338,25 @@ function destroyGlobe3D() {
             }
         });
     }
+
+    // Preserve renderer to avoid WebGL context exhaustion (browsers limit ~16 contexts).
+    // Just remove the canvas from DOM; clear render state without destroying the context.
+    const preservedRenderer = globe3d.renderer;
+    if (preservedRenderer) {
+        preservedRenderer.renderLists.dispose();
+        preservedRenderer.info.reset();
+        const canvas = preservedRenderer.domElement;
+        if (canvas.parentNode) canvas.parentNode.removeChild(canvas);
+    }
+
     globe3d = {
-        scene: null, camera: null, renderer: null, controls: null,
+        scene: null, camera: null, renderer: preservedRenderer || null, controls: null,
         globe: null, globeGroup: null, atmosMesh: null,
         cloudMesh: null, _hdMode: false, _hdFadeStart: null, _hdAtmosphere: false,
         flightArcLine: null, traveledArcLine: null,
         planeMarker: null, cityMarkers: [], cityPulses: [],
         endpointMarkers: [], animId: null,
+        _generation: nextGen,
     };
 }
 
