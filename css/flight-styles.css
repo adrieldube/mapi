@@ -28,6 +28,43 @@
     background: rgba(0, 0, 0, 0.05);
 }
 
+/* Globe Style Toggle (Palette / Realistic) */
+.globe-style-toggle {
+    display: flex;
+    gap: 6px;
+    background: #f0f0f0;
+    border-radius: 12px;
+    padding: 3px;
+}
+
+.globe-style-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    color: #888;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.globe-style-btn.active {
+    background: #440edf;
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(68, 14, 223, 0.3);
+}
+
+.globe-style-btn:not(.active):hover {
+    color: #333;
+    background: rgba(0, 0, 0, 0.05);
+}
+
 /* 3D Globe Container */
 #globe3dContainer {
     width: 100%;

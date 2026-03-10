@@ -210,7 +210,8 @@
           </div>
 
           <div class="mb-3">
-            <label class="block text-[11px] font-medium text-[#666] mb-1">Velocidad: <span id="speedValue">1x</span></label>
+            <label class="block text-[11px] font-medium text-[#666] mb-1">Velocidad: <span
+                id="speedValue">1x</span></label>
             <input id="speedSlider" type="range" min="0.25" max="2" step="0.25" value="1"
               class="w-full h-1.5 appearance-none bg-[#e5e5e5] rounded-full cursor-pointer
               [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#440edf] [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md
@@ -235,6 +236,30 @@
             </select>
             <p class="text-[10px] text-[#999] mt-1">Graba pantalla · renderiza 1080p+ en Retina</p>
             <p id="formatSizeText" class="text-[10px] text-[#999] mt-0.5 font-mono">540 × 960 px</p>
+          </div>
+        </div>
+
+        <!-- Estilo del Globo (visible solo en modo 3D) -->
+        <div id="globeStyleSection" class="mb-6" style="display:none;">
+          <div class="flex items-center gap-2 mb-3">
+            <div class="w-1 h-4 bg-[#440edf] rounded-full"></div>
+            <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">Estilo del Globo</span>
+          </div>
+          <div class="flex items-center gap-3 p-2 bg-white rounded-lg shadow-sm">
+            <div class="flex items-center gap-2">
+              <span class="text-[12px] font-medium text-[#555]">Estilizado</span>
+              <div
+                class="toggle-switch relative w-11 h-6 bg-[#e0e0e0] rounded-full cursor-pointer transition-colors duration-300 after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:w-[18px] after:h-[18px] after:bg-white after:rounded-full after:transition-transform after:duration-300 after:shadow-sm [&.active]:bg-[#440edf] [&.active]:after:translate-x-5"
+                id="globeStyleToggle" role="switch" aria-checked="false"
+                aria-label="Alternar entre globo estilizado y realista" tabindex="0"></div>
+              <span class="text-[12px] font-medium text-[#555]">Realista</span>
+            </div>
+          </div>
+          <div class="mt-2 space-y-1">
+            <p class="text-[10px] text-[#999] leading-relaxed"><strong class="text-[#777]">Estilizado</strong> — usa tu
+              paleta de colores seleccionada en el globo</p>
+            <p class="text-[10px] text-[#999] leading-relaxed"><strong class="text-[#777]">Realista</strong> — imágenes
+              satelitales de la NASA con capas de nubes</p>
           </div>
         </div>
 
@@ -294,8 +319,8 @@
         <div id="globe3dContainer" class="absolute inset-0 rounded-lg hidden" style="z-index:5;"></div>
 
         <!-- Botón Info de Vuelo -->
-        <button id="hudToggleBtn" type="button" title="Mostrar/ocultar info de vuelo" aria-label="Mostrar/ocultar info de vuelo"
-          class="hud-toggle-btn hidden">
+        <button id="hudToggleBtn" type="button" title="Mostrar/ocultar info de vuelo"
+          aria-label="Mostrar/ocultar info de vuelo" class="hud-toggle-btn hidden">
           <ion-icon name="information-circle-outline" aria-hidden="true"></ion-icon>
         </button>
 

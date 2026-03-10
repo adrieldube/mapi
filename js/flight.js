@@ -273,6 +273,8 @@ const el = {
     mtResetBtn: document.getElementById('mtResetBtn'),
     mtCameraBtn: document.getElementById('mtCameraBtn'),
     mtCameraDivider: document.getElementById('mtCameraDivider'),
+    globeStyleSection: document.getElementById('globeStyleSection'),
+    globeStyleToggle: document.getElementById('globeStyleToggle'),
 };
 
 // === STATE ===
@@ -292,6 +294,7 @@ let flightLayersAdded = false;
 let flightDistance = 0; // km
 let canvasFormat = 'free'; // 'free', 'reel', 'feed', 'square', 'landscape'
 let viewMode = 'flat'; // 'flat' or '3d'
+let globeNasaMode = false; // false = palette cycling, true = NASA realistic
 
 
 // === THREE.JS 3D GLOBE STATE ===
@@ -304,7 +307,7 @@ let globe3d = {
     globeGroup: null,
     atmosMesh: null,
     cloudMesh: null,
-    _hdMode: false,
+    _nasaMode: false,
     _hdFadeStart: null,
     _hdAtmosphere: false,
     flightArcLine: null,
@@ -1385,6 +1388,13 @@ function setupEventListeners() {
     });
     el.mtCameraBtn.classList.toggle('mt-cam-follow', cameraFollow);
 
+    // Globe style toggle: Styled / NASA Realistic
+    if (el.globeStyleToggle) {
+        el.globeStyleToggle.addEventListener('click', () => {
+            setGlobeNasaMode(!globeNasaMode);
+        });
+    }
+
     initDualAutocomplete(el.originInput, el.originAutocomplete, (name, coords) => {
         originName = name;
         originCoords = coords;
@@ -1440,7 +1450,6 @@ const EARTH_TOPO_URL = 'https://unpkg.com/three-globe@2.31.1/example/img/earth-t
 const HD_EARTH_TEXTURE_URL = 'https://unpkg.com/three-globe@2.31.1/example/img/earth-blue-marble.jpg';
 const HD_CLOUD_URL = 'https://unpkg.com/three-globe@2.31.1/example/img/earth-clouds.png';
 
-function isHDScreen() { return window.innerWidth >= 1200; }
 
 // Camera faces +Z → the "front" of the globe is the +Z direction.
 // To show a given lat/lon, we need a quaternion that rotates that point's
@@ -1541,7 +1550,7 @@ function configureHDTexture(texture, renderer) {
     return texture;
 }
 
-function createGlobeShaderMaterial(renderer, hdMode) {
+function createGlobeShaderMaterial(renderer) {
     const loader = new THREE.TextureLoader();
     const landMask = loader.load(EARTH_WATER_URL, tex => configureHDTexture(tex, renderer));
     const bumpTexture = loader.load(EARTH_TOPO_URL, tex => configureHDTexture(tex, renderer));
@@ -1558,28 +1567,31 @@ function createGlobeShaderMaterial(renderer, hdMode) {
         time: { value: 0.0 },
     };
 
-    // HD mode: add satellite texture + blend uniform
-    if (hdMode) {
-        uniforms.hdTexture = { value: null }; // loaded async
-        uniforms.hdBlend = { value: 0.0 };    // 0 = palette only, 1 = satellite blended
-    }
+    // Always add satellite texture + blend uniforms (needed for NASA toggle)
+    uniforms.hdTexture = { value: null }; // loaded async
+    uniforms.hdBlend = { value: 0.0 };    // 0 = palette only, 1 = satellite blended
+    uniforms.nasaMode = { value: 0.0 };   // 0 = palette, 1 = full NASA realistic
 
-    const hdTextureDefines = hdMode ? `
+    const hdTextureDefines = `
         uniform sampler2D hdTexture;
         uniform float hdBlend;
-    ` : '';
+        uniform float nasaMode;
+    `;
 
-    const hdFragmentBlend = hdMode ? `
-                // HD satellite texture — adds surface detail while keeping palette colors
-                if (hdBlend > 0.0) {
+    const hdFragmentBlend = `
+                // NASA realistic mode — show raw satellite texture
+                if (nasaMode > 0.0 && hdBlend > 0.0) {
                     vec3 satellite = texture2D(hdTexture, vUv).rgb;
-                    // Extract luminance as detail overlay (coastlines, terrain texture)
+                    baseColor = mix(baseColor, satellite, nasaMode * hdBlend);
+                }
+                // HD satellite detail — adds surface texture while keeping palette colors
+                else if (hdBlend > 0.0) {
+                    vec3 satellite = texture2D(hdTexture, vUv).rgb;
                     float detail = dot(satellite, vec3(0.299, 0.587, 0.114));
-                    // Modulate palette base color with satellite detail for texture/depth
                     vec3 detailed = baseColor * (0.7 + 0.6 * detail);
                     baseColor = mix(baseColor, detailed, hdBlend);
                 }
-    ` : '';
+    `;
 
     return new THREE.ShaderMaterial({
         uniforms,
@@ -1810,37 +1822,37 @@ function initGlobe3D() {
     globe3d._paletteNextIndex = 1;
     globe3d._paletteLerp = 0;
 
-    // Detect HD mode for large screens
-    const hdMode = isHDScreen();
-    globe3d._hdMode = hdMode;
-    console.log(`[Globe3D] HD mode: ${hdMode ? 'ON' : 'OFF'} (screen width: ${window.innerWidth}px, threshold: 1200px)`);
+    // Apply NASA mode state if previously set
+    globe3d._nasaMode = globeNasaMode;
 
     // Globe sphere with cycling shader — matches index page exactly
     const globeGeo = new THREE.SphereGeometry(GLOBE_RADIUS, 256, 256);
-    const globeMat = createGlobeShaderMaterial(renderer, hdMode);
+    const globeMat = createGlobeShaderMaterial(renderer);
     const globe = new THREE.Mesh(globeGeo, globeMat);
     globeGroup.add(globe);
     globe3d.globe = globe;
 
-    // HD: load satellite texture async, crossfade once ready
-    // Guard async callbacks with generation counter to prevent leaks after destroy
-    const gen = globe3d._generation;
-    if (hdMode) {
-        const hdLoader = new THREE.TextureLoader();
-        hdLoader.load(HD_EARTH_TEXTURE_URL, tex => {
-            if (globe3d._generation !== gen) { tex.dispose(); return; }
-            configureHDTexture(tex, renderer);
-            if (globe3d.globe && globe3d.globe.material.uniforms.hdTexture) {
-                globe3d.globe.material.uniforms.hdTexture.value = tex;
-                globe3d._hdFadeStart = performance.now();
-            }
-        });
+    // Apply current NASA mode to shader
+    if (globeNasaMode && globeMat.uniforms.nasaMode) {
+        globeMat.uniforms.nasaMode.value = 1.0;
     }
+
+    // Load satellite texture async (always, needed for NASA toggle)
+    const gen = globe3d._generation;
+    const hdLoader = new THREE.TextureLoader();
+    hdLoader.load(HD_EARTH_TEXTURE_URL, tex => {
+        if (globe3d._generation !== gen) { tex.dispose(); return; }
+        configureHDTexture(tex, renderer);
+        if (globe3d.globe && globe3d.globe.material.uniforms.hdTexture) {
+            globe3d.globe.material.uniforms.hdTexture.value = tex;
+            globe3d._hdFadeStart = performance.now();
+        }
+    });
 
     // Atmosphere glow — realistic scattering: color fades from palette tint near
     // the surface to a thin blue-white at the outer edge, with non-uniform falloff
     const atmosGeo = new THREE.SphereGeometry(GLOBE_RADIUS * 1.06, 128, 128);
-    if (hdMode) {
+    {
         const atmosMat = new THREE.ShaderMaterial({
             uniforms: {
                 glowColor: { value: new THREE.Color(GLOBE_PALETTES[0].land) },
@@ -1888,19 +1900,10 @@ function initGlobe3D() {
         globe3d.atmosMesh = new THREE.Mesh(atmosGeo, atmosMat);
         globeGroup.add(globe3d.atmosMesh);
         globe3d._hdAtmosphere = true;
-    } else {
-        const atmosMat = new THREE.MeshBasicMaterial({
-            color: new THREE.Color(GLOBE_PALETTES[0].land),
-            transparent: true,
-            opacity: 0.08,
-            side: THREE.BackSide,
-        });
-        globe3d.atmosMesh = new THREE.Mesh(atmosGeo, atmosMat);
-        globeGroup.add(globe3d.atmosMesh);
     }
 
-    // HD: Cloud layer with slow rotation
-    if (hdMode) {
+    // Cloud layer with slow rotation
+    {
         const cloudGeo = new THREE.SphereGeometry(GLOBE_RADIUS * 1.01, 128, 128);
         const cloudLoader = new THREE.TextureLoader();
         cloudLoader.load(HD_CLOUD_URL, tex => {
@@ -1914,6 +1917,7 @@ function initGlobe3D() {
                 side: THREE.FrontSide,
             });
             const cloudMesh = new THREE.Mesh(cloudGeo, cloudMat);
+            cloudMesh.visible = globeNasaMode; // only visible in NASA mode
             if (globe3d.globeGroup) {
                 globe3d.globeGroup.add(cloudMesh);
                 globe3d.cloudMesh = cloudMesh;
@@ -2356,7 +2360,7 @@ function destroyGlobe3D() {
     globe3d = {
         scene: null, camera: null, renderer: preservedRenderer || null, controls: null,
         globe: null, globeGroup: null, atmosMesh: null,
-        cloudMesh: null, _hdMode: false, _hdFadeStart: null, _hdAtmosphere: false,
+        cloudMesh: null, _nasaMode: false, _hdFadeStart: null, _hdAtmosphere: false,
         flightArcLine: null, traveledArcLine: null,
         planeMarker: null, cityMarkers: [], cityPulses: [],
         endpointMarkers: [], animId: null,
@@ -2374,6 +2378,8 @@ function syncControlsForMode() {
     // Theme and Camera mode only apply to flat map mode
     if (el.themeSection) el.themeSection.style.display = isFlat ? '' : 'none';
     if (el.cameraModeBtn) el.cameraModeBtn.style.display = isFlat ? '' : 'none';
+    // Globe style toggle only visible in 3D mode
+    if (el.globeStyleSection) el.globeStyleSection.style.display = isFlat ? 'none' : '';
     // Mobile toolbar: hide camera toggle and its divider in 3D mode
     if (el.mtCameraBtn) el.mtCameraBtn.style.display = isFlat ? '' : 'none';
     if (el.mtCameraDivider) el.mtCameraDivider.style.display = isFlat ? '' : 'none';
@@ -2458,6 +2464,27 @@ function switchToFlat() {
     destroyGlobe3D();
 
     if (map) setTimeout(() => map.resize(), 50);
+}
+
+function setGlobeNasaMode(enabled) {
+    globeNasaMode = enabled;
+    globe3d._nasaMode = enabled;
+
+    // Update toggle switch style
+    if (el.globeStyleToggle) {
+        el.globeStyleToggle.classList.toggle('active', enabled);
+        el.globeStyleToggle.setAttribute('aria-checked', String(enabled));
+    }
+
+    // Update shader uniform for smooth transition
+    if (globe3d.globe && globe3d.globe.material.uniforms.nasaMode) {
+        globe3d.globe.material.uniforms.nasaMode.value = enabled ? 1.0 : 0.0;
+    }
+
+    // Toggle cloud layer visibility — show clouds in NASA mode, hide in palette mode
+    if (globe3d.cloudMesh) {
+        globe3d.cloudMesh.visible = enabled;
+    }
 }
 
 function refreshGlobe3DStyle() {
