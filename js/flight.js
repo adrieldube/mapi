@@ -300,6 +300,10 @@ let globe3d = {
     globe: null,
     globeGroup: null,
     atmosMesh: null,
+    cloudMesh: null,
+    _hdMode: false,
+    _hdFadeStart: null,
+    _hdAtmosphere: false,
     flightArcLine: null,
     traveledArcLine: null,
     planeMarker: null,
@@ -1415,6 +1419,12 @@ const GLOBE_RADIUS = 1.0;
 const EARTH_WATER_URL = 'https://unpkg.com/three-globe@2.31.1/example/img/earth-water.png';
 const EARTH_TOPO_URL = 'https://unpkg.com/three-globe@2.31.1/example/img/earth-topology.png';
 
+// HD textures for large screens — NASA Blue Marble + clouds
+const HD_EARTH_TEXTURE_URL = 'https://unpkg.com/three-globe@2.31.1/example/img/earth-blue-marble.jpg';
+const HD_CLOUD_URL = 'https://unpkg.com/three-globe@2.31.1/example/img/earth-clouds.png';
+
+function isHDScreen() { return window.innerWidth >= 1200; }
+
 // Camera faces +Z → the "front" of the globe is the +Z direction.
 // To show a given lat/lon, we need a quaternion that rotates that point's
 // direction vector to face +Z. setFromUnitVectors handles shortest-path
@@ -1514,7 +1524,7 @@ function configureHDTexture(texture, renderer) {
     return texture;
 }
 
-function createGlobeShaderMaterial(renderer) {
+function createGlobeShaderMaterial(renderer, hdMode) {
     const loader = new THREE.TextureLoader();
     const landMask = loader.load(EARTH_WATER_URL, tex => configureHDTexture(tex, renderer));
     const bumpTexture = loader.load(EARTH_TOPO_URL, tex => configureHDTexture(tex, renderer));
@@ -1529,6 +1539,28 @@ function createGlobeShaderMaterial(renderer) {
         blendFactor: { value: 0.0 },
         displacementScale: { value: GLOBE_RADIUS * 0.08 }
     };
+
+    // HD mode: add satellite texture + blend uniform
+    if (hdMode) {
+        uniforms.hdTexture = { value: null }; // loaded async
+        uniforms.hdBlend = { value: 0.0 };    // 0 = palette only, 1 = satellite blended
+    }
+
+    const hdTextureDefines = hdMode ? `
+        uniform sampler2D hdTexture;
+        uniform float hdBlend;
+    ` : '';
+
+    const hdFragmentBlend = hdMode ? `
+                // HD satellite texture blend
+                if (hdBlend > 0.0) {
+                    vec3 satellite = texture2D(hdTexture, vUv).rgb;
+                    // Tint satellite with palette colors for cycling effect
+                    vec3 paletteTint = mix(curLand, curWater, isWater);
+                    vec3 tintedSatellite = satellite * 0.6 + satellite * paletteTint * 0.4;
+                    baseColor = mix(baseColor, tintedSatellite, hdBlend);
+                }
+    ` : '';
 
     return new THREE.ShaderMaterial({
         uniforms,
@@ -1560,6 +1592,7 @@ function createGlobeShaderMaterial(renderer) {
             uniform vec3 targetLandColor;
             uniform vec3 targetWaterColor;
             uniform float blendFactor;
+            ${hdTextureDefines}
             varying vec2 vUv;
             varying vec3 vNormal;
             varying vec3 vWorldPos;
@@ -1581,8 +1614,9 @@ function createGlobeShaderMaterial(renderer) {
 
                 vec3 baseColor = mix(landShaded, waterShaded, isWater);
 
+                ${hdFragmentBlend}
+
                 // Compute normal from topology for per-pixel bump lighting
-                // Use finer texel for sharper bump detail
                 float texel = 1.0 / 4096.0;
                 float hL = texture2D(topoMap, vUv + vec2(-texel, 0.0)).r;
                 float hR = texture2D(topoMap, vUv + vec2(texel, 0.0)).r;
@@ -1694,23 +1728,97 @@ function initGlobe3D() {
     globe3d._paletteNextIndex = 1;
     globe3d._paletteLerp = 0;
 
+    // Detect HD mode for large screens
+    const hdMode = isHDScreen();
+    globe3d._hdMode = hdMode;
+    console.log(`[Globe3D] HD mode: ${hdMode ? 'ON' : 'OFF'} (screen width: ${window.innerWidth}px, threshold: 1200px)`);
+
     // Globe sphere with cycling shader — matches index page exactly
     const globeGeo = new THREE.SphereGeometry(GLOBE_RADIUS, 256, 256);
-    const globeMat = createGlobeShaderMaterial(renderer);
+    const globeMat = createGlobeShaderMaterial(renderer, hdMode);
     const globe = new THREE.Mesh(globeGeo, globeMat);
     globeGroup.add(globe);
     globe3d.globe = globe;
 
-    // Atmosphere glow — matches current cycling palette
-    const atmosGeo = new THREE.SphereGeometry(GLOBE_RADIUS * 1.04, 128, 128);
-    const atmosMat = new THREE.MeshBasicMaterial({
-        color: new THREE.Color(GLOBE_PALETTES[0].land),
-        transparent: true,
-        opacity: 0.06,
-        side: THREE.BackSide,
-    });
-    globe3d.atmosMesh = new THREE.Mesh(atmosGeo, atmosMat);
-    globeGroup.add(globe3d.atmosMesh);
+    // HD: load satellite texture async, crossfade once ready
+    if (hdMode) {
+        const hdLoader = new THREE.TextureLoader();
+        hdLoader.load(HD_EARTH_TEXTURE_URL, tex => {
+            configureHDTexture(tex, renderer);
+            if (globe3d.globe && globe3d.globe.material.uniforms.hdTexture) {
+                globe3d.globe.material.uniforms.hdTexture.value = tex;
+                globe3d._hdFadeStart = performance.now();
+            }
+        });
+    }
+
+    // Atmosphere glow
+    if (hdMode) {
+        // HD: Fresnel-based atmosphere shader for realistic glow
+        const atmosGeo = new THREE.SphereGeometry(GLOBE_RADIUS * 1.06, 128, 128);
+        const atmosMat = new THREE.ShaderMaterial({
+            uniforms: {
+                glowColor: { value: new THREE.Color(GLOBE_PALETTES[0].land) },
+                viewVector: { value: camera.position.clone() },
+            },
+            vertexShader: `
+                uniform vec3 viewVector;
+                varying float intensity;
+                void main() {
+                    vec3 vNorm = normalize(normalMatrix * normal);
+                    vec3 vView = normalize(normalMatrix * viewVector);
+                    intensity = pow(0.7 - dot(vNorm, vView), 3.0);
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+            `,
+            fragmentShader: `
+                uniform vec3 glowColor;
+                varying float intensity;
+                void main() {
+                    gl_FragColor = vec4(glowColor, intensity * 0.6);
+                }
+            `,
+            side: THREE.BackSide,
+            blending: THREE.AdditiveBlending,
+            transparent: true,
+            depthWrite: false,
+        });
+        globe3d.atmosMesh = new THREE.Mesh(atmosGeo, atmosMat);
+        globeGroup.add(globe3d.atmosMesh);
+        globe3d._hdAtmosphere = true;
+    } else {
+        // Standard: simple BackSide glow
+        const atmosGeo = new THREE.SphereGeometry(GLOBE_RADIUS * 1.04, 128, 128);
+        const atmosMat = new THREE.MeshBasicMaterial({
+            color: new THREE.Color(GLOBE_PALETTES[0].land),
+            transparent: true,
+            opacity: 0.06,
+            side: THREE.BackSide,
+        });
+        globe3d.atmosMesh = new THREE.Mesh(atmosGeo, atmosMat);
+        globeGroup.add(globe3d.atmosMesh);
+    }
+
+    // HD: Cloud layer with slow rotation
+    if (hdMode) {
+        const cloudGeo = new THREE.SphereGeometry(GLOBE_RADIUS * 1.01, 128, 128);
+        const cloudLoader = new THREE.TextureLoader();
+        cloudLoader.load(HD_CLOUD_URL, tex => {
+            configureHDTexture(tex, renderer);
+            const cloudMat = new THREE.MeshBasicMaterial({
+                map: tex,
+                transparent: true,
+                opacity: 0.25,
+                depthWrite: false,
+                side: THREE.FrontSide,
+            });
+            const cloudMesh = new THREE.Mesh(cloudGeo, cloudMat);
+            if (globe3d.globeGroup) {
+                globe3d.globeGroup.add(cloudMesh);
+                globe3d.cloudMesh = cloudMesh;
+            }
+        });
+    }
 
     // No city markers — only origin/destination shown during flight
 
@@ -1808,7 +1916,26 @@ function initGlobe3D() {
             curLand.g + (nxtLand.g - curLand.g) * ease,
             curLand.b + (nxtLand.b - curLand.b) * ease
         );
-        globe3d.atmosMesh.material.color.copy(globe3d._blendColor);
+        // Update atmosphere color — HD uses Fresnel shader, standard uses material.color
+        if (globe3d._hdAtmosphere && globe3d.atmosMesh.material.uniforms) {
+            globe3d.atmosMesh.material.uniforms.glowColor.value.copy(globe3d._blendColor);
+            globe3d.atmosMesh.material.uniforms.viewVector.value.copy(camera.position);
+        } else {
+            globe3d.atmosMesh.material.color.copy(globe3d._blendColor);
+        }
+
+        // HD satellite texture crossfade (1 second)
+        if (globe3d._hdFadeStart && globe3d.globe.material.uniforms.hdBlend) {
+            const elapsed = (performance.now() - globe3d._hdFadeStart) / 1000;
+            const blend = Math.min(elapsed / 1.0, 1.0);
+            globe3d.globe.material.uniforms.hdBlend.value = blend;
+            if (blend >= 1.0) globe3d._hdFadeStart = null;
+        }
+
+        // HD cloud layer slow drift
+        if (globe3d.cloudMesh) {
+            globe3d.cloudMesh.rotation.y += 0.0001;
+        }
 
         // Inertia rotation when not dragging (+ gentle auto-rotate when idle)
         if (!globe3d.isDragging && !isPlaying) {
@@ -2101,6 +2228,7 @@ function destroyGlobe3D() {
     globe3d = {
         scene: null, camera: null, renderer: null, controls: null,
         globe: null, globeGroup: null, atmosMesh: null,
+        cloudMesh: null, _hdMode: false, _hdFadeStart: null, _hdAtmosphere: false,
         flightArcLine: null, traveledArcLine: null,
         planeMarker: null, cityMarkers: [], cityPulses: [],
         endpointMarkers: [], animId: null,
