@@ -40,6 +40,49 @@
     border-radius: inherit;
 }
 
+/* Left Panel Scrollbar Styling */
+#controls::-webkit-scrollbar {
+    width: 8px;
+}
+
+#controls::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#controls::-webkit-scrollbar-thumb {
+    background: #440edf;
+    border-radius: 4px;
+}
+
+#controls::-webkit-scrollbar-thumb:hover {
+    background: #3509b8;
+}
+
+/* Firefox scrollbar styling */
+#controls,
+#container > main {
+    scrollbar-width: auto;
+    scrollbar-color: #440edf transparent;
+}
+
+#container > main::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+#container > main::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#container > main::-webkit-scrollbar-thumb {
+    background: #440edf;
+    border-radius: 4px;
+}
+
+#container > main::-webkit-scrollbar-thumb:hover {
+    background: #3509b8;
+}
+
 /* Panel Toggle (same pattern as styles.css) */
 #controls {
     transition: margin-left 0.3s ease, opacity 0.3s ease;

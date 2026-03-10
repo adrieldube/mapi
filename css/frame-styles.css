@@ -154,6 +154,49 @@
     pointer-events: auto;
 }
 
+/* ── Sidebar Scrollbar Styling ───────────────────────────────── */
+#sidebar::-webkit-scrollbar {
+    width: 8px;
+}
+
+#sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#sidebar::-webkit-scrollbar-thumb {
+    background: #440edf;
+    border-radius: 4px;
+}
+
+#sidebar::-webkit-scrollbar-thumb:hover {
+    background: #3509b8;
+}
+
+/* Firefox scrollbar styling */
+#sidebar,
+#sceneWrapper {
+    scrollbar-width: auto;
+    scrollbar-color: #440edf transparent;
+}
+
+#sceneWrapper::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+#sceneWrapper::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#sceneWrapper::-webkit-scrollbar-thumb {
+    background: #440edf;
+    border-radius: 4px;
+}
+
+#sceneWrapper::-webkit-scrollbar-thumb:hover {
+    background: #3509b8;
+}
+
 /* ── Frame style buttons ─────────────────────────────────────── */
 .frame-style-btn {
     width: 32px;
