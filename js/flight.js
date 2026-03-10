@@ -482,8 +482,21 @@ function initMap(center, zoom, style) {
     });
 }
 
+// Flight accent colors per theme — crafted to pop against each palette
+const FLIGHT_ACCENT = {
+    'Noir':       '#e84393',  // hot pink against monochrome — electric contrast
+    'Blueprint':  '#00e5ff',  // cyan neon against deep navy — radar glow
+    'Emerald':    '#ffd166',  // warm gold against deep green — jewel tone
+    'Tangerine':  '#ff4b00',  // keep the orange identity — match roads
+    'Royal Blue': '#ffe100',  // bright yellow against white/blue
+};
+
+function getFlightAccent() {
+    return FLIGHT_ACCENT[currentStyle] || '#e84393';
+}
+
 function getPlaneIconColor() {
-    return GLOBE_MARKER_ACCENT;
+    return getFlightAccent();
 }
 
 function createPlaneImage() {
@@ -522,7 +535,7 @@ function createPlaneImage() {
 function setupFlightLayers() {
     if (flightLayersAdded) return;
 
-    const pathColor = GLOBE_MARKER_ACCENT;
+    const pathColor = getFlightAccent();
 
     map.addSource('flight-path', {
         type: 'geojson',
@@ -600,7 +613,7 @@ function setupFlightLayers() {
         source: 'endpoints',
         paint: {
             'circle-radius': 6,
-            'circle-color': GLOBE_MARKER_ACCENT,
+            'circle-color': getFlightAccent(),
             'circle-stroke-width': 2,
             'circle-stroke-color': PALETTES[currentStyle].bg
         }
