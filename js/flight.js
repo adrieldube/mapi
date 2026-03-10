@@ -263,6 +263,8 @@ const el = {
     modeFlatBtn: document.getElementById('modeFlatBtn'),
     mode3dBtn: document.getElementById('mode3dBtn'),
     globe3dContainer: document.getElementById('globe3dContainer'),
+    themeSection: document.getElementById('themeSection'),
+    formatSection: document.getElementById('formatSection'),
     // Mobile toolbar
     mtFlatBtn: document.getElementById('mtFlatBtn'),
     mt3dBtn: document.getElementById('mt3dBtn'),
@@ -270,6 +272,7 @@ const el = {
     mtPauseBtn: document.getElementById('mtPauseBtn'),
     mtResetBtn: document.getElementById('mtResetBtn'),
     mtCameraBtn: document.getElementById('mtCameraBtn'),
+    mtCameraDivider: document.getElementById('mtCameraDivider'),
 };
 
 // === STATE ===
@@ -1730,8 +1733,8 @@ function createGlobeShaderMaterial(renderer, hdMode) {
 function fitGlobeCameraToFrame() {
     if (!globe3d.camera) return;
     const aspect = globe3d.camera.aspect;
-    // Base half-angle: how large we want the globe to appear (bigger = tighter fit)
-    const baseHalfAngle = toRad(26); // ~52° span → globe nearly fills the frame
+    // Base half-angle: how large we want the globe to appear (smaller = more padding)
+    const baseHalfAngle = toRad(22); // ~44° span → globe fits with visible padding from edges
     // The narrower dimension constrains the fit.
     // Convert to the vertical half-FOV the camera needs:
     let vHalfFov;
@@ -1745,8 +1748,9 @@ function fitGlobeCameraToFrame() {
     }
     globe3d.camera.fov = toDeg(vHalfFov * 2);
     globe3d.camera.updateProjectionMatrix();
-    // Position camera at exact tangent distance for the constraining dimension
-    globe3d.camera.position.z = GLOBE_RADIUS / Math.sin(baseHalfAngle);
+    // Position camera beyond tangent distance so globe has padding from all edges
+    // 1.18 → globe fills ~85% of the constraining dimension
+    globe3d.camera.position.z = (GLOBE_RADIUS / Math.sin(baseHalfAngle)) * 1.18;
 }
 
 function initGlobe3D() {
@@ -1957,7 +1961,7 @@ function initGlobe3D() {
     // Scroll to zoom
     renderer.domElement.addEventListener('wheel', e => {
         e.preventDefault();
-        camera.position.z = Math.max(1.8, Math.min(8, camera.position.z + e.deltaY * 0.003));
+        camera.position.z = Math.max(2.4, Math.min(8, camera.position.z + e.deltaY * 0.003));
     }, { passive: false });
 
     // Handle resize — refit globe to frame on format change
@@ -2365,6 +2369,16 @@ function syncMobileMode() {
     el.mt3dBtn.classList.toggle('active', viewMode === '3d');
 }
 
+function syncControlsForMode() {
+    const isFlat = viewMode === 'flat';
+    // Theme and Camera mode only apply to flat map mode
+    if (el.themeSection) el.themeSection.style.display = isFlat ? '' : 'none';
+    if (el.cameraModeBtn) el.cameraModeBtn.style.display = isFlat ? '' : 'none';
+    // Mobile toolbar: hide camera toggle and its divider in 3D mode
+    if (el.mtCameraBtn) el.mtCameraBtn.style.display = isFlat ? '' : 'none';
+    if (el.mtCameraDivider) el.mtCameraDivider.style.display = isFlat ? '' : 'none';
+}
+
 function syncMobileFlight() {
     const hasArc = arcCoordinates.length > 0;
     const isPaused = hasArc && !isPlaying && flightProgress > 0 && flightProgress < 1.0;
@@ -2391,6 +2405,7 @@ function switchTo3D() {
     el.mode3dBtn.classList.add('active');
     el.mode3dBtn.classList.remove('opacity-50');
     syncMobileMode();
+    syncControlsForMode();
 
 
 
@@ -2432,6 +2447,7 @@ function switchToFlat() {
     el.modeFlatBtn.classList.add('active');
     el.modeFlatBtn.classList.remove('opacity-50');
     syncMobileMode();
+    syncControlsForMode();
 
 
 
