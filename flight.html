@@ -6,16 +6,47 @@
   <link rel="preconnect" href="https://unpkg.com" crossorigin />
   <link rel="dns-prefetch" href="https://unpkg.com" />
 
-  <title>MAPI — Flight Simulator</title>
+  <!-- Resource Hints -->
+  <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
+  <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+
+  <title>MAPI — Flight Simulator | Animated Flight Routes on a Styled Map</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description"
-    content="Simulate a flight between any two cities on a beautiful styled map. Watch a plane trace its route in real-time." />
+    content="Simulate animated flights between any two cities on a beautifully styled map. Watch a plane trace its great-circle route in real-time with customizable map themes, speed controls, and 3D globe view. Free browser-based flight animation tool." />
+  <meta name="keywords"
+    content="flight simulator, flight route map, animated flight path, great circle route, city-to-city flight, map animation, travel route, flight tracker, styled map, 3D globe, MAPI" />
+  <meta name="author" content="MAPI" />
+  <meta name="robots" content="index, follow" />
   <meta name="theme-color" content="#440edf" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
   <link rel="canonical" href="https://streetmap-designer.pages.dev/flight.html" />
   <link rel="alternate" hreflang="en" href="https://streetmap-designer.pages.dev/flight.html" />
   <link rel="alternate" hreflang="es" href="https://streetmap-designer.pages.dev/es/flight.html" />
   <link rel="alternate" hreflang="x-default" href="https://streetmap-designer.pages.dev/flight.html" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="MAPI — Flight Simulator | Animated Flight Routes" />
+  <meta property="og:description"
+    content="Simulate animated flights between any two cities on a beautifully styled map. Watch a plane trace its route in real-time with customizable themes and 3D globe view." />
+  <meta property="og:url" content="https://streetmap-designer.pages.dev/flight.html" />
+  <meta property="og:site_name" content="MAPI" />
+  <meta property="og:image" content="https://streetmap-designer.pages.dev/og-image.png" />
+  <meta property="og:image:width" content="1274" />
+  <meta property="og:image:height" content="600" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:locale:alternate" content="es_ES" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="MAPI — Flight Simulator | Animated Flight Routes" />
+  <meta name="twitter:description"
+    content="Simulate animated flights between any two cities on a styled map. Real-time plane animation with customizable themes &amp; 3D globe view." />
+  <meta name="twitter:image" content="https://streetmap-designer.pages.dev/og-image.png" />
 
   <!-- MapLibre GL -->
   <link rel="preload" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" as="style" />
@@ -34,6 +65,30 @@
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "MAPI — Flight Simulator",
+    "url": "https://streetmap-designer.pages.dev/flight.html",
+    "description": "Simulate animated flights between any two cities on a beautifully styled map. Watch a plane trace its great-circle route in real-time with customizable map themes, speed controls, and 3D globe view.",
+    "applicationCategory": "DesignApplication",
+    "operatingSystem": "Any",
+    "browserRequirements": "Requires a modern web browser with JavaScript and WebGL enabled",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "inLanguage": ["en", "es"],
+    "author": {
+      "@type": "Organization",
+      "name": "MAPI"
+    }
+  }
+  </script>
 
   <!-- Flight Styles -->
   <link href="css/flight-styles.css" rel="stylesheet" />
