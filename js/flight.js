@@ -484,11 +484,11 @@ function initMap(center, zoom, style) {
 
 // Flight accent colors per theme — crafted to pop against each palette
 const FLIGHT_ACCENT = {
-    'Noir':       '#e84393',  // hot pink against monochrome — electric contrast
-    'Blueprint':  '#00e5ff',  // cyan neon against deep navy — radar glow
-    'Emerald':    '#ffd166',  // warm gold against deep green — jewel tone
-    'Tangerine':  '#ff4b00',  // keep the orange identity — match roads
-    'Royal Blue': '#ffe100',  // bright yellow against white/blue
+    'Noir': '#e84393',  // hot pink against monochrome — electric contrast
+    'Blueprint': '#00e5ff',  // cyan neon against deep navy — radar glow
+    'Emerald': '#ffd166',  // warm gold against deep green — jewel tone
+    'Tangerine': '#ff4b00',  // keep the orange identity — match roads
+    'Royal Blue': '#ffc400',  // bright yellow against white/blue
 };
 
 function getFlightAccent() {
