@@ -272,7 +272,9 @@ const el = {
     mtPauseBtn: document.getElementById('mtPauseBtn'),
     mtResetBtn: document.getElementById('mtResetBtn'),
     mtCameraBtn: document.getElementById('mtCameraBtn'),
+    mtCaptureBtn: document.getElementById('mtCaptureBtn'),
     mtCameraDivider: document.getElementById('mtCameraDivider'),
+    captureBtn: document.getElementById('captureBtn'),
     globeStyleSection: document.getElementById('globeStyleSection'),
     globeStyleToggle: document.getElementById('globeStyleToggle'),
 };
@@ -407,6 +409,134 @@ function applyCanvasFormat(format) {
     if (map) {
         setTimeout(() => map.resize(), 50);
     }
+}
+
+// === SCREENSHOT CAPTURE ===
+function captureScreenshot() {
+    const mapArea = document.getElementById('mapArea');
+    const rect = mapArea.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    const outW = Math.round(rect.width * dpr);
+    const outH = Math.round(rect.height * dpr);
+
+    const out = document.createElement('canvas');
+    out.width = outW;
+    out.height = outH;
+    const ctx = out.getContext('2d');
+
+    // 1. Draw base layer (map or globe)
+    if (viewMode === '3d' && globe3d.renderer) {
+        // Re-render to ensure buffer is fresh
+        if (globe3d.scene && globe3d.camera) {
+            globe3d.renderer.render(globe3d.scene, globe3d.camera);
+        }
+        const src = globe3d.renderer.domElement;
+        ctx.drawImage(src, 0, 0, src.width, src.height, 0, 0, outW, outH);
+    } else if (map) {
+        const mapCanvas = map.getCanvas();
+        const spec = CANVAS_FORMATS[canvasFormat];
+        if (spec && spec.width) {
+            // Fixed format: crop the center (skip MAP_OVERFLOW edges)
+            const sx = MAP_OVERFLOW * dpr;
+            const sy = MAP_OVERFLOW * dpr;
+            const sw = mapCanvas.width - MAP_OVERFLOW * 2 * dpr;
+            const sh = mapCanvas.height - MAP_OVERFLOW * 2 * dpr;
+            ctx.drawImage(mapCanvas, sx, sy, sw, sh, 0, 0, outW, outH);
+        } else {
+            // Free mode: draw full canvas
+            ctx.drawImage(mapCanvas, 0, 0, mapCanvas.width, mapCanvas.height, 0, 0, outW, outH);
+        }
+    }
+
+    // 2. Draw HUD overlay if visible
+    const hud = el.flightHud;
+    if (hud && !hud.classList.contains('hidden')) {
+        const hudRect = hud.getBoundingClientRect();
+        const x = (hudRect.left - rect.left) * dpr;
+        const y = (hudRect.top - rect.top) * dpr;
+        const w = hudRect.width * dpr;
+        const h = hudRect.height * dpr;
+        const r = 12 * dpr;
+
+        ctx.save();
+        // Background
+        ctx.beginPath();
+        ctx.roundRect(x, y, w, h, r);
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        ctx.fill();
+
+        // Text rendering
+        ctx.fillStyle = '#fff';
+        const pad = 14 * dpr;
+        let ty = y + pad;
+
+        // "Flight Info" label
+        ctx.font = `700 ${9 * dpr}px system-ui, -apple-system, sans-serif`;
+        ctx.globalAlpha = 0.6;
+        ctx.fillText('FLIGHT INFO', x + pad, ty + 9 * dpr);
+        ctx.globalAlpha = 1;
+        ty += 18 * dpr;
+
+        // Route
+        const origin = el.hudOrigin.textContent;
+        const dest = el.hudDest.textContent;
+        ctx.font = `600 ${13 * dpr}px system-ui, -apple-system, sans-serif`;
+        ctx.fillText(`${origin}  →  ${dest}`, x + pad, ty + 13 * dpr);
+        ty += 24 * dpr;
+
+        // Stats
+        const stats = [
+            ['DISTANCE', el.hudDistance.textContent],
+            ['ETA', el.hudEta.textContent],
+            ['PROGRESS', el.hudProgress.textContent],
+        ];
+        const colW = (w - pad * 2) / 2;
+        stats.forEach((s, i) => {
+            const col = i % 2;
+            const row = Math.floor(i / 2);
+            const sx = x + pad + col * colW;
+            const sy = ty + row * 28 * dpr;
+            ctx.font = `600 ${8 * dpr}px system-ui, -apple-system, sans-serif`;
+            ctx.globalAlpha = 0.5;
+            ctx.fillText(s[0], sx, sy + 8 * dpr);
+            ctx.globalAlpha = 1;
+            ctx.font = `600 ${12 * dpr}px system-ui, -apple-system, sans-serif`;
+            ctx.fillText(s[1], sx, sy + 22 * dpr);
+        });
+        ctx.restore();
+    }
+
+    // 3. Draw progress bar if visible
+    const progressBar = el.progressBar;
+    if (progressBar && !progressBar.classList.contains('hidden')) {
+        const barH = 3 * dpr;
+        const fillW = outW * (flightProgress || 0);
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+        ctx.fillRect(0, outH - barH, outW, barH);
+        ctx.fillStyle = '#440edf';
+        ctx.fillRect(0, outH - barH, fillW, barH);
+    }
+
+    // 4. Download / Share
+    out.toBlob(blob => {
+        if (!blob) return;
+        const file = new File([blob], 'mapi-flight.png', { type: 'image/png' });
+
+        // Try native share on mobile if available
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            navigator.share({ files: [file], title: 'MAPI Flight' }).catch(() => {});
+        } else {
+            // Fallback: download
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'mapi-flight.png';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 5000);
+        }
+    }, 'image/png');
 }
 
 // === PLANE ICON SVG (realistic top-down airliner) ===
@@ -1392,6 +1522,10 @@ function setupEventListeners() {
     });
     el.mtCameraBtn.classList.toggle('mt-cam-follow', cameraFollow);
 
+    // Screenshot capture
+    el.captureBtn.addEventListener('click', captureScreenshot);
+    el.mtCaptureBtn.addEventListener('click', captureScreenshot);
+
     // Globe style toggle: Styled / NASA Realistic
     if (el.globeStyleToggle) {
         el.globeStyleToggle.addEventListener('click', () => {
@@ -1795,6 +1929,7 @@ function initGlobe3D() {
         renderer = new THREE.WebGLRenderer({
             antialias: true,
             alpha: true,
+            preserveDrawingBuffer: true,
             powerPreference: 'high-performance'
         });
         renderer.setClearColor(0x000000, 0);
