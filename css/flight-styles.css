@@ -411,6 +411,119 @@
     border-radius: 0 2px 2px 0;
 }
 
+/* Recording Indicator */
+.recording-indicator {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    pointer-events: none;
+}
+
+.recording-indicator.hidden {
+    display: none;
+}
+
+.recording-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #ef4444;
+    animation: pulse-rec 1s infinite;
+}
+
+.recording-label {
+    font-size: 11px;
+    color: white;
+    font-weight: 600;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes pulse-rec {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+/* Video Save Overlay */
+.video-save-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 25;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+}
+
+.video-save-overlay.hidden {
+    display: none;
+}
+
+.video-save-card {
+    background: white;
+    border-radius: 16px;
+    padding: 28px 32px;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    max-width: 280px;
+    width: 90%;
+}
+
+.video-save-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #111;
+    margin: 10px 0 4px;
+}
+
+.video-save-subtitle {
+    font-size: 12px;
+    color: #666;
+    margin: 0 0 20px;
+}
+
+.video-save-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.video-save-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 16px;
+    border-radius: 9999px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+}
+
+.video-save-btn-primary {
+    background: #440edf;
+    color: white;
+}
+
+.video-save-btn-primary:hover {
+    background: #3509b8;
+}
+
+.video-save-btn-secondary {
+    background: #f0f0f0;
+    color: #666;
+}
+
+.video-save-btn-secondary:hover {
+    background: #e0e0e0;
+}
+
 /* Theme Preview Card */
 .theme-swatch-large {
     width: 52px;

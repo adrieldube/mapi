@@ -228,6 +228,17 @@
             Captura
           </button>
 
+          <button id="recordBtn" type="button"
+            class="w-full cursor-pointer bg-white shadow-sm text-[#333] font-semibold px-3 py-2.5 rounded-full text-[12px] transition-all duration-200 hover:shadow-md hover:text-red-500 active:scale-95 flex items-center justify-center gap-2 mt-2">
+            <ion-icon name="radio-button-on-outline" aria-hidden="true"></ion-icon>
+            Grabar
+          </button>
+          <button id="stopRecordBtn" type="button"
+            class="hidden w-full cursor-pointer bg-red-500 shadow-sm text-white font-semibold px-3 py-2.5 rounded-full text-[12px] transition-all duration-200 hover:bg-red-600 active:scale-95 flex items-center justify-center gap-2 mt-2">
+            <ion-icon name="stop-outline" aria-hidden="true"></ion-icon>
+            Detener
+          </button>
+
           <div id="formatSection" class="mt-3">
             <label for="formatSelect" class="block text-[11px] font-medium text-[#666] mb-1">Formato de Video</label>
             <select id="formatSelect"
@@ -352,6 +363,30 @@
           </div>
         </div>
 
+        <!-- Indicador de Grabación -->
+        <div id="recordingIndicator" class="recording-indicator hidden">
+          <span class="recording-dot"></span>
+          <span class="recording-label">REC</span>
+        </div>
+
+        <!-- Overlay para Guardar Video -->
+        <div id="videoSaveOverlay" class="video-save-overlay hidden">
+          <div class="video-save-card">
+            <ion-icon name="checkmark-circle-outline" style="font-size:32px;color:#22c55e;"></ion-icon>
+            <p class="video-save-title">Video Listo</p>
+            <p class="video-save-subtitle">Tu grabación de vuelo está lista para guardar</p>
+            <div class="video-save-actions">
+              <button id="videoDownloadBtn" type="button" class="video-save-btn video-save-btn-primary">
+                <ion-icon name="download-outline" aria-hidden="true"></ion-icon>
+                Guardar Video
+              </button>
+              <button id="videoDismissBtn" type="button" class="video-save-btn video-save-btn-secondary">
+                Descartar
+              </button>
+            </div>
+          </div>
+        </div>
+
         <!-- Barra de Progreso -->
         <div id="progressBar" class="flight-progress-bar hidden">
           <div id="progressFill" class="flight-progress-fill"></div>
@@ -400,6 +435,14 @@
       <!-- Captura -->
       <button id="mtCaptureBtn" type="button" class="mt-action-btn" aria-label="Tomar captura">
         <ion-icon name="camera-outline" aria-hidden="true"></ion-icon>
+      </button>
+
+      <!-- Grabar Video -->
+      <button id="mtRecordBtn" type="button" class="mt-action-btn" aria-label="Grabar video">
+        <ion-icon name="radio-button-on-outline" aria-hidden="true"></ion-icon>
+      </button>
+      <button id="mtStopRecordBtn" type="button" class="mt-action-btn hidden" aria-label="Detener grabación" style="color:#ef4444;">
+        <ion-icon name="stop-circle-outline" aria-hidden="true"></ion-icon>
       </button>
 
     </div>

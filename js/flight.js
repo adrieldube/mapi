@@ -273,8 +273,16 @@ const el = {
     mtResetBtn: document.getElementById('mtResetBtn'),
     mtCameraBtn: document.getElementById('mtCameraBtn'),
     mtCaptureBtn: document.getElementById('mtCaptureBtn'),
+    mtRecordBtn: document.getElementById('mtRecordBtn'),
+    mtStopRecordBtn: document.getElementById('mtStopRecordBtn'),
     mtCameraDivider: document.getElementById('mtCameraDivider'),
     captureBtn: document.getElementById('captureBtn'),
+    recordBtn: document.getElementById('recordBtn'),
+    stopRecordBtn: document.getElementById('stopRecordBtn'),
+    recordingIndicator: document.getElementById('recordingIndicator'),
+    videoSaveOverlay: document.getElementById('videoSaveOverlay'),
+    videoDownloadBtn: document.getElementById('videoDownloadBtn'),
+    videoDismissBtn: document.getElementById('videoDismissBtn'),
     globeStyleSection: document.getElementById('globeStyleSection'),
     globeStyleToggle: document.getElementById('globeStyleToggle'),
 };
@@ -298,6 +306,15 @@ let canvasFormat = 'free'; // 'free', 'reel', 'feed', 'square', 'landscape'
 let viewMode = 'flat'; // 'flat' or '3d'
 let globeNasaMode = false; // false = palette cycling, true = NASA realistic
 
+// === VIDEO RECORDING STATE ===
+let isRecording = false;
+let mediaRecorder = null;
+let recordedChunks = [];
+let recordingCanvas = null;
+let recordingCtx = null;
+let recordingMimeType = '';
+let recordingLoopId = null;
+let pendingVideoBlob = null;
 
 // === THREE.JS 3D GLOBE STATE ===
 let globe3d = {
@@ -325,6 +342,15 @@ const CANVAS_FORMATS = {
     feed: { label: 'Feed Post 4:5', width: 540, height: 675 },
     square: { label: 'Square 1:1', width: 540, height: 540 },
     landscape: { label: 'Landscape 16:9', width: 960, height: 540 },
+};
+
+// HD output resolutions for video/screenshot export (actual pixel output)
+const EXPORT_RESOLUTIONS = {
+    free: null,
+    reel: { width: 1080, height: 1920 },
+    feed: { width: 1080, height: 1350 },
+    square: { width: 1080, height: 1080 },
+    landscape: { width: 1920, height: 1080 },
 };
 
 // Zoom config for cinematic flight
@@ -412,21 +438,32 @@ function applyCanvasFormat(format) {
 }
 
 // === SCREENSHOT CAPTURE ===
-function captureScreenshot() {
+
+function getExportDimensions() {
     const mapArea = document.getElementById('mapArea');
     const rect = mapArea.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
-    const outW = Math.round(rect.width * dpr);
-    const outH = Math.round(rect.height * dpr);
+    const hd = EXPORT_RESOLUTIONS[canvasFormat];
+    if (hd) return { width: hd.width, height: hd.height, rect };
+    return { width: Math.round(rect.width * dpr), height: Math.round(rect.height * dpr), rect };
+}
 
-    const out = document.createElement('canvas');
-    out.width = outW;
-    out.height = outH;
-    const ctx = out.getContext('2d');
+function drawCompositeFrame(ctx, outW, outH) {
+    const mapArea = document.getElementById('mapArea');
+    const rect = mapArea.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    // Scale factor from CSS layout to output pixels (HD-aware)
+    const scale = outW / rect.width;
 
-    // 1. Draw base layer (map or globe)
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+
+    // 1. Fill white background
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, outW, outH);
+
+    // 2. Draw base layer (map or globe)
     if (viewMode === '3d' && globe3d.renderer) {
-        // Re-render to ensure buffer is fresh
         if (globe3d.scene && globe3d.camera) {
             globe3d.renderer.render(globe3d.scene, globe3d.camera);
         }
@@ -436,55 +473,48 @@ function captureScreenshot() {
         const mapCanvas = map.getCanvas();
         const spec = CANVAS_FORMATS[canvasFormat];
         if (spec && spec.width) {
-            // Fixed format: crop the center (skip MAP_OVERFLOW edges)
             const sx = MAP_OVERFLOW * dpr;
             const sy = MAP_OVERFLOW * dpr;
             const sw = mapCanvas.width - MAP_OVERFLOW * 2 * dpr;
             const sh = mapCanvas.height - MAP_OVERFLOW * 2 * dpr;
             ctx.drawImage(mapCanvas, sx, sy, sw, sh, 0, 0, outW, outH);
         } else {
-            // Free mode: draw full canvas
             ctx.drawImage(mapCanvas, 0, 0, mapCanvas.width, mapCanvas.height, 0, 0, outW, outH);
         }
     }
 
-    // 2. Draw HUD overlay if visible
+    // 3. Draw HUD overlay if visible
     const hud = el.flightHud;
     if (hud && !hud.classList.contains('hidden')) {
         const hudRect = hud.getBoundingClientRect();
-        const x = (hudRect.left - rect.left) * dpr;
-        const y = (hudRect.top - rect.top) * dpr;
-        const w = hudRect.width * dpr;
-        const h = hudRect.height * dpr;
-        const r = 12 * dpr;
+        const x = (hudRect.left - rect.left) * scale;
+        const y = (hudRect.top - rect.top) * scale;
+        const w = hudRect.width * scale;
+        const h = hudRect.height * scale;
+        const r = 12 * scale;
 
         ctx.save();
-        // Background
         ctx.beginPath();
         ctx.roundRect(x, y, w, h, r);
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
         ctx.fill();
 
-        // Text rendering
         ctx.fillStyle = '#fff';
-        const pad = 14 * dpr;
+        const pad = 14 * scale;
         let ty = y + pad;
 
-        // "Flight Info" label
-        ctx.font = `700 ${9 * dpr}px system-ui, -apple-system, sans-serif`;
+        ctx.font = `700 ${9 * scale}px system-ui, -apple-system, sans-serif`;
         ctx.globalAlpha = 0.6;
-        ctx.fillText('FLIGHT INFO', x + pad, ty + 9 * dpr);
+        ctx.fillText('FLIGHT INFO', x + pad, ty + 9 * scale);
         ctx.globalAlpha = 1;
-        ty += 18 * dpr;
+        ty += 18 * scale;
 
-        // Route
         const origin = el.hudOrigin.textContent;
         const dest = el.hudDest.textContent;
-        ctx.font = `600 ${13 * dpr}px system-ui, -apple-system, sans-serif`;
-        ctx.fillText(`${origin}  →  ${dest}`, x + pad, ty + 13 * dpr);
-        ty += 24 * dpr;
+        ctx.font = `600 ${13 * scale}px system-ui, -apple-system, sans-serif`;
+        ctx.fillText(`${origin}  →  ${dest}`, x + pad, ty + 13 * scale);
+        ty += 24 * scale;
 
-        // Stats
         const stats = [
             ['DISTANCE', el.hudDistance.textContent],
             ['ETA', el.hudEta.textContent],
@@ -495,38 +525,44 @@ function captureScreenshot() {
             const col = i % 2;
             const row = Math.floor(i / 2);
             const sx = x + pad + col * colW;
-            const sy = ty + row * 28 * dpr;
-            ctx.font = `600 ${8 * dpr}px system-ui, -apple-system, sans-serif`;
+            const sy = ty + row * 28 * scale;
+            ctx.font = `600 ${8 * scale}px system-ui, -apple-system, sans-serif`;
             ctx.globalAlpha = 0.5;
-            ctx.fillText(s[0], sx, sy + 8 * dpr);
+            ctx.fillText(s[0], sx, sy + 8 * scale);
             ctx.globalAlpha = 1;
-            ctx.font = `600 ${12 * dpr}px system-ui, -apple-system, sans-serif`;
-            ctx.fillText(s[1], sx, sy + 22 * dpr);
+            ctx.font = `600 ${12 * scale}px system-ui, -apple-system, sans-serif`;
+            ctx.fillText(s[1], sx, sy + 22 * scale);
         });
         ctx.restore();
     }
 
-    // 3. Draw progress bar if visible
+    // 4. Draw progress bar if visible
     const progressBar = el.progressBar;
     if (progressBar && !progressBar.classList.contains('hidden')) {
-        const barH = 3 * dpr;
+        const barH = 3 * scale;
         const fillW = outW * (flightProgress || 0);
         ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
         ctx.fillRect(0, outH - barH, outW, barH);
         ctx.fillStyle = '#440edf';
         ctx.fillRect(0, outH - barH, fillW, barH);
     }
+}
 
-    // 4. Download / Share
+function captureScreenshot() {
+    const { width: outW, height: outH } = getExportDimensions();
+
+    const out = document.createElement('canvas');
+    out.width = outW;
+    out.height = outH;
+    const ctx = out.getContext('2d');
+
+    drawCompositeFrame(ctx, outW, outH);
+
     out.toBlob(blob => {
         if (!blob) return;
         const file = new File([blob], 'mapi-flight.png', { type: 'image/png' });
 
-        // Try native share on mobile if available
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            navigator.share({ files: [file], title: 'MAPI Flight' }).catch(() => {});
-        } else {
-            // Fallback: download
+        function downloadBlob() {
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -536,7 +572,166 @@ function captureScreenshot() {
             document.body.removeChild(a);
             setTimeout(() => URL.revokeObjectURL(url), 5000);
         }
+
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            navigator.share({ files: [file], title: 'MAPI Flight' }).catch(downloadBlob);
+        } else {
+            downloadBlob();
+        }
     }, 'image/png');
+}
+
+// === VIDEO RECORDING ===
+
+function getRecordingMimeType() {
+    const types = [
+        'video/webm;codecs=vp9',
+        'video/webm;codecs=vp8',
+        'video/webm'
+    ];
+    for (const type of types) {
+        if (MediaRecorder.isTypeSupported(type)) return type;
+    }
+    return '';
+}
+
+function startRecording() {
+    if (isRecording) return;
+    // Release any undismissed previous recording blob
+    if (pendingVideoBlob) {
+        pendingVideoBlob = null;
+        el.videoSaveOverlay.classList.add('hidden');
+    }
+    if (typeof MediaRecorder === 'undefined') {
+        setStatus('Recording not supported in this browser');
+        return;
+    }
+
+    const mimeType = getRecordingMimeType();
+    if (!mimeType) {
+        setStatus('No supported video codec found');
+        return;
+    }
+
+    const { width: outW, height: outH } = getExportDimensions();
+
+    recordingCanvas = document.createElement('canvas');
+    recordingCanvas.width = outW;
+    recordingCanvas.height = outH;
+    recordingCtx = recordingCanvas.getContext('2d');
+    recordingMimeType = mimeType;
+
+    // 60fps capture to match requestAnimationFrame for smooth output
+    const stream = recordingCanvas.captureStream(60);
+    recordedChunks = [];
+
+    mediaRecorder = new MediaRecorder(stream, {
+        mimeType,
+        videoBitsPerSecond: 12_000_000
+    });
+
+    mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) recordedChunks.push(e.data);
+    };
+
+    mediaRecorder.onstop = finalizeRecording;
+
+    mediaRecorder.start(100);
+    isRecording = true;
+    syncRecordingUI();
+    setStatus('Recording started');
+
+    // Start recording loop — captures frames when flight is not playing
+    // (when flight IS playing, animateFlight handles frame capture instead)
+    startRecordingLoop();
+}
+
+function recordingLoop() {
+    if (!isRecording || !recordingCtx) return;
+    // If flight is playing, animateFlight handles frame capture — skip here
+    if (!isPlaying) {
+        drawCompositeFrame(recordingCtx, recordingCanvas.width, recordingCanvas.height);
+    }
+    recordingLoopId = requestAnimationFrame(recordingLoop);
+}
+
+function startRecordingLoop() {
+    if (recordingLoopId) return;
+    recordingLoopId = requestAnimationFrame(recordingLoop);
+}
+
+function stopRecordingLoop() {
+    if (recordingLoopId) {
+        cancelAnimationFrame(recordingLoopId);
+        recordingLoopId = null;
+    }
+}
+
+function stopRecording() {
+    if (!isRecording || !mediaRecorder || mediaRecorder.state === 'inactive') return;
+    stopRecordingLoop();
+    isRecording = false;
+    mediaRecorder.stop();
+    syncRecordingUI();
+    setStatus('Processing video...');
+}
+
+function finalizeRecording() {
+    pendingVideoBlob = new Blob(recordedChunks, { type: recordingMimeType || 'video/webm' });
+    recordedChunks = [];
+    mediaRecorder = null;
+    recordingCanvas = null;
+    recordingCtx = null;
+
+    // Show save overlay
+    el.videoSaveOverlay.classList.remove('hidden');
+    setStatus('Video ready to save');
+}
+
+function downloadPendingVideo() {
+    if (!pendingVideoBlob) return;
+    const url = URL.createObjectURL(pendingVideoBlob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'mapi-flight.webm';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+
+    dismissVideoOverlay();
+}
+
+function dismissVideoOverlay() {
+    el.videoSaveOverlay.classList.add('hidden');
+    if (pendingVideoBlob) {
+        pendingVideoBlob = null;
+    }
+}
+
+function toggleRecording() {
+    if (isRecording) {
+        stopRecording();
+    } else {
+        startRecording();
+    }
+}
+
+function syncRecordingUI() {
+    const show = (elem, v) => { if (elem) elem.classList.toggle('hidden', !v); };
+
+    show(el.recordBtn, !isRecording);
+    show(el.stopRecordBtn, isRecording);
+    show(el.mtRecordBtn, !isRecording);
+    show(el.mtStopRecordBtn, isRecording);
+    show(el.recordingIndicator, isRecording);
+
+    // Disable format/mode controls during recording
+    if (el.formatSelect) el.formatSelect.disabled = isRecording;
+    if (el.modeFlatBtn) el.modeFlatBtn.disabled = isRecording;
+    if (el.mode3dBtn) el.mode3dBtn.disabled = isRecording;
+    if (el.mtFlatBtn) el.mtFlatBtn.disabled = isRecording;
+    if (el.mt3dBtn) el.mt3dBtn.disabled = isRecording;
 }
 
 // === PLANE ICON SVG (realistic top-down airliner) ===
@@ -633,13 +828,9 @@ function getFlightAccent() {
     return FLIGHT_ACCENT[currentStyle] || '#e84393';
 }
 
-function getPlaneIconColor() {
-    return getFlightAccent();
-}
-
 function createPlaneImage() {
     return new Promise((resolve) => {
-        const color = getPlaneIconColor();
+        const color = getFlightAccent();
         const svg = PLANE_SVG.replace('{COLOR}', color);
         const img = new Image();
         img.onload = () => {
@@ -871,7 +1062,17 @@ function animateFlight(timestamp) {
         update3DPlane(flightProgress);
     }
 
+    // Draw frame to recording canvas if recording
+    if (isRecording && recordingCtx) {
+        drawCompositeFrame(recordingCtx, recordingCanvas.width, recordingCanvas.height);
+    }
+
     if (completed) {
+        // Draw the final completed frame, then resume freeform recording loop
+        if (isRecording && recordingCtx) {
+            drawCompositeFrame(recordingCtx, recordingCanvas.width, recordingCanvas.height);
+            startRecordingLoop();
+        }
         isPlaying = false;
         el.pauseBtn.classList.add('hidden');
         syncMobileFlight();
@@ -1180,6 +1381,10 @@ async function getApiCityMatches(query, abortSignal) {
     }
 }
 
+function escapeHtml(str) {
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
 function initDualAutocomplete(inputEl, listEl, onSelect) {
     let activeIndex = -1;
     let debounceTimer = null;
@@ -1193,10 +1398,10 @@ function initDualAutocomplete(inputEl, listEl, onSelect) {
             return;
         }
         listEl.innerHTML = items.map((item, i) => `
-            <li role="option" data-index="${i}" data-name="${item.name.replace(/"/g, '&quot;')}" data-city="${(item.city || item.name).replace(/"/g, '&quot;')}" data-lat="${item.lat}" data-lon="${item.lon}"${i === activeIndex ? ' class="active"' : ''}>
+            <li role="option" data-index="${i}" data-name="${escapeHtml(item.name)}" data-city="${escapeHtml(item.city || item.name)}" data-lat="${item.lat}" data-lon="${item.lon}"${i === activeIndex ? ' class="active"' : ''}>
                 <span class="ac-icon"><ion-icon name="location-outline"></ion-icon></span>
-                <span class="ac-city">${item.name}</span>
-                <span class="ac-subtitle">${item.subtitle}</span>
+                <span class="ac-city">${escapeHtml(item.name)}</span>
+                <span class="ac-subtitle">${escapeHtml(item.subtitle)}</span>
             </li>
         `).join('');
         listEl.classList.add('open');
@@ -1525,6 +1730,22 @@ function setupEventListeners() {
     // Screenshot capture
     el.captureBtn.addEventListener('click', captureScreenshot);
     el.mtCaptureBtn.addEventListener('click', captureScreenshot);
+
+    // Video recording
+    el.recordBtn.addEventListener('click', toggleRecording);
+    el.stopRecordBtn.addEventListener('click', stopRecording);
+    el.mtRecordBtn.addEventListener('click', toggleRecording);
+    el.mtStopRecordBtn.addEventListener('click', stopRecording);
+
+    // Video save overlay
+    el.videoDownloadBtn.addEventListener('click', downloadPendingVideo);
+    el.videoDismissBtn.addEventListener('click', dismissVideoOverlay);
+
+    // Hide record buttons if MediaRecorder is not supported
+    if (typeof MediaRecorder === 'undefined') {
+        el.recordBtn.style.display = 'none';
+        el.mtRecordBtn.style.display = 'none';
+    }
 
     // Globe style toggle: Styled / NASA Realistic
     if (el.globeStyleToggle) {
