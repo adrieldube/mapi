@@ -10,9 +10,6 @@ const PALETTES = {
     'Royal Blue': { bg: '#ffffff', roads: '#000000', water: '#2e22e0' },
 };
 
-
-// Speed is now read directly from the slider (min 0.25, max 2, step 0.25)
-
 // Extra pixels around the visible frame to preload tiles and prevent flickering
 const MAP_OVERFLOW = 200;
 
