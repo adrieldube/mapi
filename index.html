@@ -192,7 +192,7 @@
     </div>
   </div>
 
-  <header class="px-2 py-1 bg-[#440edf] text-[#d2e823]">
+  <header class="px-4 py-1 bg-[#440edf] text-[#d2e823]">
     <div class="flex items-center justify-between mx-auto w-full">
       <a href="#" aria-label="MAPI - StreetMap Designer home"
         class="flex items-center gap-2 font-bold text-lg text-[#d2e823]">
@@ -221,42 +221,12 @@
           <ion-icon name="download-outline" aria-hidden="true"></ion-icon>
           <span class="btn-text">Download</span>
         </button>
-        <div class="relative">
-          <button id="shareBtn" type="button" title="Share design" aria-label="Share design"
-            class="cursor-pointer rounded-xl border border-[#d2e823] px-3 py-2.5 text-[13px] font-semibold transition-all duration-200 bg-[#d2e823] text-[#440edf] hover:bg-white hover:text-[#440edf] hover:shadow-lg flex items-center gap-2">
-            <ion-icon name="share-social-outline" aria-hidden="true"></ion-icon>
-            <span class="btn-text">Share</span>
-          </button>
-          <div id="sharePopover"
-            class="hidden absolute right-0 top-full mt-2 bg-white rounded-xl shadow-2xl border border-[#e5e5e5] p-2 z-50 min-w-[180px]">
-            <button id="shareCopyLink"
-              class="w-full flex items-center gap-2 px-3 py-2 text-[13px] text-[#333] rounded-lg hover:bg-[#f3efff] transition-colors cursor-pointer">
-              <ion-icon name="link-outline" aria-hidden="true"></ion-icon> Copy Link
-            </button>
-            <button id="shareTwitter"
-              class="w-full flex items-center gap-2 px-3 py-2 text-[13px] text-[#333] rounded-lg hover:bg-[#f3efff] transition-colors cursor-pointer">
-              <ion-icon name="logo-twitter" aria-hidden="true"></ion-icon> Twitter / X
-            </button>
-            <button id="sharePinterest"
-              class="w-full flex items-center gap-2 px-3 py-2 text-[13px] text-[#333] rounded-lg hover:bg-[#f3efff] transition-colors cursor-pointer">
-              <ion-icon name="logo-pinterest" aria-hidden="true"></ion-icon> Pinterest
-            </button>
-            <button id="shareWhatsApp"
-              class="w-full flex items-center gap-2 px-3 py-2 text-[13px] text-[#333] rounded-lg hover:bg-[#f3efff] transition-colors cursor-pointer">
-              <ion-icon name="logo-whatsapp" aria-hidden="true"></ion-icon> WhatsApp
-            </button>
-            <button id="shareFacebook"
-              class="w-full flex items-center gap-2 px-3 py-2 text-[13px] text-[#333] rounded-lg hover:bg-[#f3efff] transition-colors cursor-pointer">
-              <ion-icon name="logo-facebook" aria-hidden="true"></ion-icon> Facebook
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   </header>
 
   <div id="container"
-    class="flex h-[calc(100vh-74px)] rounded-xl m-2 overflow-hidden max-[900px]:flex-col max-[900px]:h-auto">
+    class="flex h-[calc(100vh-68px)] rounded-xl m-2 ml-4 mr-4 overflow-hidden max-[900px]:flex-col max-[900px]:h-auto">
     <section id="controls"
       class="w-[320px] bg-[#fafafa] p-4 h-full overflow-y-auto shrink-0 max-[900px]:w-full max-[900px]:h-auto">
       <div class="mobile-panel-header">
@@ -267,219 +237,278 @@
       <div class="controls-body">
 
         <!-- Location Section -->
-        <div class="mb-6">
-          <div class="flex items-center gap-2 mb-2">
-            <div class="w-1 h-4 bg-[#440edf] rounded-full"></div>
-            <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">Location</span>
+        <div class="mb-5">
+          <div class="ctrl-section-header collapsible" data-collapse="locationBody">
+            <div class="ctrl-section-dot"></div>
+            <span class="ctrl-section-label">Location</span>
+            <span class="ctrl-section-chevron"><ion-icon name="chevron-down-outline"
+                aria-hidden="true"></ion-icon></span>
           </div>
-
-          <div class="space-y-2">
-            <div>
-              <label for="cityInput" class="block text-[11px] font-medium text-[#666] mb-1">City / Place</label>
-              <div class="relative">
-                <input id="cityInput" type="text" placeholder="Search for a city..." autocomplete="off"
-                  class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20"
-                  style="padding-right: 5rem;" />
-                <div class="absolute flex items-center gap-0.5" style="right: 0.25rem; top: 50%; transform: translateY(-50%);">
-                  <button id="surpriseMeBtn" type="button" aria-label="Surprise me — random city and theme" title="Surprise me"
-                    class="rounded-lg text-[#666] text-base transition-colors duration-200 hover:text-[#440edf] cursor-pointer"
-                    style="width: 2rem; height: 2rem; display: flex; align-items: center; justify-content: center;">
-                    <ion-icon name="dice-outline" aria-hidden="true"></ion-icon>
-                  </button>
-                  <button id="citySearchBtn" type="button" aria-label="Search city"
-                    class="rounded-lg text-[#666] text-base transition-colors duration-200 hover:text-[#440edf] cursor-pointer"
-                    style="width: 2rem; height: 2rem; display: flex; align-items: center; justify-content: center;">
-                    <ion-icon name="search-outline" aria-hidden="true"></ion-icon>
-                  </button>
+          <div id="locationBody" class="ctrl-section-body">
+            <div class="ctrl-section-body-inner">
+              <div class="space-y-2">
+                <div>
+                  <label for="cityInput" class="block text-[11px] font-medium text-[#666] mb-1">City / Place</label>
+                  <div class="relative">
+                    <input id="cityInput" type="text" placeholder="Search for a city..." autocomplete="off"
+                      class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20"
+                      style="padding-right: 5rem;" />
+                    <div class="absolute flex items-center gap-0.5"
+                      style="right: 0.25rem; top: 50%; transform: translateY(-50%);">
+                      <button id="surpriseMeBtn" type="button" aria-label="Surprise me — random city and theme"
+                        title="Surprise me"
+                        class="rounded-lg text-[#666] text-base transition-colors duration-200 hover:text-[#440edf] cursor-pointer"
+                        style="width: 2rem; height: 2rem; display: flex; align-items: center; justify-content: center;">
+                        <ion-icon name="dice-outline" aria-hidden="true"></ion-icon>
+                      </button>
+                      <button id="citySearchBtn" type="button" aria-label="Search city"
+                        class="rounded-lg text-[#666] text-base transition-colors duration-200 hover:text-[#440edf] cursor-pointer"
+                        style="width: 2rem; height: 2rem; display: flex; align-items: center; justify-content: center;">
+                        <ion-icon name="search-outline" aria-hidden="true"></ion-icon>
+                      </button>
+                    </div>
+                    <ul id="cityAutocomplete" class="city-autocomplete" role="listbox" aria-label="City suggestions">
+                    </ul>
+                  </div>
                 </div>
-                <ul id="cityAutocomplete" class="city-autocomplete" role="listbox" aria-label="City suggestions"></ul>
-              </div>
-            </div>
 
-            <div>
-              <div class="flex items-center justify-between mb-1">
-                <label for="zoomInput" class="text-[11px] font-medium text-[#666]">Zoom</label>
-                <span id="zoomValue" class="text-[11px] font-semibold text-[#440edf]">13.0</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <button type="button" id="zoomDecrement" aria-label="Decrease zoom"
-                  class="flex items-center justify-center w-8 h-8 rounded-lg bg-white shadow-sm text-[#666] text-base transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95">
-                  <ion-icon name="remove-outline" aria-hidden="true"></ion-icon>
-                </button>
-                <div class="flex-1" role="presentation">
-                  <input id="zoomInput" type="range" min="1" max="20" step="0.1" value="13"
-                    class="w-full h-1.5 appearance-none bg-[#e5e5e5] rounded-full cursor-pointer
-                    [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#440edf] [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb]:duration-200 [&::-webkit-slider-thumb]:hover:scale-110 [&::-webkit-slider-thumb]:shadow-md
-                    [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-[#440edf] [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:transition-transform [&::-moz-range-thumb]:duration-200 [&::-moz-range-thumb]:hover:scale-110 [&::-moz-range-thumb]:shadow-md" />
+                <div>
+                  <div class="flex items-center justify-between mb-1">
+                    <label for="zoomInput" class="text-[11px] font-medium text-[#666]">Zoom</label>
+                    <span id="zoomValue" class="text-[11px] font-semibold text-[#440edf]">13.0</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <button type="button" id="zoomDecrement" aria-label="Decrease zoom"
+                      class="flex items-center justify-center w-8 h-8 rounded-lg bg-white shadow-sm text-[#666] text-base transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95">
+                      <ion-icon name="remove-outline" aria-hidden="true"></ion-icon>
+                    </button>
+                    <div class="flex-1" role="presentation">
+                      <input id="zoomInput" type="range" min="1" max="20" step="0.1" value="13"
+                        class="w-full h-1.5 appearance-none bg-[#e5e5e5] rounded-full cursor-pointer
+                        [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#440edf] [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb]:duration-200 [&::-webkit-slider-thumb]:hover:scale-110 [&::-webkit-slider-thumb]:shadow-md
+                        [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-[#440edf] [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:transition-transform [&::-moz-range-thumb]:duration-200 [&::-moz-range-thumb]:hover:scale-110 [&::-moz-range-thumb]:shadow-md" />
+                    </div>
+                    <button type="button" id="zoomIncrement" aria-label="Increase zoom"
+                      class="flex items-center justify-center w-8 h-8 rounded-lg bg-white shadow-sm text-[#666] text-base transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95">
+                      <ion-icon name="add-outline" aria-hidden="true"></ion-icon>
+                    </button>
+                  </div>
                 </div>
-                <button type="button" id="zoomIncrement" aria-label="Increase zoom"
-                  class="flex items-center justify-center w-8 h-8 rounded-lg bg-white shadow-sm text-[#666] text-base transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95">
-                  <ion-icon name="add-outline" aria-hidden="true"></ion-icon>
-                </button>
               </div>
             </div>
           </div>
         </div>
 
         <!-- Poster Style Section -->
-        <div class="mb-6">
-          <div class="flex items-center gap-2 mb-2">
-            <div class="w-1 h-4 bg-[#440edf] rounded-full"></div>
-            <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">Poster Style</span>
+        <div class="mb-5">
+          <div class="ctrl-section-header collapsible" data-collapse="posterStyleBody">
+            <div class="ctrl-section-dot"></div>
+            <span class="ctrl-section-label">Poster Style</span>
+            <span class="ctrl-section-chevron"><ion-icon name="chevron-down-outline"
+                aria-hidden="true"></ion-icon></span>
           </div>
+          <div id="posterStyleBody" class="ctrl-section-body">
+            <div class="ctrl-section-body-inner">
+              <div class="space-y-2">
+                <div>
+                  <label for="posterStyleSelect" class="block text-[11px] font-medium text-[#666] mb-1">Layout</label>
+                  <select id="posterStyleSelect"
+                    class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20 cursor-pointer">
+                    <option value="minimal" selected>Minimal Luxury</option>
+                    <option value="vertical">Vertical Edge</option>
+                    <option value="corner">Corner Grid</option>
+                    <option value="oversized">Oversized Drama</option>
+                  </select>
+                </div>
 
-          <div class="space-y-2">
-            <div>
-              <label for="posterStyleSelect" class="block text-[11px] font-medium text-[#666] mb-1">Layout</label>
-              <select id="posterStyleSelect"
-                class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20 cursor-pointer">
-                <option value="minimal" selected>Minimal Luxury</option>
-                <option value="vertical">Vertical Edge</option>
-                <option value="corner">Corner Grid</option>
-                <option value="oversized">Oversized Drama</option>
-              </select>
+                <div>
+                  <label for="sizeSelect" class="block text-[11px] font-medium text-[#666] mb-1">Export Size</label>
+                  <select id="sizeSelect"
+                    class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20 cursor-pointer">
+                    <optgroup label="Print Sizes">
+                      <option value="a1">A1 — 23.4 × 33.1 in / 59.4 × 84.1 cm</option>
+                      <option value="a2">A2 — 16.5 × 23.4 in / 42 × 59.4 cm</option>
+                      <option value="a3">A3 — 11.7 × 16.5 in / 29.7 × 42 cm</option>
+                      <option value="24x36">24 × 36 in / 61 × 91.4 cm</option>
+                      <option value="18x24">18 × 24 in / 45.7 × 61 cm</option>
+                      <option value="16x20">16 × 20 in / 40.6 × 50.8 cm</option>
+                      <option value="11x14" selected>11 × 14 in / 27.9 × 35.6 cm</option>
+                    </optgroup>
+                    <optgroup label="Social Media & Wallpapers">
+                      <option value="ig-story">IG Story / Reel — 1080 × 1920 px</option>
+                      <option value="ig-post">IG Post — 1080 × 1080 px</option>
+                      <option value="pinterest">Pinterest Pin — 1000 × 1500 px</option>
+                      <option value="twitter-header">Twitter Header — 1500 × 500 px</option>
+                      <option value="phone-wallpaper">Phone Wallpaper — 1170 × 2532 px</option>
+                      <option value="desktop-wallpaper">Desktop Wallpaper — 2560 × 1440 px</option>
+                    </optgroup>
+                  </select>
+                  <span id="canvasSizeDisplay" class="block text-[10px] text-[#999] mt-1"></span>
+                </div>
+              </div>
             </div>
+          </div>
+        </div>
 
-            <div>
-              <label for="sizeSelect" class="block text-[11px] font-medium text-[#666] mb-1">Export Size</label>
-              <select id="sizeSelect"
-                class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20 cursor-pointer">
-                <optgroup label="Print Sizes">
-                  <option value="a1">A1 — 23.4 × 33.1 in / 59.4 × 84.1 cm</option>
-                  <option value="a2">A2 — 16.5 × 23.4 in / 42 × 59.4 cm</option>
-                  <option value="a3">A3 — 11.7 × 16.5 in / 29.7 × 42 cm</option>
-                  <option value="24x36">24 × 36 in / 61 × 91.4 cm</option>
-                  <option value="18x24">18 × 24 in / 45.7 × 61 cm</option>
-                  <option value="16x20">16 × 20 in / 40.6 × 50.8 cm</option>
-                  <option value="11x14" selected>11 × 14 in / 27.9 × 35.6 cm</option>
-                </optgroup>
-                <optgroup label="Social Media & Wallpapers">
-                  <option value="ig-story">IG Story / Reel — 1080 × 1920 px</option>
-                  <option value="ig-post">IG Post — 1080 × 1080 px</option>
-                  <option value="pinterest">Pinterest Pin — 1000 × 1500 px</option>
-                  <option value="twitter-header">Twitter Header — 1500 × 500 px</option>
-                  <option value="phone-wallpaper">Phone Wallpaper — 1170 × 2532 px</option>
-                  <option value="desktop-wallpaper">Desktop Wallpaper — 2560 × 1440 px</option>
-                </optgroup>
-              </select>
-              <span id="canvasSizeDisplay" class="block text-[10px] text-[#999] mt-1"></span>
-            </div>
-
-            <div>
-              <div class="flex items-center gap-2 mb-2">
-                <div class="w-1 h-4 bg-[#440edf] rounded-full"></div>
-                <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">Color Theme</span>
+        <!-- Color Theme Section -->
+        <div class="mb-5">
+          <div class="ctrl-section-header collapsible" data-collapse="colorThemeBody">
+            <div class="ctrl-section-dot"></div>
+            <span class="ctrl-section-label">Color Theme</span>
+            <span class="ctrl-section-chevron"><ion-icon name="chevron-down-outline"
+                aria-hidden="true"></ion-icon></span>
+          </div>
+          <div id="colorThemeBody" class="ctrl-section-body">
+            <div class="ctrl-section-body-inner">
+              <!-- Selected Theme Hero Card -->
+              <div id="selectedThemePreview" class="theme-hero-card">
+                <div class="theme-hero-bands">
+                  <div class="theme-hero-band" id="selectedBgColor" data-label="BG"></div>
+                  <div class="theme-hero-band" id="selectedRoadsColor" data-label="Roads"></div>
+                  <div class="theme-hero-band" id="selectedWaterColor" data-label="Water"></div>
+                </div>
+                <div class="theme-hero-label">
+                  <span id="selectedThemeName">Pure Black & White</span>
+                </div>
               </div>
 
-              <!-- Selected Theme Preview -->
-              <div id="selectedThemePreview" class="mb-2 p-2 bg-white rounded-lg shadow-sm">
-                <div class="flex items-center gap-3">
-                  <div id="selectedThemeSwatch" class="theme-swatch-large"></div>
-                  <div class="flex-1 min-w-0">
-                    <div id="selectedThemeName" class="text-[12px] font-semibold text-[#333] truncate">
-                      Pure Black & White
-                    </div>
-                    <div class="flex gap-2 mt-1.5">
-                      <div class="flex items-center gap-1">
-                        <span id="selectedBgColor" class="color-dot"></span>
-                        <span class="text-[9px] text-[#888]">Background</span>
-                      </div>
-                      <div class="flex items-center gap-1">
-                        <span id="selectedRoadsColor" class="color-dot"></span>
-                        <span class="text-[9px] text-[#888]">Roads</span>
-                      </div>
-                      <div class="flex items-center gap-1">
-                        <span id="selectedWaterColor" class="color-dot"></span>
-                        <span class="text-[9px] text-[#888]">Water</span>
-                      </div>
-                    </div>
+              <!-- Theme Cards List -->
+              <div id="themesGrid" class="theme-cards-list"></div>
+
+              <select id="styleSelect" class="hidden">
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Custom Palette Section -->
+        <div class="mb-5">
+          <div class="ctrl-section-header collapsible collapsed" data-collapse="customPaletteBody">
+            <div class="ctrl-section-dot"></div>
+            <span class="ctrl-section-label">Custom Palette</span>
+            <span class="ctrl-section-chevron"><ion-icon name="chevron-down-outline"
+                aria-hidden="true"></ion-icon></span>
+          </div>
+          <div id="customPaletteBody" class="ctrl-section-body collapsed">
+            <div class="ctrl-section-body-inner">
+              <div class="theme-custom-controls">
+                <div class="theme-custom-row">
+                  <label for="customBgColor">Background</label>
+                  <div class="theme-custom-input-wrap">
+                    <input type="color" id="customBgColor" value="#111111" />
+                    <span class="theme-custom-hex" id="customBgHex">#111111</span>
+                  </div>
+                </div>
+                <div class="theme-custom-row">
+                  <label for="customRoadsColor">Roads</label>
+                  <div class="theme-custom-input-wrap">
+                    <input type="color" id="customRoadsColor" value="#EEEEEE" />
+                    <span class="theme-custom-hex" id="customRoadsHex">#EEEEEE</span>
+                  </div>
+                </div>
+                <div class="theme-custom-row">
+                  <label for="customWaterColor">Water</label>
+                  <div class="theme-custom-input-wrap">
+                    <input type="color" id="customWaterColor" value="#111111" />
+                    <span class="theme-custom-hex" id="customWaterHex">#111111</span>
+                  </div>
+                </div>
+                <div class="theme-custom-row">
+                  <label for="customBuildingsColor">Buildings</label>
+                  <div class="theme-custom-input-wrap">
+                    <input type="color" id="customBuildingsColor" value="#222222" />
+                    <span class="theme-custom-hex" id="customBuildingsHex">#222222</span>
+                  </div>
+                </div>
+                <div class="theme-custom-row">
+                  <label for="customParksColor">Parks</label>
+                  <div class="theme-custom-input-wrap">
+                    <input type="color" id="customParksColor" value="#1a3a1a" />
+                    <span class="theme-custom-hex" id="customParksHex">#1A3A1A</span>
                   </div>
                 </div>
               </div>
-
-              <!-- All Themes Grid -->
-              <div class="mb-2">
-                <div class="flex items-center justify-between mb-1">
-                  <span class="text-[10px] font-medium text-[#888]">All Themes</span>
-                  <button id="toggleThemesGrid"
-                    class="text-[10px] text-[#440edf] hover:underline cursor-pointer bg-transparent border-none">Show
-                    all</button>
-                </div>
-                <div id="themesGrid" class="themes-grid collapsed"></div>
-              </div>
-
-              <select id="styleSelect"
-                class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20 cursor-pointer">
-              </select>
             </div>
           </div>
         </div>
 
         <!-- Options Section -->
-        <div class="mb-6">
-          <div class="flex items-center gap-2 mb-2">
-            <div class="w-1 h-4 bg-[#440edf] rounded-full"></div>
-            <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">Options</span>
+        <div class="mb-5">
+          <div class="ctrl-section-header collapsible" data-collapse="optionsBody">
+            <div class="ctrl-section-dot"></div>
+            <span class="ctrl-section-label">Options</span>
+            <span class="ctrl-section-chevron"><ion-icon name="chevron-down-outline"
+                aria-hidden="true"></ion-icon></span>
           </div>
+          <div id="optionsBody" class="ctrl-section-body">
+            <div class="ctrl-section-body-inner">
+              <div class="flex items-center gap-3 p-2 bg-white rounded-lg shadow-sm">
+                <div class="flex items-center gap-2">
+                  <span class="text-[12px] font-medium text-[#555]" id="orientationLabel">Landscape</span>
+                  <div
+                    class="toggle-switch relative w-11 h-6 bg-[#e0e0e0] rounded-full cursor-pointer transition-colors duration-300 after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:w-[18px] after:h-[18px] after:bg-white after:rounded-full after:transition-transform after:duration-300 after:shadow-sm [&.active]:bg-[#440edf] [&.active]:after:translate-x-5"
+                    id="orientationToggle" role="switch" aria-checked="false" aria-labelledby="orientationLabel"
+                    tabindex="0"></div>
+                </div>
 
-          <div class="flex items-center gap-3 p-2 bg-white rounded-lg shadow-sm">
-            <div class="flex items-center gap-2">
-              <span class="text-[12px] font-medium text-[#555]" id="orientationLabel">Landscape</span>
-              <div
-                class="toggle-switch relative w-11 h-6 bg-[#e0e0e0] rounded-full cursor-pointer transition-colors duration-300 after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:w-[18px] after:h-[18px] after:bg-white after:rounded-full after:transition-transform after:duration-300 after:shadow-sm [&.active]:bg-[#440edf] [&.active]:after:translate-x-5"
-                id="orientationToggle" role="switch" aria-checked="false" aria-labelledby="orientationLabel"
-                tabindex="0"></div>
-            </div>
+                <div class="w-px h-6 bg-[#e0e0e0]"></div>
 
-            <div class="w-px h-6 bg-[#e0e0e0]"></div>
-
-            <div class="flex items-center gap-2">
-              <span class="text-[12px] font-medium text-[#555]" id="labelsLabel">Labels</span>
-              <div
-                class="toggle-switch active relative w-11 h-6 bg-[#e0e0e0] rounded-full cursor-pointer transition-colors duration-300 after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:w-[18px] after:h-[18px] after:bg-white after:rounded-full after:transition-transform after:duration-300 after:shadow-sm [&.active]:bg-[#440edf] [&.active]:after:translate-x-5"
-                id="labelsToggle" role="switch" aria-checked="true" aria-labelledby="labelsLabel" tabindex="0"></div>
+                <div class="flex items-center gap-2">
+                  <span class="text-[12px] font-medium text-[#555]" id="labelsLabel">Labels</span>
+                  <div
+                    class="toggle-switch active relative w-11 h-6 bg-[#e0e0e0] rounded-full cursor-pointer transition-colors duration-300 after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:w-[18px] after:h-[18px] after:bg-white after:rounded-full after:transition-transform after:duration-300 after:shadow-sm [&.active]:bg-[#440edf] [&.active]:after:translate-x-5"
+                    id="labelsToggle" role="switch" aria-checked="true" aria-labelledby="labelsLabel" tabindex="0">
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
         <!-- Labels Section -->
-        <div id="labelFields" class="mb-4">
-          <div class="flex items-center gap-2 mb-2">
-            <div class="w-1 h-4 bg-[#440edf] rounded-full"></div>
-            <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">Labels</span>
+        <div id="labelFields" class="mb-5">
+          <div class="ctrl-section-header collapsible" data-collapse="labelsBody">
+            <div class="ctrl-section-dot"></div>
+            <span class="ctrl-section-label">Labels</span>
+            <span class="ctrl-section-chevron"><ion-icon name="chevron-down-outline"
+                aria-hidden="true"></ion-icon></span>
           </div>
+          <div id="labelsBody" class="ctrl-section-body">
+            <div class="ctrl-section-body-inner">
+              <div class="space-y-2">
+                <div>
+                  <label for="titleInput" class="block text-[11px] font-medium text-[#666] mb-1">Title</label>
+                  <input id="titleInput" type="text" placeholder="City name" value="HAVANA"
+                    class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20" />
+                </div>
 
-          <div class="space-y-2">
-            <div>
-              <label for="titleInput" class="block text-[11px] font-medium text-[#666] mb-1">Title</label>
-              <input id="titleInput" type="text" placeholder="City name" value="HAVANA"
-                class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20" />
-            </div>
+                <div>
+                  <label for="subtitleInput" class="block text-[11px] font-medium text-[#666] mb-1">Subtitle</label>
+                  <input id="subtitleInput" type="text" placeholder="Optional tagline" value="The Pearl of the Antilles"
+                    class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20" />
+                </div>
 
-            <div>
-              <label for="subtitleInput" class="block text-[11px] font-medium text-[#666] mb-1">Subtitle</label>
-              <input id="subtitleInput" type="text" placeholder="Optional tagline" value="The Pearl of the Antilles"
-                class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20" />
-            </div>
+                <div>
+                  <label for="taglineInput" class="block text-[11px] font-medium text-[#666] mb-1">Tagline</label>
+                  <input id="taglineInput" type="text" placeholder="40.712° N — 74.006° W" value=""
+                    class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20" />
+                </div>
 
-            <div>
-              <label for="taglineInput" class="block text-[11px] font-medium text-[#666] mb-1">Tagline</label>
-              <input id="taglineInput" type="text" placeholder="40.712° N — 74.006° W" value=""
-                class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20" />
-            </div>
-
-            <div>
-              <label for="labelColorInput" class="block text-[11px] font-medium text-[#666] mb-1">Label Color</label>
-              <div class="flex items-center gap-2">
-                <input id="labelColorInput" type="color" value="#000000"
-                  class="w-10 h-10 rounded-lg border-0 bg-white shadow-sm cursor-pointer p-0.5 transition-all duration-200 hover:shadow-md" />
-                <input id="labelColorHex" type="text" value="#000000" placeholder="#000000"
-                  class="flex-1 px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20 font-mono" />
-                <button id="labelColorAuto" type="button" title="Auto (based on background)"
-                  aria-label="Auto-detect label color based on background"
-                  class="flex items-center justify-center w-10 h-10 rounded-lg bg-white shadow-sm text-[#666] text-base transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95">
-                  <ion-icon name="color-wand-outline" aria-hidden="true"></ion-icon>
-                </button>
+                <div>
+                  <label for="labelColorInput" class="block text-[11px] font-medium text-[#666] mb-1">Label
+                    Color</label>
+                  <div class="flex items-center gap-2">
+                    <input id="labelColorInput" type="color" value="#000000"
+                      class="w-10 h-10 rounded-lg border-0 bg-white shadow-sm cursor-pointer p-0.5 transition-all duration-200 hover:shadow-md" />
+                    <input id="labelColorHex" type="text" value="#000000" placeholder="#000000"
+                      class="flex-1 px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20 font-mono" />
+                    <button id="labelColorAuto" type="button" title="Auto (based on background)"
+                      aria-label="Auto-detect label color based on background"
+                      class="flex items-center justify-center w-10 h-10 rounded-lg bg-white shadow-sm text-[#666] text-base transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95">
+                      <ion-icon name="color-wand-outline" aria-hidden="true"></ion-icon>
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

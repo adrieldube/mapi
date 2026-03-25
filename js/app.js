@@ -624,12 +624,20 @@ const elements = {
     previewImg: document.getElementById("previewImg"),
     previewClose: document.getElementById("previewClose"),
     themesGrid: document.getElementById("themesGrid"),
-    toggleThemesGrid: document.getElementById("toggleThemesGrid"),
-    selectedThemeSwatch: document.getElementById("selectedThemeSwatch"),
     selectedThemeName: document.getElementById("selectedThemeName"),
     selectedBgColor: document.getElementById("selectedBgColor"),
     selectedRoadsColor: document.getElementById("selectedRoadsColor"),
     selectedWaterColor: document.getElementById("selectedWaterColor"),
+    customBgColor: document.getElementById("customBgColor"),
+    customRoadsColor: document.getElementById("customRoadsColor"),
+    customWaterColor: document.getElementById("customWaterColor"),
+    customBuildingsColor: document.getElementById("customBuildingsColor"),
+    customParksColor: document.getElementById("customParksColor"),
+    customBgHex: document.getElementById("customBgHex"),
+    customRoadsHex: document.getElementById("customRoadsHex"),
+    customWaterHex: document.getElementById("customWaterHex"),
+    customBuildingsHex: document.getElementById("customBuildingsHex"),
+    customParksHex: document.getElementById("customParksHex"),
     labelColorInput: document.getElementById("labelColorInput"),
     labelColorHex: document.getElementById("labelColorHex"),
     labelColorAuto: document.getElementById("labelColorAuto"),
@@ -700,51 +708,21 @@ function hideToast() {
 }
 
 // === THEME PREVIEW FUNCTIONS ===
-function createThemeSwatch(themeName, palette, isLarge = false) {
-    const swatch = document.createElement('div');
-    swatch.className = isLarge ? 'theme-swatch-large' : 'theme-swatch';
-    swatch.style.setProperty('--swatch-bg', palette.bg);
-    swatch.style.setProperty('--swatch-roads', palette.roads);
-    swatch.style.setProperty('--swatch-water', palette.water);
-
-    const roads = document.createElement('div');
-    roads.className = 'roads';
-    swatch.appendChild(roads);
-
-    if (!isLarge) {
-        swatch.dataset.theme = themeName;
-        swatch.title = themeName;
-    }
-
-    return swatch;
-}
-
 function updateSelectedThemePreview(themeName) {
     const palette = PALETTES[themeName];
     if (!palette) return;
 
-    // Update large swatch
-    elements.selectedThemeSwatch.style.setProperty('--swatch-bg', palette.bg);
-    elements.selectedThemeSwatch.style.setProperty('--swatch-roads', palette.roads);
-    elements.selectedThemeSwatch.style.setProperty('--swatch-water', palette.water);
-
-    // Clear and add roads element
-    elements.selectedThemeSwatch.innerHTML = '';
-    const roads = document.createElement('div');
-    roads.className = 'roads';
-    elements.selectedThemeSwatch.appendChild(roads);
-
-    // Update theme name
-    elements.selectedThemeName.textContent = themeName;
-
-    // Update color dots
+    // Update hero bands
     elements.selectedBgColor.style.backgroundColor = palette.bg;
     elements.selectedRoadsColor.style.backgroundColor = palette.roads;
     elements.selectedWaterColor.style.backgroundColor = palette.water;
 
-    // Update selected state in grid
-    document.querySelectorAll('.theme-swatch').forEach(swatch => {
-        swatch.classList.toggle('selected', swatch.dataset.theme === themeName);
+    // Update theme name
+    elements.selectedThemeName.textContent = themeName;
+
+    // Update selected state in cards list
+    document.querySelectorAll('.theme-card').forEach(card => {
+        card.classList.toggle('selected', card.dataset.theme === themeName);
     });
 }
 
@@ -752,13 +730,39 @@ function generateThemesGrid() {
     elements.themesGrid.innerHTML = '';
 
     Object.entries(PALETTES).forEach(([name, palette]) => {
-        const swatch = createThemeSwatch(name, palette);
+        const card = document.createElement('div');
+        card.className = 'theme-card';
+        if (name === currentStyle) card.classList.add('selected');
+        card.dataset.theme = name;
 
-        if (name === currentStyle) {
-            swatch.classList.add('selected');
-        }
+        const colors = document.createElement('div');
+        colors.className = 'theme-card-colors';
+        ['bg', 'roads', 'water'].forEach(key => {
+            const band = document.createElement('div');
+            band.className = 'theme-card-band';
+            band.style.backgroundColor = palette[key];
+            colors.appendChild(band);
+        });
 
-        swatch.addEventListener('click', () => {
+        const info = document.createElement('div');
+        info.className = 'theme-card-info';
+        const nameEl = document.createElement('div');
+        nameEl.className = 'theme-card-name';
+        nameEl.textContent = name;
+        const hexEl = document.createElement('div');
+        hexEl.className = 'theme-card-hex';
+        hexEl.textContent = `${palette.bg} / ${palette.roads}`;
+        info.appendChild(nameEl);
+        info.appendChild(hexEl);
+
+        const check = document.createElement('div');
+        check.className = 'theme-card-check';
+
+        card.appendChild(colors);
+        card.appendChild(info);
+        card.appendChild(check);
+
+        card.addEventListener('click', () => {
             elements.styleSelect.value = name;
             localStorage.setItem('mapi_color_theme', name);
             setStatus(t('statusUpdatingMapStyle'));
@@ -766,7 +770,7 @@ function generateThemesGrid() {
             updateSelectedThemePreview(name);
         });
 
-        elements.themesGrid.appendChild(swatch);
+        elements.themesGrid.appendChild(card);
     });
 }
 
@@ -785,6 +789,90 @@ function populateStyleSelect() {
         });
         elements.styleSelect.appendChild(group);
     });
+}
+
+// === COLLAPSIBLE SECTIONS ===
+function setupCollapsibleSections() {
+    document.querySelectorAll('.ctrl-section-header.collapsible').forEach(header => {
+        const targetId = header.dataset.collapse;
+        if (!targetId) return;
+        const body = document.getElementById(targetId);
+        if (!body) return;
+
+        header.addEventListener('click', () => {
+            const isCollapsed = body.classList.toggle('collapsed');
+            header.classList.toggle('collapsed', isCollapsed);
+            localStorage.setItem('mapi_collapse_' + targetId, isCollapsed ? '1' : '0');
+        });
+
+        // Restore saved state
+        const saved = localStorage.getItem('mapi_collapse_' + targetId);
+        if (saved === '1') {
+            body.classList.add('collapsed');
+            header.classList.add('collapsed');
+        } else if (saved === '0') {
+            body.classList.remove('collapsed');
+            header.classList.remove('collapsed');
+        }
+    });
+}
+
+// === CUSTOM PALETTE ===
+function setupCustomPalette() {
+    if (!elements.customBgColor) return;
+
+    // Load saved custom palette
+    const saved = localStorage.getItem('mapi_custom_palette');
+    if (saved) {
+        try {
+            const p = JSON.parse(saved);
+            elements.customBgColor.value = p.bg;
+            elements.customRoadsColor.value = p.roads;
+            elements.customWaterColor.value = p.water;
+            elements.customBuildingsColor.value = p.buildings;
+            elements.customParksColor.value = p.parks;
+            elements.customBgHex.textContent = p.bg.toUpperCase();
+            elements.customRoadsHex.textContent = p.roads.toUpperCase();
+            elements.customWaterHex.textContent = p.water.toUpperCase();
+            elements.customBuildingsHex.textContent = p.buildings.toUpperCase();
+            elements.customParksHex.textContent = p.parks.toUpperCase();
+            PALETTES['Custom'] = { bg: p.bg, roads: p.roads, water: p.water, buildings: p.buildings, parks: p.parks };
+        } catch (e) { /* ignore */ }
+    }
+
+    // Apply custom palette on any color change (debounced)
+    let customDebounce = null;
+    const applyCustom = () => {
+        elements.customBgHex.textContent = elements.customBgColor.value.toUpperCase();
+        elements.customRoadsHex.textContent = elements.customRoadsColor.value.toUpperCase();
+        elements.customWaterHex.textContent = elements.customWaterColor.value.toUpperCase();
+        elements.customBuildingsHex.textContent = elements.customBuildingsColor.value.toUpperCase();
+        elements.customParksHex.textContent = elements.customParksColor.value.toUpperCase();
+
+        clearTimeout(customDebounce);
+        customDebounce = setTimeout(() => {
+            const palette = {
+                bg: elements.customBgColor.value,
+                roads: elements.customRoadsColor.value,
+                water: elements.customWaterColor.value,
+                buildings: elements.customBuildingsColor.value,
+                parks: elements.customParksColor.value
+            };
+            PALETTES['Custom'] = palette;
+            localStorage.setItem('mapi_custom_palette', JSON.stringify(palette));
+
+            if (currentStyle !== 'Custom') generateThemesGrid();
+            elements.styleSelect.value = 'Custom';
+            localStorage.setItem('mapi_color_theme', 'Custom');
+            changeMapStyle('Custom');
+            updateSelectedThemePreview('Custom');
+        }, 300);
+    };
+    elements.customBgColor.addEventListener('input', applyCustom);
+    elements.customRoadsColor.addEventListener('input', applyCustom);
+    elements.customWaterColor.addEventListener('input', applyCustom);
+    elements.customBuildingsColor.addEventListener('input', applyCustom);
+    elements.customParksColor.addEventListener('input', applyCustom);
 }
 
 function formatCoordinates(lat, lon) {
@@ -1645,11 +1733,6 @@ function setupEventListeners() {
         updateSelectedThemePreview(style);
     });
 
-    elements.toggleThemesGrid.textContent = t('toggleShowAll');
-    elements.toggleThemesGrid.addEventListener("click", () => {
-        const collapsed = elements.themesGrid.classList.toggle('collapsed');
-        elements.toggleThemesGrid.textContent = collapsed ? t('toggleShowAll') : t('toggleShowLess');
-    });
 
     elements.posterStyleSelect.addEventListener("change", () => {
         elements.poster.className = elements.poster.className.replace(/poster-style-\w+/g, `poster-style-${elements.posterStyleSelect.value}`);
@@ -2293,24 +2376,6 @@ function setupIntroModal() {
 // === SHARE URL ===
 const getQueryParam = param => new URLSearchParams(window.location.search).get(param);
 
-function generateShareURL() {
-    const params = new URLSearchParams();
-    const cityName = elements.cityInput.value.trim();
-    if (cityName) params.set('city', cityName);
-    if (currentStyle) params.set('theme', currentStyle);
-    params.set('layout', elements.posterStyleSelect.value);
-    params.set('size', elements.sizeSelect.value);
-    params.set('zoom', parseFloat(elements.zoomInput.value).toFixed(1));
-    if (isLandscape) params.set('orientation', 'landscape');
-    const title = elements.titleInput.value.trim();
-    if (title) params.set('title', title);
-    const subtitle = elements.subtitleInput.value.trim();
-    if (subtitle) params.set('subtitle', subtitle);
-    const tagline = elements.taglineInput.value.trim();
-    if (tagline) params.set('tagline', tagline);
-    if (!labelsEnabled) params.set('labels', '0');
-    return `${window.location.origin}${window.location.pathname}?${params.toString()}`;
-}
 
 function applyURLParams() {
     const theme = getQueryParam('theme');
@@ -2388,61 +2453,6 @@ function surpriseMe() {
     setStatus(APP_LANG === 'es' ? `${randomCity} con tema ${randomPalette}` : `${randomCity} with ${randomPalette} theme`);
 }
 
-// === SHARE ACTIONS ===
-function shareDesign() {
-    const url = generateShareURL();
-    const cityName = elements.cityInput.value.trim() || 'my city';
-    const text = APP_LANG === 'es'
-        ? `Mira este póster de mapa de ${cityName} que diseñé con MAPI`
-        : `Check out this ${cityName} map poster I designed with MAPI`;
-
-    if (navigator.share) {
-        navigator.share({ title: 'MAPI — StreetMap Designer', text, url }).catch(() => {});
-    } else {
-        copyShareLink(url);
-    }
-}
-
-function copyShareLink(url) {
-    const shareUrl = url || generateShareURL();
-    navigator.clipboard.writeText(shareUrl).then(() => {
-        showToast(APP_LANG === 'es' ? 'Enlace copiado al portapapeles' : 'Link copied to clipboard');
-    }).catch(() => {
-        // Fallback
-        const input = document.createElement('input');
-        input.value = shareUrl;
-        document.body.appendChild(input);
-        input.select();
-        document.execCommand('copy');
-        document.body.removeChild(input);
-        showToast(APP_LANG === 'es' ? 'Enlace copiado al portapapeles' : 'Link copied to clipboard');
-    });
-}
-
-function shareToTwitter() {
-    const url = generateShareURL();
-    const cityName = elements.cityInput.value.trim() || 'my city';
-    const text = encodeURIComponent(`Check out this ${cityName} map poster I designed with MAPI ✨🗺️`);
-    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(url)}`, '_blank', 'width=600,height=400');
-}
-
-function shareToPinterest() {
-    const url = generateShareURL();
-    window.open(`https://pinterest.com/pin/create/button/?url=${encodeURIComponent(url)}&description=${encodeURIComponent('Custom map poster designed with MAPI')}`, '_blank', 'width=600,height=400');
-}
-
-function shareToWhatsApp() {
-    const url = generateShareURL();
-    const cityName = elements.cityInput.value.trim() || 'my city';
-    const text = encodeURIComponent(`Check out this ${cityName} map poster I designed with MAPI: ${url}`);
-    window.open(`https://wa.me/?text=${text}`, '_blank');
-}
-
-function shareToFacebook() {
-    const url = generateShareURL();
-    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank', 'width=600,height=400');
-}
-
 // === INITIALIZATION ===
 
 function initializeApp(center, zoom, cityName) {
@@ -2512,6 +2522,8 @@ function initializeApp(center, zoom, cityName) {
     populateStyleSelect();
     generateThemesGrid();
     updateSelectedThemePreview(currentStyle);
+    setupCustomPalette();
+    setupCollapsibleSections();
     setupIntroModal();
     setTimeout(updateCanvasSizeDisplay, 400);
 }
@@ -2566,34 +2578,6 @@ async function init() {
 }
 
 function setupExtraButtons() {
-    const shareBtn = document.getElementById('shareBtn');
-    const sharePopover = document.getElementById('sharePopover');
-
-    if (shareBtn && sharePopover) {
-        shareBtn.addEventListener('click', () => {
-            if (navigator.share) {
-                shareDesign();
-            } else {
-                sharePopover.classList.toggle('hidden');
-            }
-        });
-        // Close popover when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!shareBtn.contains(e.target) && !sharePopover.contains(e.target)) {
-                sharePopover.classList.add('hidden');
-            }
-        });
-        // Close popover after clicking an action
-        sharePopover.querySelectorAll('button').forEach(btn => {
-            btn.addEventListener('click', () => sharePopover.classList.add('hidden'));
-        });
-    }
-
-    document.getElementById('shareCopyLink')?.addEventListener('click', () => copyShareLink());
-    document.getElementById('shareTwitter')?.addEventListener('click', shareToTwitter);
-    document.getElementById('sharePinterest')?.addEventListener('click', shareToPinterest);
-    document.getElementById('shareWhatsApp')?.addEventListener('click', shareToWhatsApp);
-    document.getElementById('shareFacebook')?.addEventListener('click', shareToFacebook);
     document.getElementById('surpriseMeBtn')?.addEventListener('click', surpriseMe);
 }
 
