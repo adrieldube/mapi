@@ -12,7 +12,8 @@
       "Bash(curl -sI \"https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/libs/fflate.min.js\")",
       "Bash(curl -sI \"https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js\")",
       "Bash(wc -l /Users/adrieldubemarante/Projects/mapi/js/*.js)",
-      "Bash(npx terser:*)"
+      "Bash(npx terser:*)",
+      "Bash(npx clean-css-cli:*)"
     ],
     "additionalDirectories": [
       "/tmp"

@@ -496,6 +496,16 @@ const PRINT_SIZES = {
     '11x14': { width: 11, height: 14 }
 };
 
+// Social media export sizes in pixels
+const SOCIAL_SIZES = {
+    'ig-story': { label: 'IG Story / Reel — 1080 × 1920', width: 1080, height: 1920 },
+    'ig-post': { label: 'IG Post — 1080 × 1080', width: 1080, height: 1080 },
+    'pinterest': { label: 'Pinterest Pin — 1000 × 1500', width: 1000, height: 1500 },
+    'twitter-header': { label: 'Twitter Header — 1500 × 500', width: 1500, height: 500 },
+    'phone-wallpaper': { label: 'Phone Wallpaper — 1170 × 2532', width: 1170, height: 2532 },
+    'desktop-wallpaper': { label: 'Desktop Wallpaper — 2560 × 1440', width: 2560, height: 1440 },
+};
+
 const TARGET_DPI = 300;
 const INITIAL_CENTER = [139.7639, 35.6769]; // Tokyo
 const INITIAL_ZOOM = 13;
@@ -1487,9 +1497,12 @@ async function downloadPoster() {
         setTimeout(() => URL.revokeObjectURL(url), 1000);
 
         const sizeMB = (blob.size / 1048576).toFixed(1);
+        const socialSize = SOCIAL_SIZES[selectedSize];
         const effectiveWidth = isLandscape ? (printSize?.height || 36) : (printSize?.width || 24);
-        const dpi = Math.round(canvas.width / effectiveWidth);
-        const successMsg = t('statusPosterDownloaded', { width: canvas.width, height: canvas.height, dpi, sizeMB });
+        const dpi = socialSize ? 0 : Math.round(canvas.width / effectiveWidth);
+        const successMsg = socialSize
+            ? t('statusPosterDownloaded', { width: canvas.width, height: canvas.height, dpi: 'N/A', sizeMB })
+            : t('statusPosterDownloaded', { width: canvas.width, height: canvas.height, dpi, sizeMB });
         setStatus(successMsg);
         showToast(successMsg);
 
@@ -1540,10 +1553,14 @@ async function renderPosterImage() {
     await document.fonts.ready;
     const selectedSize = elements.sizeSelect.value;
     const printSize = PRINT_SIZES[selectedSize];
+    const socialSize = SOCIAL_SIZES[selectedSize];
     const { offsetWidth: w, offsetHeight: h } = elements.poster;
 
     let scale = 3;
-    if (printSize) {
+    if (socialSize) {
+        // For social sizes, scale to exact pixel dimensions
+        scale = Math.min(Math.max(socialSize.width / w, socialSize.height / h), 16384 / Math.max(w, h));
+    } else if (printSize) {
         const [tw, th] = isLandscape ? [printSize.height, printSize.width] : [printSize.width, printSize.height];
         scale = Math.min(Math.max(tw * TARGET_DPI / w, th * TARGET_DPI / h), 16384 / Math.max(w, h));
     }
@@ -1573,6 +1590,18 @@ async function renderPosterImage() {
     }
 
     if (!canvas?.width || !canvas?.height) throw new Error(t('errCanvasRenderingFailed'));
+
+    // Add watermark
+    const ctx = canvas.getContext('2d');
+    const wmText = 'Made with MAPI  ·  streetmap-designer.pages.dev';
+    const wmFontSize = Math.max(12, Math.round(canvas.width * 0.012));
+    ctx.font = `${wmFontSize}px sans-serif`;
+    ctx.globalAlpha = 0.45;
+    ctx.fillStyle = '#888888';
+    ctx.textAlign = 'center';
+    ctx.fillText(wmText, canvas.width / 2, canvas.height - wmFontSize * 0.8);
+    ctx.globalAlpha = 1;
+
     return canvas;
 }
 
@@ -2261,8 +2290,160 @@ function setupIntroModal() {
     document.getElementById('introBackdrop')?.addEventListener('click', () => closeModal());
 }
 
-// === INITIALIZATION ===
+// === SHARE URL ===
 const getQueryParam = param => new URLSearchParams(window.location.search).get(param);
+
+function generateShareURL() {
+    const params = new URLSearchParams();
+    const cityName = elements.cityInput.value.trim();
+    if (cityName) params.set('city', cityName);
+    if (currentStyle) params.set('theme', currentStyle);
+    params.set('layout', elements.posterStyleSelect.value);
+    params.set('size', elements.sizeSelect.value);
+    params.set('zoom', parseFloat(elements.zoomInput.value).toFixed(1));
+    if (isLandscape) params.set('orientation', 'landscape');
+    const title = elements.titleInput.value.trim();
+    if (title) params.set('title', title);
+    const subtitle = elements.subtitleInput.value.trim();
+    if (subtitle) params.set('subtitle', subtitle);
+    const tagline = elements.taglineInput.value.trim();
+    if (tagline) params.set('tagline', tagline);
+    if (!labelsEnabled) params.set('labels', '0');
+    return `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+}
+
+function applyURLParams() {
+    const theme = getQueryParam('theme');
+    if (theme && PALETTES[theme]) {
+        currentStyle = theme;
+        elements.styleSelect.value = theme;
+        changeMapStyle(theme);
+        updateSelectedThemePreview(theme);
+    }
+    const layout = getQueryParam('layout');
+    if (layout) {
+        elements.posterStyleSelect.value = layout;
+        elements.poster.className = elements.poster.className.replace(/poster-style-\w+/g, `poster-style-${layout}`);
+    }
+    const size = getQueryParam('size');
+    if (size) {
+        elements.sizeSelect.value = size;
+        elements.poster.className = elements.poster.className.replace(/size-\S+/g, '').trim();
+        if (size !== 'default') elements.poster.classList.add(`size-${size}`);
+    }
+    const zoom = getQueryParam('zoom');
+    if (zoom) setZoom(parseFloat(zoom));
+    const orientation = getQueryParam('orientation');
+    if (orientation === 'landscape' && !isLandscape) {
+        isLandscape = true;
+        elements.orientationToggle.classList.add('active');
+        elements.poster.style.transition = 'none';
+        elements.poster.classList.add('landscape');
+        elements.poster.offsetHeight;
+        elements.poster.style.transition = '';
+        document.getElementById('posterWrapper').classList.add('landscape-scroll');
+    }
+    const title = getQueryParam('title');
+    if (title) { elements.titleInput.value = title; }
+    const subtitle = getQueryParam('subtitle');
+    if (subtitle) { elements.subtitleInput.value = subtitle; }
+    const tagline = getQueryParam('tagline');
+    if (tagline) { elements.taglineInput.value = tagline; }
+    const labels = getQueryParam('labels');
+    if (labels === '0') {
+        labelsEnabled = false;
+        elements.labelsToggle.classList.remove('active');
+    }
+    updateLabels();
+}
+
+// === SURPRISE ME ===
+function surpriseMe() {
+    const cityKeys = Object.keys(WORLD_CITIES);
+    const paletteKeys = Object.keys(PALETTES);
+    const randomCity = cityKeys[Math.floor(Math.random() * cityKeys.length)];
+    const randomPalette = paletteKeys[Math.floor(Math.random() * paletteKeys.length)];
+
+    const cityData = WORLD_CITIES[randomCity];
+    const lon = cityData.lon;
+    const lat = cityData.lat;
+
+    // Apply theme first (changeMapStyle destroys and recreates the map)
+    currentStyle = randomPalette;
+    elements.styleSelect.value = randomPalette;
+    localStorage.setItem('mapi_color_theme', randomPalette);
+    changeMapStyle(randomPalette);
+    updateSelectedThemePreview(randomPalette);
+
+    // Now fly to the city on the new map instance
+    map.flyTo({ center: [lon, lat], zoom: 12 });
+
+    elements.cityInput.value = randomCity;
+    elements.titleInput.value = randomCity.toUpperCase();
+    elements.subtitleInput.value = cityData[APP_LANG] || cityData.en;
+    saveStateToStorage(randomCity, [lon, lat]);
+    updateLabels();
+    updateFooter(lat, lon);
+
+    setStatus(APP_LANG === 'es' ? `${randomCity} con tema ${randomPalette}` : `${randomCity} with ${randomPalette} theme`);
+}
+
+// === SHARE ACTIONS ===
+function shareDesign() {
+    const url = generateShareURL();
+    const cityName = elements.cityInput.value.trim() || 'my city';
+    const text = APP_LANG === 'es'
+        ? `Mira este póster de mapa de ${cityName} que diseñé con MAPI`
+        : `Check out this ${cityName} map poster I designed with MAPI`;
+
+    if (navigator.share) {
+        navigator.share({ title: 'MAPI — StreetMap Designer', text, url }).catch(() => {});
+    } else {
+        copyShareLink(url);
+    }
+}
+
+function copyShareLink(url) {
+    const shareUrl = url || generateShareURL();
+    navigator.clipboard.writeText(shareUrl).then(() => {
+        showToast(APP_LANG === 'es' ? 'Enlace copiado al portapapeles' : 'Link copied to clipboard');
+    }).catch(() => {
+        // Fallback
+        const input = document.createElement('input');
+        input.value = shareUrl;
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand('copy');
+        document.body.removeChild(input);
+        showToast(APP_LANG === 'es' ? 'Enlace copiado al portapapeles' : 'Link copied to clipboard');
+    });
+}
+
+function shareToTwitter() {
+    const url = generateShareURL();
+    const cityName = elements.cityInput.value.trim() || 'my city';
+    const text = encodeURIComponent(`Check out this ${cityName} map poster I designed with MAPI ✨🗺️`);
+    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(url)}`, '_blank', 'width=600,height=400');
+}
+
+function shareToPinterest() {
+    const url = generateShareURL();
+    window.open(`https://pinterest.com/pin/create/button/?url=${encodeURIComponent(url)}&description=${encodeURIComponent('Custom map poster designed with MAPI')}`, '_blank', 'width=600,height=400');
+}
+
+function shareToWhatsApp() {
+    const url = generateShareURL();
+    const cityName = elements.cityInput.value.trim() || 'my city';
+    const text = encodeURIComponent(`Check out this ${cityName} map poster I designed with MAPI: ${url}`);
+    window.open(`https://wa.me/?text=${text}`, '_blank');
+}
+
+function shareToFacebook() {
+    const url = generateShareURL();
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank', 'width=600,height=400');
+}
+
+// === INITIALIZATION ===
 
 function initializeApp(center, zoom, cityName) {
     const savedTheme = localStorage.getItem('mapi_color_theme');
@@ -2337,6 +2518,7 @@ function initializeApp(center, zoom, cityName) {
 
 async function init() {
     const cityParam = getQueryParam('city');
+    const hasURLParams = cityParam || getQueryParam('theme') || getQueryParam('layout');
 
     if (cityParam) {
         try {
@@ -2346,7 +2528,9 @@ async function init() {
                 const data = await res.json();
                 if (data.features?.length) {
                     initializeApp(data.features[0].center, 12, cityParam);
+                    if (hasURLParams) map.once('load', () => applyURLParams());
                     map.once('load', () => setStatus(t('statusCityLoaded')));
+                    setupExtraButtons();
                     return;
                 }
             }
@@ -2366,6 +2550,8 @@ async function init() {
             const center = JSON.parse(savedCenter);
             const zoom = savedZoom ? parseFloat(savedZoom) : INITIAL_ZOOM;
             initializeApp(center, zoom, savedCity);
+            if (hasURLParams) map.once('load', () => applyURLParams());
+            setupExtraButtons();
             return;
         } catch {
             // Ignore malformed saved state and fall through to default
@@ -2375,6 +2561,40 @@ async function init() {
     const defaultCity = APP_LANG === 'es' ? 'Tokio' : 'Tokyo';
 
     initializeApp(INITIAL_CENTER, INITIAL_ZOOM, defaultCity);
+    if (hasURLParams) map.once('load', () => applyURLParams());
+    setupExtraButtons();
+}
+
+function setupExtraButtons() {
+    const shareBtn = document.getElementById('shareBtn');
+    const sharePopover = document.getElementById('sharePopover');
+
+    if (shareBtn && sharePopover) {
+        shareBtn.addEventListener('click', () => {
+            if (navigator.share) {
+                shareDesign();
+            } else {
+                sharePopover.classList.toggle('hidden');
+            }
+        });
+        // Close popover when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!shareBtn.contains(e.target) && !sharePopover.contains(e.target)) {
+                sharePopover.classList.add('hidden');
+            }
+        });
+        // Close popover after clicking an action
+        sharePopover.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', () => sharePopover.classList.add('hidden'));
+        });
+    }
+
+    document.getElementById('shareCopyLink')?.addEventListener('click', () => copyShareLink());
+    document.getElementById('shareTwitter')?.addEventListener('click', shareToTwitter);
+    document.getElementById('sharePinterest')?.addEventListener('click', shareToPinterest);
+    document.getElementById('shareWhatsApp')?.addEventListener('click', shareToWhatsApp);
+    document.getElementById('shareFacebook')?.addEventListener('click', shareToFacebook);
+    document.getElementById('surpriseMeBtn')?.addEventListener('click', surpriseMe);
 }
 
 // Start the app

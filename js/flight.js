@@ -10,9 +10,6 @@ const PALETTES = {
     'Royal Blue': { bg: '#ffffff', roads: '#000000', water: '#2e22e0' },
 };
 
-const PALETTE_CATEGORIES = [
-    { label: 'Themes', keys: ['Noir', 'Blueprint', 'Emerald', 'Tangerine', 'Royal Blue'] },
-];
 
 // Speed is now read directly from the slider (min 0.25, max 2, step 0.25)
 
@@ -237,21 +234,37 @@ const el = {
     speedSlider: document.getElementById('speedSlider'),
     speedValue: document.getElementById('speedValue'),
     cameraModeBtn: document.getElementById('cameraModeBtn'),
-    styleSelect: document.getElementById('styleSelect'),
     themesGrid: document.getElementById('themesGrid'),
     selectedThemeSwatch: document.getElementById('selectedThemeSwatch'),
     selectedThemeName: document.getElementById('selectedThemeName'),
     selectedBgColor: document.getElementById('selectedBgColor'),
     selectedRoadsColor: document.getElementById('selectedRoadsColor'),
     selectedWaterColor: document.getElementById('selectedWaterColor'),
+    selectedAccentColor: document.getElementById('selectedAccentColor'),
+
+    customBgColor: document.getElementById('customBgColor'),
+    customRoadsColor: document.getElementById('customRoadsColor'),
+    customWaterColor: document.getElementById('customWaterColor'),
+    customBgHex: document.getElementById('customBgHex'),
+    customRoadsHex: document.getElementById('customRoadsHex'),
+    customWaterHex: document.getElementById('customWaterHex'),
+    customAccentColor: document.getElementById('customAccentColor'),
+    customAccentHex: document.getElementById('customAccentHex'),
 
     hudOrigin: document.getElementById('hudOrigin'),
     hudDest: document.getElementById('hudDest'),
     hudDistance: document.getElementById('hudDistance'),
     hudEta: document.getElementById('hudEta'),
-    hudProgress: document.getElementById('hudProgress'),
     progressBar: document.getElementById('progressBar'),
     progressFill: document.getElementById('progressFill'),
+    flightProgressSection: document.getElementById('flightProgressSection'),
+    fppOrigin: document.getElementById('fppOrigin'),
+    fppDest: document.getElementById('fppDest'),
+    fppPercent: document.getElementById('fppPercent'),
+    fppDistance: document.getElementById('fppDistance'),
+    fppEta: document.getElementById('fppEta'),
+    fppTrackFill: document.getElementById('fppTrackFill'),
+    fppPlaneIcon: document.querySelector('.fpp-plane-icon'),
     flightHud: document.getElementById('flightHud'),
     hudToggleBtn: document.getElementById('hudToggleBtn'),
     panelToggleBtn: document.getElementById('panelToggleBtn'),
@@ -265,6 +278,8 @@ const el = {
     globe3dContainer: document.getElementById('globe3dContainer'),
     themeSection: document.getElementById('themeSection'),
     formatSection: document.getElementById('formatSection'),
+    flightControlsSection: document.getElementById('flightControlsSection'),
+    captureSection: document.getElementById('captureSection'),
     // Mobile toolbar
     mtFlatBtn: document.getElementById('mtFlatBtn'),
     mt3dBtn: document.getElementById('mt3dBtn'),
@@ -518,7 +533,7 @@ function drawCompositeFrame(ctx, outW, outH) {
         const stats = [
             ['DISTANCE', el.hudDistance.textContent],
             ['ETA', el.hudEta.textContent],
-            ['PROGRESS', el.hudProgress.textContent],
+            ['PROGRESS', el.fppPercent.textContent],
         ];
         const colW = (w - pad * 2) / 2;
         stats.forEach((s, i) => {
@@ -721,7 +736,12 @@ function syncRecordingUI() {
     const show = (elem, v) => { if (elem) elem.classList.toggle('hidden', !v); };
 
     show(el.recordBtn, !isRecording);
-    show(el.stopRecordBtn, isRecording);
+    // stopRecordBtn needs flex display when visible
+    if (el.stopRecordBtn) {
+        el.stopRecordBtn.classList.toggle('hidden', !isRecording);
+        if (isRecording) el.stopRecordBtn.style.display = 'flex';
+        else el.stopRecordBtn.style.display = '';
+    }
     show(el.mtRecordBtn, !isRecording);
     show(el.mtStopRecordBtn, isRecording);
     show(el.recordingIndicator, isRecording);
@@ -1037,12 +1057,14 @@ function animateFlight(timestamp) {
         }
     }
 
-    // Update HUD (skip DOM writes when value unchanged)
-    const pct = Math.round(flightProgress * 100);
+    // Update progress displays (skip DOM writes when value unchanged)
+    const pct = (flightProgress * 100).toFixed(1);
     const pctStr = `${pct}%`;
-    if (el.hudProgress.textContent !== pctStr) {
-        el.hudProgress.textContent = pctStr;
+    if (el.fppPercent.textContent !== pctStr) {
+        el.fppPercent.textContent = pctStr;
         el.progressFill.style.width = pctStr;
+        el.fppTrackFill.style.width = pctStr;
+        if (el.fppPlaneIcon) el.fppPlaneIcon.style.left = pctStr;
     }
 
     // Cinematic camera: instant center tracking (smooth zoom comes from easing functions)
@@ -1074,14 +1096,11 @@ function animateFlight(timestamp) {
             startRecordingLoop();
         }
         isPlaying = false;
-        el.pauseBtn.classList.add('hidden');
         syncMobileFlight();
+        syncControlsUI();
         setStatus(t('flightComplete'));
         if (map.getLayer('plane-layer')) {
             map.setLayoutProperty('plane-layer', 'visibility', 'none');
-        }
-        if (viewMode === '3d') {
-            // Camera stays at fixed orbital position
         }
         return;
     }
@@ -1091,6 +1110,7 @@ function animateFlight(timestamp) {
 
 let startFlightTimer = null;
 let _flightGeneration = 0; // guards against stale async flight-start callbacks
+let flightPending = false; // true during cinematic flyTo before animation starts
 
 function startFlight() {
     if (!originCoords || !destCoords) {
@@ -1100,6 +1120,7 @@ function startFlight() {
 
     // Cancel any in-progress flight start
     isPlaying = false;
+    flightPending = true;
     cancelAnimationFrame(animationId);
     if (startFlightTimer) { clearTimeout(startFlightTimer); startFlightTimer = null; }
     _flightGeneration++; // invalidate any pending beginAnimation / startWhenReady callbacks
@@ -1155,17 +1176,25 @@ function startFlight() {
     el.hudDest.textContent = destName;
     el.hudDistance.textContent = `${Math.round(flightDistance).toLocaleString()} km`;
     el.hudEta.textContent = `${etaH}h ${etaM}m`;
-    el.hudProgress.textContent = '0%';
     el.progressFill.style.width = '0%';
     el.flightHud.classList.remove('hidden');
     el.hudToggleBtn.classList.remove('hidden');
     el.hudToggleBtn.classList.add('hud-active');
     el.progressBar.classList.remove('hidden');
 
+    // Show flight progress panel in sidebar
+    el.fppOrigin.textContent = originName;
+    el.fppDest.textContent = destName;
+    el.fppDistance.textContent = `${Math.round(flightDistance).toLocaleString()} km`;
+    el.fppEta.textContent = `${etaH}h ${etaM}m`;
+    el.fppPercent.textContent = '0.0%';
+    el.fppTrackFill.style.width = '0%';
+    if (el.fppPlaneIcon) el.fppPlaneIcon.style.left = '0%';
+    el.flightProgressSection.classList.remove('ctrl-section-collapsed');
+
     el.pauseBtn.textContent = t('pause');
-    el.pauseBtn.classList.remove('hidden');
-    el.resetBtn.classList.remove('hidden');
     syncMobileFlight();
+    syncControlsUI();
 
     setStatus(t('flying'));
 
@@ -1186,10 +1215,12 @@ function startFlight() {
         startFlightTimer = setTimeout(() => {
             if (_flightGeneration !== flightGen) return; // stale — new flight started
             startFlightTimer = null;
+            flightPending = false;
             isPlaying = true;
             lastFrameTime = 0;
             animationId = requestAnimationFrame(animateFlight);
             syncMobileFlight();
+            syncControlsUI();
         }, 1500);
         return;
     }
@@ -1215,10 +1246,12 @@ function startFlight() {
             startFlightTimer = setTimeout(() => {
                 if (_flightGeneration !== flightGen) return; // stale
                 startFlightTimer = null;
+                flightPending = false;
                 isPlaying = true;
                 lastFrameTime = 0;
                 animationId = requestAnimationFrame(animateFlight);
                 syncMobileFlight();
+                syncControlsUI();
             }, 150);
         }
         startWhenReady();
@@ -1240,7 +1273,7 @@ function startFlight() {
 }
 
 function togglePause() {
-    if (!arcCoordinates.length) return;
+    if (!arcCoordinates.length || flightPending) return;
     if (isPlaying) {
         isPlaying = false;
         cancelAnimationFrame(animationId);
@@ -1254,6 +1287,7 @@ function togglePause() {
         setStatus(t('flying'));
     }
     syncMobileFlight();
+    syncControlsUI();
 }
 
 function clear3DFlightObjects() {
@@ -1290,6 +1324,7 @@ function clear3DFlightObjects() {
 
 function resetFlight() {
     isPlaying = false;
+    flightPending = false;
     cancelAnimationFrame(animationId);
     _flightGeneration++; // invalidate any pending async callbacks
     if (startFlightTimer) { clearTimeout(startFlightTimer); startFlightTimer = null; }
@@ -1324,13 +1359,14 @@ function resetFlight() {
     el.hudToggleBtn.classList.add('hidden');
     el.hudToggleBtn.classList.remove('hud-active');
     el.progressBar.classList.add('hidden');
-    el.pauseBtn.classList.add('hidden');
-    el.resetBtn.classList.add('hidden');
     el.progressFill.style.width = '0%';
+    el.flightProgressSection.classList.add('ctrl-section-collapsed');
+    el.fppTrackFill.style.width = '0%';
+    if (el.fppPlaneIcon) el.fppPlaneIcon.style.left = '0%';
     el.cameraModeBtn.textContent = t('follow');
     setStatus('');
     syncMobileFlight();
-    el.mtCameraBtn.classList.add('mt-cam-follow');
+    syncControlsUI();
 }
 
 function setStatus(msg) {
@@ -1491,11 +1527,6 @@ function changeMapStyle(styleKey) {
     flightLayersAdded = false;
     map = initMap([lng, lat], zoom, styleKey);
 
-    // Refresh 3D globe if active (palette cycling is independent of flat theme)
-    if (viewMode === '3d' && globe3d.renderer) {
-        // 3D globe uses its own cycling palettes, no need to rebuild
-    }
-
     map.on('load', () => {
         setupFlightLayers();
         if (arcCoordinates.length) {
@@ -1538,68 +1569,156 @@ function updateSelectedThemePreview(themeName) {
     const palette = PALETTES[themeName];
     if (!palette) return;
 
-    el.selectedThemeSwatch.style.setProperty('--swatch-bg', palette.bg);
-    el.selectedThemeSwatch.style.setProperty('--swatch-roads', palette.roads);
-    el.selectedThemeSwatch.style.setProperty('--swatch-water', palette.water);
-
-    el.selectedThemeSwatch.innerHTML = '';
-    const roads = document.createElement('div');
-    roads.className = 'roads';
-    el.selectedThemeSwatch.appendChild(roads);
-
-    el.selectedThemeName.textContent = themeName;
-
     el.selectedBgColor.style.backgroundColor = palette.bg;
     el.selectedRoadsColor.style.backgroundColor = palette.roads;
     el.selectedWaterColor.style.backgroundColor = palette.water;
+    el.selectedAccentColor.style.backgroundColor = FLIGHT_ACCENT[themeName] || '#e84393';
 
-    document.querySelectorAll('.theme-swatch').forEach(swatch => {
-        swatch.classList.toggle('selected', swatch.dataset.theme === themeName);
+    el.selectedThemeName.textContent = themeName;
+
+    document.querySelectorAll('.theme-card').forEach(card => {
+        card.classList.toggle('selected', card.dataset.theme === themeName);
     });
 }
 
 function generateThemesGrid() {
     el.themesGrid.innerHTML = '';
     Object.entries(PALETTES).forEach(([name, palette]) => {
-        const swatch = document.createElement('div');
-        swatch.className = 'theme-swatch';
-        if (name === currentStyle) swatch.classList.add('selected');
-        swatch.style.setProperty('--swatch-bg', palette.bg);
-        swatch.style.setProperty('--swatch-roads', palette.roads);
-        swatch.style.setProperty('--swatch-water', palette.water);
-        swatch.dataset.theme = name;
-        swatch.title = name;
+        const card = document.createElement('div');
+        card.className = 'theme-card';
+        if (name === currentStyle) card.classList.add('selected');
+        card.dataset.theme = name;
 
-        const roads = document.createElement('div');
-        roads.className = 'roads';
-        swatch.appendChild(roads);
+        const colors = document.createElement('div');
+        colors.className = 'theme-card-colors';
+        ['bg', 'roads', 'water'].forEach(key => {
+            const band = document.createElement('div');
+            band.className = 'theme-card-band';
+            band.style.backgroundColor = palette[key];
+            colors.appendChild(band);
+        });
+        const accentBand = document.createElement('div');
+        accentBand.className = 'theme-card-band';
+        accentBand.style.backgroundColor = FLIGHT_ACCENT[name] || '#e84393';
+        colors.appendChild(accentBand);
 
-        swatch.addEventListener('click', () => {
-            el.styleSelect.value = name;
+        const info = document.createElement('div');
+        info.className = 'theme-card-info';
+        const nameEl = document.createElement('div');
+        nameEl.className = 'theme-card-name';
+        nameEl.textContent = name;
+        const hexEl = document.createElement('div');
+        hexEl.className = 'theme-card-hex';
+        hexEl.textContent = `${palette.bg} / ${palette.roads}`;
+        info.appendChild(nameEl);
+        info.appendChild(hexEl);
+
+        const check = document.createElement('div');
+        check.className = 'theme-card-check';
+
+        card.appendChild(colors);
+        card.appendChild(info);
+        card.appendChild(check);
+
+        card.addEventListener('click', () => {
             changeMapStyle(name);
             updateSelectedThemePreview(name);
         });
 
-        el.themesGrid.appendChild(swatch);
+        el.themesGrid.appendChild(card);
     });
 }
 
-function populateStyleSelect() {
-    el.styleSelect.innerHTML = '';
-    PALETTE_CATEGORIES.forEach(({ label, keys }) => {
-        const group = document.createElement('optgroup');
-        group.label = label;
-        keys.forEach(name => {
-            if (!PALETTES[name]) return;
-            const option = document.createElement('option');
-            option.value = name;
-            option.textContent = name;
-            if (name === currentStyle) option.selected = true;
-            group.appendChild(option);
+
+// === CUSTOM PALETTE ===
+function setupCustomPalette() {
+    if (!el.customBgColor) return;
+
+    // Load saved custom palette
+    const saved = localStorage.getItem('mapi_flight_custom_palette');
+    if (saved) {
+        try {
+            const p = JSON.parse(saved);
+            el.customBgColor.value = p.bg;
+            el.customRoadsColor.value = p.roads;
+            el.customWaterColor.value = p.water;
+            el.customBgHex.textContent = p.bg;
+            el.customRoadsHex.textContent = p.roads;
+            el.customWaterHex.textContent = p.water;
+            if (p.accent) {
+                el.customAccentColor.value = p.accent;
+                el.customAccentHex.textContent = p.accent.toUpperCase();
+            }
+            PALETTES['Custom'] = { bg: p.bg, roads: p.roads, water: p.water };
+            FLIGHT_ACCENT['Custom'] = p.accent || generateAccentColor(p.bg);
+        } catch (e) { /* ignore */ }
+    }
+
+    // Apply custom palette on any color change (debounced)
+    let customDebounce = null;
+    const applyCustom = () => {
+        el.customBgHex.textContent = el.customBgColor.value.toUpperCase();
+        el.customRoadsHex.textContent = el.customRoadsColor.value.toUpperCase();
+        el.customWaterHex.textContent = el.customWaterColor.value.toUpperCase();
+        el.customAccentHex.textContent = el.customAccentColor.value.toUpperCase();
+
+        clearTimeout(customDebounce);
+        customDebounce = setTimeout(() => {
+            const accent = el.customAccentColor.value;
+            const palette = {
+                bg: el.customBgColor.value,
+                roads: el.customRoadsColor.value,
+                water: el.customWaterColor.value
+            };
+            PALETTES['Custom'] = palette;
+            FLIGHT_ACCENT['Custom'] = accent;
+            localStorage.setItem('mapi_flight_custom_palette', JSON.stringify({ ...palette, accent }));
+
+            if (currentStyle !== 'Custom') generateThemesGrid();
+            changeMapStyle('Custom');
+            updateSelectedThemePreview('Custom');
+        }, 300);
+    };
+    el.customBgColor.addEventListener('input', applyCustom);
+    el.customRoadsColor.addEventListener('input', applyCustom);
+    el.customWaterColor.addEventListener('input', applyCustom);
+    el.customAccentColor.addEventListener('input', applyCustom);
+}
+
+function generateAccentColor(bgHex) {
+    const [r, g, b] = parseHex(bgHex);
+    const lum = (r * 299 + g * 587 + b * 114) / 1000;
+    // Pick a vibrant accent that contrasts with background
+    return lum > 128 ? '#e84393' : '#00e5ff';
+}
+
+
+// === COLLAPSIBLE SECTIONS ===
+function setupCollapsibleSections() {
+    document.querySelectorAll('.ctrl-section-header.collapsible').forEach(header => {
+        const targetId = header.dataset.collapse;
+        if (!targetId) return;
+        const body = document.getElementById(targetId);
+        if (!body) return;
+
+        header.addEventListener('click', () => {
+            const isCollapsed = body.classList.toggle('collapsed');
+            header.classList.toggle('collapsed', isCollapsed);
+            localStorage.setItem('mapi_collapse_' + targetId, isCollapsed ? '1' : '0');
         });
-        el.styleSelect.appendChild(group);
+
+        // Restore saved state
+        const saved = localStorage.getItem('mapi_collapse_' + targetId);
+        if (saved === '1') {
+            body.classList.add('collapsed');
+            header.classList.add('collapsed');
+        } else if (saved === '0') {
+            body.classList.remove('collapsed');
+            header.classList.remove('collapsed');
+        }
     });
 }
+
 
 // === PANEL TOGGLE ===
 function setupPanelToggle() {
@@ -1674,12 +1793,6 @@ function setupEventListeners() {
                 duration: 800
             });
         }
-    });
-
-    el.styleSelect.addEventListener('change', () => {
-        const style = el.styleSelect.value;
-        changeMapStyle(style);
-        updateSelectedThemePreview(style);
     });
 
     el.formatSelect.addEventListener('change', () => {
@@ -1757,16 +1870,22 @@ function setupEventListeners() {
     initDualAutocomplete(el.originInput, el.originAutocomplete, (name, coords) => {
         originName = name;
         originCoords = coords;
+        syncControlsUI();
     });
 
     initDualAutocomplete(el.destInput, el.destAutocomplete, (name, coords) => {
         destName = name;
         destCoords = coords;
+        syncControlsUI();
     });
 
     // Pre-fill inputs with default cities
     el.originInput.value = originName;
     el.destInput.value = destName;
+
+    // Sync Start button state when user types/clears city inputs
+    el.originInput.addEventListener('input', syncControlsUI);
+    el.destInput.addEventListener('input', syncControlsUI);
 }
 
 // === INIT ===
@@ -1786,9 +1905,11 @@ function init() {
 
     setupEventListeners();
     setupPanelToggle();
-    populateStyleSelect();
+    setupCollapsibleSections();
+    setupCustomPalette();
     generateThemesGrid();
     updateSelectedThemePreview(currentStyle);
+    syncControlsUI();
 
     const mapContainer = document.getElementById('mapContainer');
     if (mapContainer && typeof ResizeObserver !== 'undefined') {
@@ -2735,32 +2856,69 @@ function syncMobileMode() {
 
 function syncControlsForMode() {
     const isFlat = viewMode === 'flat';
-    // Theme and Camera mode only apply to flat map mode
+    // Theme only applies to flat map mode
     if (el.themeSection) el.themeSection.style.display = isFlat ? '' : 'none';
-    if (el.cameraModeBtn) el.cameraModeBtn.style.display = isFlat ? '' : 'none';
-    // Globe style toggle only visible in 3D mode
-    if (el.globeStyleSection) el.globeStyleSection.style.display = isFlat ? 'none' : '';
+    // Globe style toggle only visible in 3D mode (uses CSS transition)
+    if (el.globeStyleSection) el.globeStyleSection.classList.toggle('ctrl-section-collapsed', isFlat);
     // Mobile toolbar: hide camera toggle and its divider in 3D mode
     if (el.mtCameraBtn) el.mtCameraBtn.style.display = isFlat ? '' : 'none';
     if (el.mtCameraDivider) el.mtCameraDivider.style.display = isFlat ? '' : 'none';
+    syncControlsUI();
+}
+
+// Master UI sync — shows/hides/disables controls based on current app state
+function syncControlsUI() {
+    const hasArc = arcCoordinates.length > 0;
+    const hasRoute = originCoords && destCoords && el.originInput.value.trim() && el.destInput.value.trim();
+    const flightActive = hasArc;
+    const flightBusy = isPlaying || flightPending;
+    const isFlat = viewMode === 'flat';
+
+    // Start Flight button: disable during flight or pending cinematic start
+    el.startBtn.disabled = !hasRoute || flightBusy;
+
+    // Origin/destination inputs: disable during active flight
+    el.originInput.disabled = flightBusy;
+    el.destInput.disabled = flightBusy;
+
+    // Flight Controls section: show only when a flight is active
+    if (el.flightControlsSection) {
+        el.flightControlsSection.classList.toggle('ctrl-section-collapsed', !flightActive);
+    }
+
+    // Camera mode only relevant in flat mode
+    if (el.cameraModeBtn) el.cameraModeBtn.style.display = isFlat ? '' : 'none';
+
+    // Mode toggle: disable during active flight
+    if (el.modeFlatBtn) el.modeFlatBtn.disabled = flightBusy;
+    if (el.mode3dBtn) el.mode3dBtn.disabled = flightBusy;
 }
 
 function syncMobileFlight() {
     const hasArc = arcCoordinates.length > 0;
-    const isPaused = hasArc && !isPlaying && flightProgress > 0 && flightProgress < 1.0;
-    // Play btn: show when idle, paused, or completed (to restart)
-    el.mtPlayBtn.classList.toggle('hidden', isPlaying);
+    const flightBusy = isPlaying || flightPending;
+    const isPaused = hasArc && !flightBusy && flightProgress > 0 && flightProgress < 1.0;
+
+    // Play btn: hide while actively flying or during cinematic start
+    el.mtPlayBtn.classList.toggle('hidden', flightBusy);
+    el.mtPlayBtn.disabled = flightPending;
     // Pause btn: show only while actively flying
     el.mtPauseBtn.classList.toggle('hidden', !isPlaying);
     // Reset btn: show whenever there's a flight in progress or completed
     el.mtResetBtn.classList.toggle('hidden', !hasArc);
+
+    // Mobile mode toggles: disable during flight
+    el.mtFlatBtn.disabled = flightBusy;
+    el.mt3dBtn.disabled = flightBusy;
+
+    // Camera follow state
+    el.mtCameraBtn.classList.toggle('mt-cam-follow', cameraFollow);
 
     // Update play icon: show resume icon when paused, play when idle/complete
     const playIcon = el.mtPlayBtn.querySelector('ion-icon');
     if (playIcon) {
         playIcon.setAttribute('name', isPaused ? 'play-forward' : 'play');
     }
-    // Dim the play accent when paused to hint "resume" vs "start"
     el.mtPlayBtn.classList.toggle('mt-play', !isPaused);
 }
 
@@ -2772,8 +2930,6 @@ function switchTo3D() {
     el.mode3dBtn.classList.remove('opacity-50');
     syncMobileMode();
     syncControlsForMode();
-
-
 
     // Hide flat map, show 3D
     document.getElementById('mapContainer').style.display = 'none';
@@ -2814,8 +2970,6 @@ function switchToFlat() {
     el.modeFlatBtn.classList.remove('opacity-50');
     syncMobileMode();
     syncControlsForMode();
-
-
 
     // Show flat map, hide 3D
     document.getElementById('mapContainer').style.display = '';

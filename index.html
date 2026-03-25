@@ -221,6 +221,36 @@
           <ion-icon name="download-outline" aria-hidden="true"></ion-icon>
           <span class="btn-text">Download</span>
         </button>
+        <div class="relative">
+          <button id="shareBtn" type="button" title="Share design" aria-label="Share design"
+            class="cursor-pointer rounded-xl border border-[#d2e823] px-3 py-2.5 text-[13px] font-semibold transition-all duration-200 bg-[#d2e823] text-[#440edf] hover:bg-white hover:text-[#440edf] hover:shadow-lg flex items-center gap-2">
+            <ion-icon name="share-social-outline" aria-hidden="true"></ion-icon>
+            <span class="btn-text">Share</span>
+          </button>
+          <div id="sharePopover"
+            class="hidden absolute right-0 top-full mt-2 bg-white rounded-xl shadow-2xl border border-[#e5e5e5] p-2 z-50 min-w-[180px]">
+            <button id="shareCopyLink"
+              class="w-full flex items-center gap-2 px-3 py-2 text-[13px] text-[#333] rounded-lg hover:bg-[#f3efff] transition-colors cursor-pointer">
+              <ion-icon name="link-outline" aria-hidden="true"></ion-icon> Copy Link
+            </button>
+            <button id="shareTwitter"
+              class="w-full flex items-center gap-2 px-3 py-2 text-[13px] text-[#333] rounded-lg hover:bg-[#f3efff] transition-colors cursor-pointer">
+              <ion-icon name="logo-twitter" aria-hidden="true"></ion-icon> Twitter / X
+            </button>
+            <button id="sharePinterest"
+              class="w-full flex items-center gap-2 px-3 py-2 text-[13px] text-[#333] rounded-lg hover:bg-[#f3efff] transition-colors cursor-pointer">
+              <ion-icon name="logo-pinterest" aria-hidden="true"></ion-icon> Pinterest
+            </button>
+            <button id="shareWhatsApp"
+              class="w-full flex items-center gap-2 px-3 py-2 text-[13px] text-[#333] rounded-lg hover:bg-[#f3efff] transition-colors cursor-pointer">
+              <ion-icon name="logo-whatsapp" aria-hidden="true"></ion-icon> WhatsApp
+            </button>
+            <button id="shareFacebook"
+              class="w-full flex items-center gap-2 px-3 py-2 text-[13px] text-[#333] rounded-lg hover:bg-[#f3efff] transition-colors cursor-pointer">
+              <ion-icon name="logo-facebook" aria-hidden="true"></ion-icon> Facebook
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </header>
@@ -249,12 +279,19 @@
               <div class="relative">
                 <input id="cityInput" type="text" placeholder="Search for a city..." autocomplete="off"
                   class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20"
-                  style="padding-right: 2.6rem;" />
-                <button id="citySearchBtn" type="button" aria-label="Search city"
-                  class="absolute rounded-lg text-[#666] text-base transition-colors duration-200 hover:text-[#440edf]"
-                  style="right: 0.25rem; top: 50%; width: 2rem; height: 2rem; transform: translateY(-50%); display: flex; align-items: center; justify-content: center;">
-                  <ion-icon name="search-outline" aria-hidden="true"></ion-icon>
-                </button>
+                  style="padding-right: 5rem;" />
+                <div class="absolute flex items-center gap-0.5" style="right: 0.25rem; top: 50%; transform: translateY(-50%);">
+                  <button id="surpriseMeBtn" type="button" aria-label="Surprise me — random city and theme" title="Surprise me"
+                    class="rounded-lg text-[#666] text-base transition-colors duration-200 hover:text-[#440edf] cursor-pointer"
+                    style="width: 2rem; height: 2rem; display: flex; align-items: center; justify-content: center;">
+                    <ion-icon name="dice-outline" aria-hidden="true"></ion-icon>
+                  </button>
+                  <button id="citySearchBtn" type="button" aria-label="Search city"
+                    class="rounded-lg text-[#666] text-base transition-colors duration-200 hover:text-[#440edf] cursor-pointer"
+                    style="width: 2rem; height: 2rem; display: flex; align-items: center; justify-content: center;">
+                    <ion-icon name="search-outline" aria-hidden="true"></ion-icon>
+                  </button>
+                </div>
                 <ul id="cityAutocomplete" class="city-autocomplete" role="listbox" aria-label="City suggestions"></ul>
               </div>
             </div>
@@ -304,16 +341,26 @@
             </div>
 
             <div>
-              <label for="sizeSelect" class="block text-[11px] font-medium text-[#666] mb-1">Print Size</label>
+              <label for="sizeSelect" class="block text-[11px] font-medium text-[#666] mb-1">Export Size</label>
               <select id="sizeSelect"
                 class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20 cursor-pointer">
-                <option value="a1">A1 — 23.4 × 33.1 in / 59.4 × 84.1 cm</option>
-                <option value="a2">A2 — 16.5 × 23.4 in / 42 × 59.4 cm</option>
-                <option value="a3">A3 — 11.7 × 16.5 in / 29.7 × 42 cm</option>
-                <option value="24x36">24 × 36 in / 61 × 91.4 cm</option>
-                <option value="18x24">18 × 24 in / 45.7 × 61 cm</option>
-                <option value="16x20">16 × 20 in / 40.6 × 50.8 cm</option>
-                <option value="11x14" selected>11 × 14 in / 27.9 × 35.6 cm</option>
+                <optgroup label="Print Sizes">
+                  <option value="a1">A1 — 23.4 × 33.1 in / 59.4 × 84.1 cm</option>
+                  <option value="a2">A2 — 16.5 × 23.4 in / 42 × 59.4 cm</option>
+                  <option value="a3">A3 — 11.7 × 16.5 in / 29.7 × 42 cm</option>
+                  <option value="24x36">24 × 36 in / 61 × 91.4 cm</option>
+                  <option value="18x24">18 × 24 in / 45.7 × 61 cm</option>
+                  <option value="16x20">16 × 20 in / 40.6 × 50.8 cm</option>
+                  <option value="11x14" selected>11 × 14 in / 27.9 × 35.6 cm</option>
+                </optgroup>
+                <optgroup label="Social Media & Wallpapers">
+                  <option value="ig-story">IG Story / Reel — 1080 × 1920 px</option>
+                  <option value="ig-post">IG Post — 1080 × 1080 px</option>
+                  <option value="pinterest">Pinterest Pin — 1000 × 1500 px</option>
+                  <option value="twitter-header">Twitter Header — 1500 × 500 px</option>
+                  <option value="phone-wallpaper">Phone Wallpaper — 1170 × 2532 px</option>
+                  <option value="desktop-wallpaper">Desktop Wallpaper — 2560 × 1440 px</option>
+                </optgroup>
               </select>
               <span id="canvasSizeDisplay" class="block text-[10px] text-[#999] mt-1"></span>
             </div>

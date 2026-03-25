@@ -131,134 +131,196 @@
       <div class="controls-body">
 
         <!-- Modo de Vista -->
-        <div class="mb-6">
-          <div class="flex items-center gap-2 mb-3">
-            <div class="w-1 h-4 bg-[#440edf] rounded-full"></div>
-            <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">Modo de Vista</span>
+        <div class="mb-5">
+          <div class="ctrl-section-header collapsible" data-collapse="viewModeBody">
+            <div class="ctrl-section-dot"></div>
+            <span class="ctrl-section-label">Modo de Vista</span>
+            <span class="ctrl-section-chevron"><ion-icon name="chevron-down-outline" aria-hidden="true"></ion-icon></span>
           </div>
-          <div id="modeToggle" class="flex gap-1.5">
-            <button id="modeFlatBtn" type="button" title="Mapa Plano" aria-label="Modo mapa plano"
-              class="mode-btn active cursor-pointer flex-1 px-4 py-2.5 text-[13px] font-semibold rounded-full transition-all duration-200 flex items-center justify-center gap-2">
-              <ion-icon name="map-outline" class="text-base" aria-hidden="true"></ion-icon>
-              Plano
-            </button>
-            <button id="mode3dBtn" type="button" title="Globo 3D" aria-label="Modo globo 3D"
-              class="mode-btn cursor-pointer flex-1 px-4 py-2.5 text-[13px] font-semibold rounded-full transition-all duration-200 flex items-center justify-center gap-2">
-              <ion-icon name="globe-outline" class="text-base" aria-hidden="true"></ion-icon>
-              3D
-            </button>
+          <div id="viewModeBody" class="ctrl-section-body">
+            <div class="ctrl-section-body-inner">
+              <div id="modeToggle" class="flex gap-1.5">
+                <button id="modeFlatBtn" type="button" title="Mapa Plano" aria-label="Modo mapa plano"
+                  class="mode-btn active cursor-pointer flex-1 px-4 py-2.5 text-[13px] font-semibold rounded-full transition-all duration-200 flex items-center justify-center gap-2">
+                  <ion-icon name="map-outline" class="text-base" aria-hidden="true"></ion-icon>
+                  Plano
+                </button>
+                <button id="mode3dBtn" type="button" title="Globo 3D" aria-label="Modo globo 3D"
+                  class="mode-btn cursor-pointer flex-1 px-4 py-2.5 text-[13px] font-semibold rounded-full transition-all duration-200 flex items-center justify-center gap-2">
+                  <ion-icon name="globe-outline" class="text-base" aria-hidden="true"></ion-icon>
+                  3D
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
         <!-- Ruta de Vuelo -->
-        <div class="mb-6">
-          <div class="flex items-center gap-2 mb-3">
-            <div class="w-1 h-4 bg-[#440edf] rounded-full"></div>
-            <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">Ruta de Vuelo</span>
+        <div class="mb-5">
+          <div class="ctrl-section-header collapsible" data-collapse="flightRouteBody">
+            <div class="ctrl-section-dot"></div>
+            <span class="ctrl-section-label">Ruta de Vuelo</span>
+            <span class="ctrl-section-chevron"><ion-icon name="chevron-down-outline" aria-hidden="true"></ion-icon></span>
           </div>
+          <div id="flightRouteBody" class="ctrl-section-body">
+            <div class="ctrl-section-body-inner">
+              <div class="mb-3">
+                <label for="originInput" class="block text-[11px] font-medium text-[#666] mb-1">Origen</label>
+                <div class="relative">
+                  <input id="originInput" type="text" placeholder="ej. Nueva York"
+                    class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20" />
+                  <ul id="originAutocomplete" class="autocomplete-list" role="listbox"></ul>
+                </div>
+              </div>
 
-          <!-- Origen -->
-          <div class="mb-3">
-            <label for="originInput" class="block text-[11px] font-medium text-[#666] mb-1">Origen</label>
-            <div class="relative">
-              <input id="originInput" type="text" placeholder="ej. Nueva York"
-                class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20" />
-              <ul id="originAutocomplete" class="autocomplete-list" role="listbox"></ul>
+              <div class="mb-3">
+                <label for="destInput" class="block text-[11px] font-medium text-[#666] mb-1">Destino</label>
+                <div class="relative">
+                  <input id="destInput" type="text" placeholder="ej. París"
+                    class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20" />
+                  <ul id="destAutocomplete" class="autocomplete-list" role="listbox"></ul>
+                </div>
+              </div>
+
+              <button id="startFlightBtn" type="button"
+                class="group w-full cursor-pointer bg-[#440edf] text-white font-semibold px-7 py-2.5 rounded-full text-sm transition-all duration-300 hover:bg-[#3308b8] hover:shadow-lg hover:shadow-purple-500/30 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2">
+                <ion-icon name="airplane-outline" aria-hidden="true"></ion-icon>
+                Iniciar Vuelo
+              </button>
+
+              <p id="statusText" class="text-[11px] text-[#888] mt-2 min-h-[16px]"></p>
             </div>
           </div>
-
-          <!-- Destino -->
-          <div class="mb-3">
-            <label for="destInput" class="block text-[11px] font-medium text-[#666] mb-1">Destino</label>
-            <div class="relative">
-              <input id="destInput" type="text" placeholder="ej. París"
-                class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20" />
-              <ul id="destAutocomplete" class="autocomplete-list" role="listbox"></ul>
-            </div>
-          </div>
-
-          <!-- Botón Iniciar -->
-          <button id="startFlightBtn" type="button"
-            class="group w-full cursor-pointer bg-[#440edf] text-white font-semibold px-7 py-2.5 rounded-full text-sm transition-all duration-300 hover:bg-[#3308b8] hover:shadow-lg hover:shadow-purple-500/30 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2">
-            <ion-icon name="airplane-outline" aria-hidden="true"></ion-icon>
-            Iniciar Vuelo
-          </button>
-
-          <!-- Controles de Vuelo -->
-          <div class="flex gap-2 mt-3">
-            <button id="pauseBtn" type="button"
-              class="hidden flex-1 cursor-pointer bg-white shadow-sm text-[#333] font-semibold px-3 py-2 rounded-full text-[12px] transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95">
-              Pausar
-            </button>
-            <button id="resetBtn" type="button"
-              class="hidden flex-1 cursor-pointer bg-white shadow-sm text-[#333] font-semibold px-3 py-2 rounded-full text-[12px] transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95">
-              Reiniciar
-            </button>
-          </div>
-
-          <!-- Estado -->
-          <p id="statusText" class="text-[11px] text-[#888] mt-2 min-h-[16px]"></p>
         </div>
 
-        <!-- Velocidad y Cámara -->
-        <div class="mb-6">
-          <div class="flex items-center gap-2 mb-3">
-            <div class="w-1 h-4 bg-[#440edf] rounded-full"></div>
-            <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">Controles</span>
+        <!-- Active Flight Controls (visible only during flight) -->
+        <div id="flightControlsSection" class="ctrl-section ctrl-section-collapsed mb-5">
+          <div class="ctrl-section-header collapsible" data-collapse="flightControlsBody">
+            <div class="ctrl-section-dot dot-active"></div>
+            <span class="ctrl-section-label">Controles de Vuelo</span>
+            <span class="ctrl-section-chevron"><ion-icon name="chevron-down-outline" aria-hidden="true"></ion-icon></span>
           </div>
+          <div id="flightControlsBody" class="ctrl-section-body">
+            <div class="ctrl-section-body-inner">
+              <div class="flex gap-2 mb-3">
+                <button id="pauseBtn" type="button"
+                  class="flex-1 cursor-pointer bg-white shadow-sm text-[#333] font-semibold px-3 py-2 rounded-full text-[12px] transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95 flex items-center justify-center gap-1.5">
+                  <ion-icon name="pause-outline" class="text-sm" aria-hidden="true"></ion-icon>
+                  Pausar
+                </button>
+                <button id="resetBtn" type="button"
+                  class="flex-1 cursor-pointer bg-white shadow-sm text-[#333] font-semibold px-3 py-2 rounded-full text-[12px] transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95 flex items-center justify-center gap-1.5">
+                  <ion-icon name="refresh-outline" class="text-sm" aria-hidden="true"></ion-icon>
+                  Reiniciar
+                </button>
+              </div>
 
-          <div class="mb-3">
-            <label class="block text-[11px] font-medium text-[#666] mb-1">Velocidad: <span
-                id="speedValue">1x</span></label>
-            <input id="speedSlider" type="range" min="0.25" max="2" step="0.25" value="1"
-              class="w-full h-1.5 appearance-none bg-[#e5e5e5] rounded-full cursor-pointer
-              [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#440edf] [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md
-              [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-[#440edf] [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:shadow-md" />
+              <div class="mb-3">
+                <label class="block text-[11px] font-medium text-[#666] mb-1">Velocidad: <span id="speedValue">1x</span></label>
+                <input id="speedSlider" type="range" min="0.25" max="2" step="0.25" value="1"
+                  class="w-full h-1.5 appearance-none bg-[#e5e5e5] rounded-full cursor-pointer
+                  [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#440edf] [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md
+                  [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-[#440edf] [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:shadow-md" />
+              </div>
+
+              <button id="cameraModeBtn" type="button"
+                class="w-full cursor-pointer bg-white shadow-sm text-[#333] font-semibold px-3 py-2.5 rounded-full text-[12px] transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95 flex items-center justify-center gap-2">
+                <ion-icon name="videocam-outline" aria-hidden="true"></ion-icon>
+                Seguir
+              </button>
+            </div>
           </div>
+        </div>
 
-          <button id="cameraModeBtn" type="button"
-            class="w-full cursor-pointer bg-white shadow-sm text-[#333] font-semibold px-3 py-2.5 rounded-full text-[12px] transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95 flex items-center justify-center gap-2">
-            <ion-icon name="videocam-outline" aria-hidden="true"></ion-icon>
-            Seguir
-          </button>
+        <!-- Progreso del Vuelo (visible solo durante el vuelo) -->
+        <div id="flightProgressSection" class="ctrl-section ctrl-section-collapsed mb-5">
+          <div class="ctrl-section-header collapsible" data-collapse="flightProgressBody">
+            <div class="ctrl-section-dot dot-active"></div>
+            <span class="ctrl-section-label">Progreso del Vuelo</span>
+            <span class="ctrl-section-chevron"><ion-icon name="chevron-down-outline" aria-hidden="true"></ion-icon></span>
+          </div>
+          <div id="flightProgressBody" class="ctrl-section-body">
+            <div class="ctrl-section-body-inner">
+              <div class="flight-progress-panel">
+                <div class="fpp-route">
+                  <span class="fpp-city" id="fppOrigin">---</span>
+                  <div class="fpp-route-line">
+                    <span class="fpp-plane-icon">
+                      <ion-icon name="airplane" aria-hidden="true"></ion-icon>
+                    </span>
+                    <div class="fpp-track">
+                      <div class="fpp-track-fill" id="fppTrackFill"></div>
+                    </div>
+                  </div>
+                  <span class="fpp-city" id="fppDest">---</span>
+                </div>
+                <div class="fpp-stats">
+                  <div class="fpp-stat">
+                    <span class="fpp-stat-value" id="fppPercent">0%</span>
+                    <span class="fpp-stat-label">Completado</span>
+                  </div>
+                  <div class="fpp-stat">
+                    <span class="fpp-stat-value" id="fppDistance">---</span>
+                    <span class="fpp-stat-label">Distancia</span>
+                  </div>
+                  <div class="fpp-stat">
+                    <span class="fpp-stat-value" id="fppEta">---</span>
+                    <span class="fpp-stat-label">ETA</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
-          <button id="captureBtn" type="button"
-            class="w-full cursor-pointer bg-white shadow-sm text-[#333] font-semibold px-3 py-2.5 rounded-full text-[12px] transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95 flex items-center justify-center gap-2 mt-2">
-            <ion-icon name="camera-outline" aria-hidden="true"></ion-icon>
-            Captura
-          </button>
+        <!-- Captura y Exportación -->
+        <div id="captureSection" class="mb-5">
+          <div class="ctrl-section-header collapsible" data-collapse="captureBody">
+            <div class="ctrl-section-dot"></div>
+            <span class="ctrl-section-label">Captura</span>
+            <span class="ctrl-section-chevron"><ion-icon name="chevron-down-outline" aria-hidden="true"></ion-icon></span>
+          </div>
+          <div id="captureBody" class="ctrl-section-body">
+            <div class="ctrl-section-body-inner">
+              <div id="formatSection" class="mb-3">
+                <label for="formatSelect" class="block text-[11px] font-medium text-[#666] mb-1">Formato de Video</label>
+                <select id="formatSelect"
+                  class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20 cursor-pointer">
+                  <option value="free">Libre (llenar pantalla)</option>
+                  <option value="reel" selected>Reel / TikTok 9:16</option>
+                  <option value="feed">Publicación 4:5</option>
+                  <option value="square">Cuadrado 1:1</option>
+                  <option value="landscape">Horizontal 16:9</option>
+                </select>
+                <p id="formatSizeText" class="text-[10px] text-[#999] mt-1 font-mono">540 × 960 px</p>
+              </div>
 
-          <button id="recordBtn" type="button"
-            class="w-full cursor-pointer bg-white shadow-sm text-[#333] font-semibold px-3 py-2.5 rounded-full text-[12px] transition-all duration-200 hover:shadow-md hover:text-red-500 active:scale-95 flex items-center justify-center gap-2 mt-2">
-            <ion-icon name="radio-button-on-outline" aria-hidden="true"></ion-icon>
-            Grabar
-          </button>
-          <button id="stopRecordBtn" type="button"
-            class="hidden w-full cursor-pointer bg-red-500 shadow-sm text-white font-semibold px-3 py-2.5 rounded-full text-[12px] transition-all duration-200 hover:bg-red-600 active:scale-95 flex items-center justify-center gap-2 mt-2">
-            <ion-icon name="stop-outline" aria-hidden="true"></ion-icon>
-            Detener
-          </button>
-
-          <div id="formatSection" class="mt-3">
-            <label for="formatSelect" class="block text-[11px] font-medium text-[#666] mb-1">Formato de Video</label>
-            <select id="formatSelect"
-              class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20 cursor-pointer">
-              <option value="free">Libre (llenar pantalla)</option>
-              <option value="reel" selected>Reel / TikTok 9:16</option>
-              <option value="feed">Publicación 4:5</option>
-              <option value="square">Cuadrado 1:1</option>
-              <option value="landscape">Horizontal 16:9</option>
-            </select>
-            <p class="text-[10px] text-[#999] mt-1">Graba pantalla · renderiza 1080p+ en Retina</p>
-            <p id="formatSizeText" class="text-[10px] text-[#999] mt-0.5 font-mono">540 × 960 px</p>
+              <div class="flex gap-2">
+                <button id="captureBtn" type="button"
+                  class="flex-1 cursor-pointer bg-white shadow-sm text-[#333] font-semibold px-3 py-2.5 rounded-full text-[12px] transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95 flex items-center justify-center gap-1.5">
+                  <ion-icon name="camera-outline" aria-hidden="true"></ion-icon>
+                  Captura
+                </button>
+                <button id="recordBtn" type="button"
+                  class="flex-1 cursor-pointer bg-white shadow-sm text-[#333] font-semibold px-3 py-2.5 rounded-full text-[12px] transition-all duration-200 hover:shadow-md hover:text-red-500 active:scale-95 flex items-center justify-center gap-1.5">
+                  <ion-icon name="radio-button-on-outline" aria-hidden="true"></ion-icon>
+                  Grabar
+                </button>
+              </div>
+              <button id="stopRecordBtn" type="button"
+                class="hidden w-full cursor-pointer bg-red-500 shadow-sm text-white font-semibold px-3 py-2.5 rounded-full text-[12px] transition-all duration-200 hover:bg-red-600 active:scale-95 items-center justify-center gap-2 mt-2">
+                <ion-icon name="stop-outline" aria-hidden="true"></ion-icon>
+                Detener
+              </button>
+            </div>
           </div>
         </div>
 
         <!-- Estilo del Globo (visible solo en modo 3D) -->
-        <div id="globeStyleSection" class="mb-6" style="display:none;">
-          <div class="flex items-center gap-2 mb-3">
-            <div class="w-1 h-4 bg-[#440edf] rounded-full"></div>
-            <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">Estilo del Globo</span>
+        <div id="globeStyleSection" class="ctrl-section ctrl-section-collapsed mb-5">
+          <div class="ctrl-section-header">
+            <div class="ctrl-section-dot"></div>
+            <span class="ctrl-section-label">Estilo del Globo</span>
           </div>
           <div class="flex items-center gap-3 p-2 bg-white rounded-lg shadow-sm">
             <div class="flex items-center gap-2">
@@ -279,45 +341,80 @@
         </div>
 
         <!-- Tema -->
-        <div id="themeSection" class="mb-6">
-          <div class="flex items-center gap-2 mb-3">
-            <div class="w-1 h-4 bg-[#440edf] rounded-full"></div>
-            <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#888]">Tema</span>
+        <div id="themeSection" class="mb-5">
+          <div class="ctrl-section-header collapsible" data-collapse="themeBody">
+            <div class="ctrl-section-dot"></div>
+            <span class="ctrl-section-label">Tema</span>
+            <span class="ctrl-section-chevron"><ion-icon name="chevron-down-outline" aria-hidden="true"></ion-icon></span>
           </div>
+          <div id="themeBody" class="ctrl-section-body">
+            <div class="ctrl-section-body-inner">
 
-          <!-- Vista Previa del Tema Seleccionado -->
-          <div id="selectedThemePreview" class="mb-2 p-2 bg-white rounded-lg shadow-sm">
-            <div class="flex items-center gap-3">
-              <div id="selectedThemeSwatch" class="theme-swatch-large"></div>
-              <div class="flex-1 min-w-0">
-                <div id="selectedThemeName" class="text-[12px] font-semibold text-[#333] truncate">Noir</div>
-                <div class="flex gap-2 mt-1.5">
-                  <div class="flex items-center gap-1">
-                    <span id="selectedBgColor" class="color-dot"></span>
-                    <span class="text-[9px] text-[#888]">Fondo</span>
+              <!-- Hero del Tema Seleccionado -->
+              <div id="selectedThemePreview" class="theme-hero-card">
+                <div class="theme-hero-bands">
+                  <div class="theme-hero-band" id="selectedBgColor" data-label="Fondo"></div>
+                  <div class="theme-hero-band" id="selectedRoadsColor" data-label="Calles"></div>
+                  <div class="theme-hero-band" id="selectedWaterColor" data-label="Agua"></div>
+                  <div class="theme-hero-band" id="selectedAccentColor" data-label="Avion"></div>
+                </div>
+                <div class="theme-hero-label">
+                  <span id="selectedThemeName">Noir</span>
+                </div>
+                <div id="selectedThemeSwatch" class="hidden"></div>
+              </div>
+
+              <!-- Lista de Temas -->
+              <div id="themesGrid" class="theme-cards-list"></div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Paleta Personalizada -->
+        <div id="customPaletteSection" class="mb-5">
+          <div class="ctrl-section-header collapsible collapsed" data-collapse="customPaletteBody">
+            <div class="ctrl-section-dot"></div>
+            <span class="ctrl-section-label">Paleta Personalizada</span>
+            <span class="ctrl-section-chevron"><ion-icon name="chevron-down-outline" aria-hidden="true"></ion-icon></span>
+          </div>
+          <div id="customPaletteBody" class="ctrl-section-body collapsed">
+            <div class="ctrl-section-body-inner">
+              <div id="customPaletteControls" class="theme-custom-controls">
+                <div class="theme-custom-row">
+                  <label for="customBgColor">Fondo</label>
+                  <div class="theme-custom-input-wrap">
+                    <input type="color" id="customBgColor" value="#111111" />
+                    <span class="theme-custom-hex" id="customBgHex">#111111</span>
                   </div>
-                  <div class="flex items-center gap-1">
-                    <span id="selectedRoadsColor" class="color-dot"></span>
-                    <span class="text-[9px] text-[#888]">Calles</span>
+                </div>
+                <div class="theme-custom-row">
+                  <label for="customRoadsColor">Calles</label>
+                  <div class="theme-custom-input-wrap">
+                    <input type="color" id="customRoadsColor" value="#EEEEEE" />
+                    <span class="theme-custom-hex" id="customRoadsHex">#EEEEEE</span>
                   </div>
-                  <div class="flex items-center gap-1">
-                    <span id="selectedWaterColor" class="color-dot"></span>
-                    <span class="text-[9px] text-[#888]">Agua</span>
+                </div>
+                <div class="theme-custom-row">
+                  <label for="customWaterColor">Agua</label>
+                  <div class="theme-custom-input-wrap">
+                    <input type="color" id="customWaterColor" value="#111111" />
+                    <span class="theme-custom-hex" id="customWaterHex">#111111</span>
+                  </div>
+                </div>
+                <div class="theme-custom-row">
+                  <label for="customAccentColor">Avion</label>
+                  <div class="theme-custom-input-wrap">
+                    <input type="color" id="customAccentColor" value="#e84393" />
+                    <span class="theme-custom-hex" id="customAccentHex">#E84393</span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-
-          <!-- Cuadrícula de Temas -->
-          <div class="mb-2">
-            <span class="text-[10px] font-medium text-[#888] block mb-1">Todos los Temas</span>
-            <div id="themesGrid" class="themes-grid"></div>
+        </div>
           </div>
 
-          <select id="styleSelect"
-            class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20 cursor-pointer">
-          </select>
         </div>
 
       </div>
@@ -355,10 +452,6 @@
             <div>
               <div class="hud-stat-label">ETA</div>
               <div class="hud-stat-value" id="hudEta">---</div>
-            </div>
-            <div>
-              <div class="hud-stat-label">Progreso</div>
-              <div class="hud-stat-value" id="hudProgress">0%</div>
             </div>
           </div>
         </div>
