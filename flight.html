@@ -122,7 +122,7 @@
 
     <!-- Left Panel -->
     <section id="controls"
-      class="w-[320px] bg-[#fafafa] p-4 h-full overflow-y-auto shrink-0 max-[900px]:w-full max-[900px]:h-auto">
+      class="w-[300px] bg-[#fafafa] px-3.5 py-4 h-full overflow-y-auto shrink-0 max-[900px]:w-full max-[900px]:h-auto">
       <div class="mobile-panel-header">
         <button id="panelCloseBtn" type="button" aria-label="Close controls panel">
           <ion-icon name="close-outline" aria-hidden="true"></ion-icon>
@@ -131,7 +131,7 @@
       <div class="controls-body">
 
         <!-- View Mode Toggle -->
-        <div class="mb-5">
+        <div class="mb-4">
           <div class="ctrl-section-header collapsible" data-collapse="viewModeBody">
             <div class="ctrl-section-dot"></div>
             <span class="ctrl-section-label">View Mode</span>
@@ -156,7 +156,7 @@
         </div>
 
         <!-- Flight Route -->
-        <div class="mb-5">
+        <div class="mb-4">
           <div class="ctrl-section-header collapsible" data-collapse="flightRouteBody">
             <div class="ctrl-section-dot"></div>
             <span class="ctrl-section-label">Flight Route</span>
@@ -164,37 +164,37 @@
           </div>
           <div id="flightRouteBody" class="ctrl-section-body">
             <div class="ctrl-section-body-inner">
-              <div class="mb-3">
-                <label for="originInput" class="block text-[11px] font-medium text-[#666] mb-1">Origin</label>
+              <div class="mb-2.5">
+                <label for="originInput" class="block text-[10px] font-semibold text-[#888] mb-1 uppercase tracking-wide">Origin</label>
                 <div class="relative">
                   <input id="originInput" type="text" placeholder="e.g. New York"
-                    class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20" />
+                    class="w-full px-3 py-2 text-[13px] rounded-lg border border-transparent bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20 focus:border-[#440edf]/30" />
                   <ul id="originAutocomplete" class="autocomplete-list" role="listbox"></ul>
                 </div>
               </div>
 
               <div class="mb-3">
-                <label for="destInput" class="block text-[11px] font-medium text-[#666] mb-1">Destination</label>
+                <label for="destInput" class="block text-[10px] font-semibold text-[#888] mb-1 uppercase tracking-wide">Destination</label>
                 <div class="relative">
                   <input id="destInput" type="text" placeholder="e.g. Paris"
-                    class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20" />
+                    class="w-full px-3 py-2 text-[13px] rounded-lg border border-transparent bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20 focus:border-[#440edf]/30" />
                   <ul id="destAutocomplete" class="autocomplete-list" role="listbox"></ul>
                 </div>
               </div>
 
               <button id="startFlightBtn" type="button"
-                class="group w-full cursor-pointer bg-[#440edf] text-white font-semibold px-7 py-2.5 rounded-full text-sm transition-all duration-300 hover:bg-[#3308b8] hover:shadow-lg hover:shadow-purple-500/30 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2">
+                class="group w-full cursor-pointer bg-[#440edf] text-white font-semibold px-5 py-2.5 rounded-full text-[13px] transition-all duration-300 hover:bg-[#3308b8] hover:shadow-lg hover:shadow-purple-500/30 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2">
                 <ion-icon name="airplane-outline" aria-hidden="true"></ion-icon>
                 Start Flight
               </button>
 
-              <p id="statusText" class="text-[11px] text-[#888] mt-2 min-h-[16px]"></p>
+              <p id="statusText" class="text-[11px] text-[#888] mt-1.5 min-h-[16px]"></p>
             </div>
           </div>
         </div>
 
         <!-- Active Flight Controls (visible only during flight) -->
-        <div id="flightControlsSection" class="ctrl-section ctrl-section-collapsed mb-5">
+        <div id="flightControlsSection" class="ctrl-section ctrl-section-collapsed mb-4">
           <div class="ctrl-section-header collapsible" data-collapse="flightControlsBody">
             <div class="ctrl-section-dot dot-active"></div>
             <span class="ctrl-section-label">Flight Controls</span>
@@ -202,29 +202,29 @@
           </div>
           <div id="flightControlsBody" class="ctrl-section-body">
             <div class="ctrl-section-body-inner">
-              <div class="flex gap-2 mb-3">
+              <div class="grid grid-cols-2 gap-2 mb-3">
                 <button id="pauseBtn" type="button"
-                  class="flex-1 cursor-pointer bg-white shadow-sm text-[#333] font-semibold px-3 py-2 rounded-full text-[12px] transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95 flex items-center justify-center gap-1.5">
+                  class="cursor-pointer bg-white shadow-sm text-[#333] font-semibold px-2 py-2 rounded-xl text-[12px] transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95 flex items-center justify-center gap-1.5">
                   <ion-icon name="pause-outline" class="text-sm" aria-hidden="true"></ion-icon>
                   Pause
                 </button>
                 <button id="resetBtn" type="button"
-                  class="flex-1 cursor-pointer bg-white shadow-sm text-[#333] font-semibold px-3 py-2 rounded-full text-[12px] transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95 flex items-center justify-center gap-1.5">
+                  class="cursor-pointer bg-white shadow-sm text-[#333] font-semibold px-2 py-2 rounded-xl text-[12px] transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95 flex items-center justify-center gap-1.5">
                   <ion-icon name="refresh-outline" class="text-sm" aria-hidden="true"></ion-icon>
                   Reset
                 </button>
               </div>
 
               <div class="mb-3">
-                <label class="block text-[11px] font-medium text-[#666] mb-1">Speed: <span id="speedValue">1x</span></label>
+                <label class="block text-[10px] font-semibold text-[#888] mb-1.5 uppercase tracking-wide">Speed: <span id="speedValue" class="text-[#440edf]">1x</span></label>
                 <input id="speedSlider" type="range" min="0.25" max="2" step="0.25" value="1"
                   class="w-full h-1.5 appearance-none bg-[#e5e5e5] rounded-full cursor-pointer
-                  [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#440edf] [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md
-                  [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-[#440edf] [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:shadow-md" />
+                  [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#440edf] [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md
+                  [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-[#440edf] [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:shadow-md" />
               </div>
 
               <button id="cameraModeBtn" type="button"
-                class="w-full cursor-pointer bg-white shadow-sm text-[#333] font-semibold px-3 py-2.5 rounded-full text-[12px] transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95 flex items-center justify-center gap-2">
+                class="w-full cursor-pointer bg-white shadow-sm text-[#333] font-semibold px-3 py-2 rounded-xl text-[12px] transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95 flex items-center justify-center gap-2">
                 <ion-icon name="videocam-outline" aria-hidden="true"></ion-icon>
                 Follow
               </button>
@@ -233,7 +233,7 @@
         </div>
 
         <!-- Flight Progress (visible only during flight) -->
-        <div id="flightProgressSection" class="ctrl-section ctrl-section-collapsed mb-5">
+        <div id="flightProgressSection" class="ctrl-section ctrl-section-collapsed mb-4">
           <div class="ctrl-section-header collapsible" data-collapse="flightProgressBody">
             <div class="ctrl-section-dot dot-active"></div>
             <span class="ctrl-section-label">Flight Progress</span>
@@ -274,7 +274,7 @@
         </div>
 
         <!-- Capture & Export -->
-        <div id="captureSection" class="mb-5">
+        <div id="captureSection" class="mb-4">
           <div class="ctrl-section-header collapsible" data-collapse="captureBody">
             <div class="ctrl-section-dot"></div>
             <span class="ctrl-section-label">Capture & Export</span>
@@ -283,9 +283,9 @@
           <div id="captureBody" class="ctrl-section-body">
             <div class="ctrl-section-body-inner">
               <div id="formatSection" class="mb-3">
-                <label for="formatSelect" class="block text-[11px] font-medium text-[#666] mb-1">Canvas Format</label>
+                <label for="formatSelect" class="block text-[10px] font-semibold text-[#888] mb-1 uppercase tracking-wide">Canvas Format</label>
                 <select id="formatSelect"
-                  class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20 cursor-pointer">
+                  class="w-full px-3 py-2 text-[13px] rounded-lg border border-transparent bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20 cursor-pointer">
                   <option value="free">Free (fill screen)</option>
                   <option value="reel" selected>Reel / TikTok 9:16</option>
                   <option value="feed">Feed Post 4:5</option>
@@ -295,20 +295,20 @@
                 <p id="formatSizeText" class="text-[10px] text-[#999] mt-1 font-mono">540 × 960 px</p>
               </div>
 
-              <div class="flex gap-2">
+              <div class="grid grid-cols-2 gap-2">
                 <button id="captureBtn" type="button"
-                  class="flex-1 cursor-pointer bg-white shadow-sm text-[#333] font-semibold px-3 py-2.5 rounded-full text-[12px] transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95 flex items-center justify-center gap-1.5">
+                  class="cursor-pointer bg-white shadow-sm text-[#333] font-semibold px-2 py-2 rounded-xl text-[12px] transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95 flex items-center justify-center gap-1.5">
                   <ion-icon name="camera-outline" aria-hidden="true"></ion-icon>
                   Screenshot
                 </button>
                 <button id="recordBtn" type="button"
-                  class="flex-1 cursor-pointer bg-white shadow-sm text-[#333] font-semibold px-3 py-2.5 rounded-full text-[12px] transition-all duration-200 hover:shadow-md hover:text-red-500 active:scale-95 flex items-center justify-center gap-1.5">
+                  class="cursor-pointer bg-white shadow-sm text-[#333] font-semibold px-2 py-2 rounded-xl text-[12px] transition-all duration-200 hover:shadow-md hover:text-red-500 active:scale-95 flex items-center justify-center gap-1.5">
                   <ion-icon name="radio-button-on-outline" aria-hidden="true"></ion-icon>
                   Record
                 </button>
               </div>
               <button id="stopRecordBtn" type="button"
-                class="hidden w-full cursor-pointer bg-red-500 shadow-sm text-white font-semibold px-3 py-2.5 rounded-full text-[12px] transition-all duration-200 hover:bg-red-600 active:scale-95 items-center justify-center gap-2 mt-2">
+                class="hidden w-full cursor-pointer bg-red-500 shadow-sm text-white font-semibold px-3 py-2 rounded-xl text-[12px] transition-all duration-200 hover:bg-red-600 active:scale-95 items-center justify-center gap-2 mt-2">
                 <ion-icon name="stop-outline" aria-hidden="true"></ion-icon>
                 Stop Recording
               </button>
@@ -317,31 +317,27 @@
         </div>
 
         <!-- Globe Style Toggle (visible only in 3D mode) -->
-        <div id="globeStyleSection" class="ctrl-section ctrl-section-collapsed mb-5">
+        <div id="globeStyleSection" class="ctrl-section ctrl-section-collapsed mb-4">
           <div class="ctrl-section-header">
             <div class="ctrl-section-dot"></div>
             <span class="ctrl-section-label">Globe Style</span>
           </div>
-          <div class="flex items-center gap-3 p-2 bg-white rounded-lg shadow-sm">
-            <div class="flex items-center gap-2">
-              <span class="text-[12px] font-medium text-[#555]">Styled</span>
-              <div
-                class="toggle-switch relative w-11 h-6 bg-[#e0e0e0] rounded-full cursor-pointer transition-colors duration-300 after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:w-[18px] after:h-[18px] after:bg-white after:rounded-full after:transition-transform after:duration-300 after:shadow-sm [&.active]:bg-[#440edf] [&.active]:after:translate-x-5"
-                id="globeStyleToggle" role="switch" aria-checked="false"
-                aria-label="Toggle between styled and realistic globe" tabindex="0"></div>
-              <span class="text-[12px] font-medium text-[#555]">Realistic</span>
-            </div>
+          <div class="flex items-center justify-between px-3 py-2.5 bg-white rounded-xl shadow-sm">
+            <span class="text-[11px] font-semibold text-[#555]">Styled</span>
+            <div
+              class="toggle-switch relative w-11 h-6 bg-[#e0e0e0] rounded-full cursor-pointer transition-colors duration-300 after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:w-[18px] after:h-[18px] after:bg-white after:rounded-full after:transition-transform after:duration-300 after:shadow-sm [&.active]:bg-[#440edf] [&.active]:after:translate-x-5"
+              id="globeStyleToggle" role="switch" aria-checked="false"
+              aria-label="Toggle between styled and realistic globe" tabindex="0"></div>
+            <span class="text-[11px] font-semibold text-[#555]">Realistic</span>
           </div>
-          <div class="mt-2 space-y-1">
-            <p class="text-[10px] text-[#999] leading-relaxed"><strong class="text-[#777]">Styled</strong> — uses your
-              selected color palette on the globe</p>
-            <p class="text-[10px] text-[#999] leading-relaxed"><strong class="text-[#777]">Realistic</strong> — NASA
-              satellite imagery with cloud layers</p>
+          <div class="mt-2 space-y-0.5">
+            <p class="text-[9px] text-[#aaa] leading-relaxed"><strong class="text-[#888]">Styled</strong> — color palette on the globe</p>
+            <p class="text-[9px] text-[#aaa] leading-relaxed"><strong class="text-[#888]">Realistic</strong> — NASA satellite imagery</p>
           </div>
         </div>
 
         <!-- Theme Section -->
-        <div id="themeSection" class="mb-5">
+        <div id="themeSection" class="mb-4">
           <div class="ctrl-section-header collapsible" data-collapse="themeBody">
             <div class="ctrl-section-dot"></div>
             <span class="ctrl-section-label">Theme</span>
@@ -372,7 +368,7 @@
         </div>
 
         <!-- Custom Palette -->
-        <div id="customPaletteSection" class="mb-5">
+        <div id="customPaletteSection" class="mb-4">
           <div class="ctrl-section-header collapsible collapsed" data-collapse="customPaletteBody">
             <div class="ctrl-section-dot"></div>
             <span class="ctrl-section-label">Custom Palette</span>
@@ -422,7 +418,7 @@
       class="flex-1 relative bg-[#fff] overflow-auto flex items-center justify-center p-4 max-[900px]:min-h-[60vh] max-[480px]:p-1">
       <div id="mapArea" class="relative overflow-hidden rounded-lg"
         style="width:540px;height:960px;max-width:100%;max-height:100%;">
-        <div id="mapContainer" class="absolute rounded-lg" style="width:940px;height:1360px;top:-200px;left:-200px;">
+        <div id="mapContainer" class="absolute rounded-lg" style="width:1340px;height:1760px;top:-400px;left:-400px;">
         </div>
         <!-- 3D Globe Container -->
         <div id="globe3dContainer" class="absolute inset-0 rounded-lg hidden" style="z-index:5;"></div>

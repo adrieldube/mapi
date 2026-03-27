@@ -11,7 +11,7 @@ const PALETTES = {
 };
 
 // Extra pixels around the visible frame to preload tiles and prevent flickering
-const MAP_OVERFLOW = 200;
+const MAP_OVERFLOW = 400;
 
 // === TOP 150 CITIES ===
 const WORLD_CITIES = {
