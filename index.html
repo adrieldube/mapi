@@ -1,571 +1,522 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAPI — StreetMap Designer</title>
+    <meta name="description" content="Design stunning map posters of any city in the world. Print-ready wall art, social media graphics, and custom wallpapers.">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-  <!-- Resource Hints -->
-  <link rel="preconnect" href="https://unpkg.com" crossorigin />
-  <link rel="dns-prefetch" href="https://unpkg.com" />
-  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
-  <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
-  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
-  <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
-  <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
-  <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        :root {
+            --purple: #440edf;
+            --lime: #d2e823;
+            --dark: #111;
+            --gray: #666;
+            --light-gray: #f5f5f5;
+            --white: #fff;
+            --radius: 16px;
+            --radius-sm: 12px;
+        }
 
-  <title>MAPI — StreetMap Designer</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description"
-    content="Design stunning map posters, wallpapers, and high-resolution images of any city in the world. Perfect for wall art &amp; framed prints, phone &amp; desktop wallpapers, personalized gifts, home &amp; office decor, social media banners, travel keepsakes, event stationery, and more. Pick a city, choose a style, and export print-ready images — all in your browser." />
-  <meta name="keywords"
-    content="map poster, city map, custom map print, map art, wall art, map wallpaper, desktop wallpaper, phone wallpaper, map generator, printable map, high-resolution map, personalized gift, home decor, framed map print, travel poster, streetmap designer" />
-  <meta name="author" content="MAPI" />
-  <meta name="robots" content="index, follow" />
-  <meta name="theme-color" content="#440edf" />
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-  <link rel="manifest" href="/site.webmanifest" />
-  <link rel="canonical" href="https://streetmap-designer.pages.dev/" />
-  <link rel="alternate" hreflang="en" href="https://streetmap-designer.pages.dev/" />
-  <link rel="alternate" hreflang="es" href="https://streetmap-designer.pages.dev/es/" />
-  <link rel="alternate" hreflang="x-default" href="https://streetmap-designer.pages.dev/" />
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            color: var(--dark);
+            background: var(--white);
+            -webkit-font-smoothing: antialiased;
+            line-height: 1.5;
+        }
 
-  <!-- Open Graph -->
-  <meta property="og:type" content="website" />
-  <meta property="og:title" content="MAPI — StreetMap Designer" />
-  <meta property="og:description"
-    content="Design stunning map posters, wallpapers, and high-resolution images of any city. Ideal for wall art, framed prints, desktop &amp; phone wallpapers, personalized gifts, home decor, and social media banners." />
-  <meta property="og:url" content="https://streetmap-designer.pages.dev/" />
-  <meta property="og:site_name" content="MAPI" />
-  <meta property="og:image" content="https://streetmap-designer.pages.dev/og-image.png" />
-  <meta property="og:image:width" content="1274" />
-  <meta property="og:image:height" content="600" />
-  <meta property="og:image:type" content="image/png" />
-  <meta property="og:locale" content="en_US" />
-  <meta property="og:locale:alternate" content="es_ES" />
+        .container {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
 
-  <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="MAPI — StreetMap Designer" />
-  <meta name="twitter:description"
-    content="Design stunning map posters, wallpapers &amp; high-res images of any city. Perfect for wall art, framed prints, wallpapers, gifts, decor &amp; more." />
-  <meta name="twitter:image" content="https://streetmap-designer.pages.dev/og-image.png" />
+        /* Header */
+        header {
+            padding: 48px 0 0;
+            text-align: center;
+        }
 
-  <!-- MapLibre GL -->
-  <link rel="preload" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" as="style" />
-  <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />
-  <script defer src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'DM Mono', monospace;
+            font-weight: 500;
+            font-size: 18px;
+            letter-spacing: -0.02em;
+            color: var(--dark);
+            text-decoration: none;
+        }
 
-  <!-- html2canvas for exporting the poster as PNG -->
-  <script defer src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--purple);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-  <!-- Three.js for 3D Globe -->
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+        .logo-icon svg {
+            width: 20px;
+            height: 20px;
+            fill: none;
+            stroke: var(--white);
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
 
-  <!-- App Script -->
-  <script defer src="js/app.min.js"></script>
+        /* Hero */
+        .hero {
+            text-align: center;
+            padding: 64px 0 48px;
+        }
 
-  <!-- Ionicons -->
-  <script type="module" src="https://unpkg.com/ionicons@8.0.13/dist/ionicons/ionicons.esm.js"></script>
-  <script nomodule src="https://unpkg.com/ionicons@8.0.13/dist/ionicons/ionicons.js"></script>
+        .badge {
+            display: inline-block;
+            font-family: 'DM Mono', monospace;
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--purple);
+            background: rgba(68, 14, 223, 0.08);
+            padding: 6px 14px;
+            border-radius: 100px;
+            margin-bottom: 24px;
+        }
 
-  <!-- Structured Data -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebApplication",
-    "name": "MAPI — StreetMap Designer",
-    "url": "https://streetmap-designer.pages.dev/",
-    "description": "Design stunning map posters, wallpapers, and high-resolution images of any city in the world. Perfect for wall art, framed prints, phone and desktop wallpapers, personalized gifts, home decor, and social media banners.",
-    "applicationCategory": "DesignApplication",
-    "operatingSystem": "Any",
-    "browserRequirements": "Requires a modern web browser with JavaScript enabled",
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "USD"
-    },
-    "inLanguage": ["en", "es"],
-    "author": {
-      "@type": "Organization",
-      "name": "MAPI"
-    }
-  }
-  </script>
+        h1 {
+            font-size: clamp(32px, 6vw, 48px);
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            margin-bottom: 16px;
+        }
 
-  <!-- Custom Styles -->
-  <link href="css/styles.min.css" rel="stylesheet" />
+        .hero p {
+            font-size: 17px;
+            color: var(--gray);
+            max-width: 480px;
+            margin: 0 auto 32px;
+            line-height: 1.6;
+        }
+
+        /* CTA Button */
+        .cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--purple);
+            color: var(--white);
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            padding: 16px 32px;
+            border-radius: 100px;
+            text-decoration: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(68, 14, 223, 0.3);
+        }
+
+        .cta svg {
+            width: 18px;
+            height: 18px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* Preview */
+        .preview {
+            margin: 0 auto 64px;
+            border-radius: var(--radius);
+            overflow: hidden;
+            background: var(--light-gray);
+            aspect-ratio: 16 / 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .preview-mock {
+            width: 85%;
+            height: 80%;
+            border-radius: var(--radius-sm);
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+        }
+
+        .preview-mock::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 30%;
+            background: linear-gradient(to top, rgba(0,0,0,0.4), transparent);
+        }
+
+        .mock-lines {
+            position: absolute;
+            inset: 10%;
+            opacity: 0.15;
+        }
+
+        .mock-lines div {
+            position: absolute;
+            background: #fff;
+            border-radius: 1px;
+        }
+
+        .mock-lines .h1 { top: 20%; left: 10%; width: 60%; height: 1px; }
+        .mock-lines .h2 { top: 35%; left: 25%; width: 50%; height: 1px; }
+        .mock-lines .h3 { top: 50%; left: 5%; width: 70%; height: 1px; }
+        .mock-lines .v1 { top: 10%; left: 40%; width: 1px; height: 60%; }
+        .mock-lines .v2 { top: 20%; left: 65%; width: 1px; height: 50%; }
+        .mock-lines .v3 { top: 5%; left: 20%; width: 1px; height: 70%; }
+
+        .mock-label {
+            position: absolute;
+            bottom: 12%;
+            left: 0;
+            right: 0;
+            text-align: center;
+            z-index: 1;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .mock-label .city {
+            font-size: clamp(14px, 3vw, 22px);
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+
+        .mock-label .sub {
+            font-size: clamp(8px, 1.5vw, 11px);
+            opacity: 0.6;
+            letter-spacing: 0.1em;
+            margin-top: 4px;
+        }
+
+        /* Section Title */
+        .section-title {
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--gray);
+            margin-bottom: 32px;
+        }
+
+        /* Feature Links */
+        .features {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 64px;
+        }
+
+        .feature-card {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: var(--light-gray);
+            padding: 20px 24px;
+            border-radius: var(--radius-sm);
+            text-decoration: none;
+            color: var(--dark);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+        }
+
+        .feature-icon {
+            width: 44px;
+            height: 44px;
+            background: var(--white);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .feature-icon svg {
+            width: 22px;
+            height: 22px;
+            fill: none;
+            stroke: var(--purple);
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .feature-text h3 {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .feature-text p {
+            font-size: 13px;
+            color: var(--gray);
+            line-height: 1.4;
+        }
+
+        /* Palette Preview */
+        .palettes {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 64px;
+        }
+
+        .palette-dot {
+            aspect-ratio: 1;
+            border-radius: 50%;
+            transition: transform 0.2s;
+        }
+
+        .palette-dot:hover {
+            transform: scale(1.15);
+        }
+
+        /* Sizes */
+        .sizes {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 64px;
+        }
+
+        .size-tag {
+            font-family: 'DM Mono', monospace;
+            font-size: 12px;
+            color: var(--gray);
+            background: var(--light-gray);
+            padding: 8px 14px;
+            border-radius: 100px;
+        }
+
+        /* Footer CTA */
+        .footer-cta {
+            text-align: center;
+            padding: 48px 0;
+            border-top: 1px solid #eee;
+        }
+
+        .footer-cta p {
+            font-size: 14px;
+            color: var(--gray);
+            margin-bottom: 24px;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 32px 0 48px;
+        }
+
+        footer p {
+            font-size: 12px;
+            color: #aaa;
+            font-family: 'DM Mono', monospace;
+        }
+
+        footer a {
+            color: var(--gray);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            color: var(--dark);
+        }
+
+        /* Apps Row */
+        .apps {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .app-link {
+            font-size: 13px;
+            color: var(--gray);
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 100px;
+            border: 1px solid #eee;
+            transition: border-color 0.2s, color 0.2s;
+        }
+
+        .app-link:hover {
+            border-color: var(--purple);
+            color: var(--purple);
+        }
+    </style>
 </head>
+<body>
+    <div class="container">
 
-<body class="bg-[#440edf] text-[#111] font-sans m-0 h-screen overflow-hidden">
+        <!-- Header -->
+        <header>
+            <a href="/" class="logo">
+                <span class="logo-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+                </span>
+                MAPI
+            </a>
+        </header>
 
-  <!-- Intro Modal with 3D Globe -->
-  <div id="introModal"
-    class="fixed inset-0 z-50 flex items-start md:items-center justify-center p-2 md:p-4 overflow-y-auto">
-    <!-- Backdrop -->
-    <div id="introBackdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
-    <!-- Card -->
-    <div
-      class="intro-card relative z-10 flex flex-col lg:flex-row items-center gap-4 lg:gap-8 max-w-[1100px] w-full max-h-[calc(100dvh-1rem)] md:max-h-[calc(100dvh-2rem)] overflow-y-auto overflow-x-hidden mx-auto px-2 py-6 lg:px-8 lg:py-8 rounded-3xl bg-white"
-      style="border: 1px solid rgba(68,14,223,0.08); box-shadow: 0 32px 80px rgba(0,0,0,0.25);">
-      <!-- 3D Globe -->
-      <div id="globeContainer" role="img" aria-label="Interactive 3D globe"
-        class="w-[260px] h-[260px] sm:w-[320px] sm:h-[320px] lg:w-[500px] lg:h-[500px] flex-shrink-0 cursor-grab active:cursor-grabbing mx-auto lg:mx-0">
-      </div>
+        <!-- Hero -->
+        <section class="hero">
+            <span class="badge">StreetMap Designer</span>
+            <h1>Beautiful map posters of any city</h1>
+            <p>Design custom map art for your walls, phone, or social media. Pick a city, choose a style, and download in seconds.</p>
+            <a href="/designer.html" class="cta">
+                Open Designer
+                <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+        </section>
 
-      <!-- Content -->
-      <div class="intro-copy text-[#111] max-w-lg w-full text-center lg:text-left min-w-0 break-words">
-        <div class="flex items-center justify-center lg:justify-end gap-2 mb-3">
-          <span class="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#777]">Language</span>
-          <a href="index.html" aria-label="English (current language)" aria-current="page"
-            class="rounded-lg border border-[#440edf] bg-[#440edf] px-2.5 py-1 text-[11px] font-semibold text-white">
-            EN
-          </a>
-          <a href="es/index.html" aria-label="Español"
-            class="rounded-lg border border-[#440edf] bg-white px-2.5 py-1 text-[11px] font-semibold text-[#440edf] transition-colors duration-200 hover:bg-[#f3efff]">
-            ES
-          </a>
+        <!-- Preview Mock -->
+        <div class="preview">
+            <div class="preview-mock">
+                <div class="mock-lines">
+                    <div class="h1"></div>
+                    <div class="h2"></div>
+                    <div class="h3"></div>
+                    <div class="v1"></div>
+                    <div class="v2"></div>
+                    <div class="v3"></div>
+                </div>
+                <div class="mock-label">
+                    <div class="city">New York</div>
+                    <div class="sub">40.7128° N / 74.0060° W</div>
+                </div>
+            </div>
         </div>
 
-        <div class="flex items-center gap-3 justify-center lg:justify-start mb-3">
-          <div
-            class="w-10 h-10 bg-[#440edf] rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/20">
-            <ion-icon name="map-outline" class="text-xl text-[#d2e823]" aria-hidden="true"></ion-icon>
-          </div>
-          <h1 class="text-3xl font-extrabold tracking-tight text-[#440edf]">MAPI</h1>
-          <div class="rounded-lg bg-red-600 px-2 py-1 text-[9px] font-semibold text-white">Beta</div>
+        <!-- Features -->
+        <p class="section-title">Features</p>
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 12l2 2 4-4"/></svg>
+                </div>
+                <div class="feature-text">
+                    <h3>120+ Color Themes</h3>
+                    <p>Curated palettes from minimal monochromes to vibrant duotones</p>
+                </div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 3v18"/></svg>
+                </div>
+                <div class="feature-text">
+                    <h3>4 Poster Layouts</h3>
+                    <p>Minimal Luxury, Vertical Edge, Corner Grid, and Oversized Drama</p>
+                </div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                </div>
+                <div class="feature-text">
+                    <h3>Print & Social Export</h3>
+                    <p>A1 to A3 print sizes, plus Instagram, Pinterest, and wallpapers</p>
+                </div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+                </div>
+                <div class="feature-text">
+                    <h3>Any City in the World</h3>
+                    <p>Search any place or pick from 150+ preloaded cities worldwide</p>
+                </div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+                </div>
+                <div class="feature-text">
+                    <h3>Custom Palettes</h3>
+                    <p>Fine-tune background, roads, water, buildings, and parks colors</p>
+                </div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+                </div>
+                <div class="feature-text">
+                    <h3>Editable Labels</h3>
+                    <p>Custom title, subtitle, tagline, and auto-detected label colors</p>
+                </div>
+            </div>
         </div>
 
-        <p class="text-[15px] leading-relaxed text-[#555] mb-6">
-          Turn any place in the world into a stunning map poster, wallpaper, or high-resolution image. Perfect for
-          wall art, framed prints, phone &amp; desktop wallpapers, personalized gifts, home decor, or social media
-          banners. Pick a city, choose a style, and download — all in your browser.
-        </p>
-
-        <p class="text-[10px] font-semibold tracking-[2px] uppercase text-[#999] mb-2">Quick start with a city</p>
-        <!-- add horizontal scroll for mobile devices -->
-
-        <div
-          class="intro-postcards-row flex gap-3 mb-6 justify-start lg:justify-start flex-nowrap overflow-x-auto md:overflow-x-hidden overflow-y-hidden w-full max-w-full px-1 py-3">
-          <button class="intro-city-btn postcard" data-city="New York" data-lat="40.7127" data-lon="-74.006"
-            aria-label="Start with New York, USA">
-            <div class="postcard-map" id="minimap-newyork"></div>
-            <div class="postcard-body">
-              <span class="postcard-city">New York</span>
-              <span class="postcard-country">USA</span>
-            </div>
-            <div class="postcard-pin">
-              <ion-icon name="location" aria-hidden="true"></ion-icon>
-            </div>
-          </button>
-          <button class="intro-city-btn postcard" data-city="Paris" data-lat="48.8535" data-lon="2.3484"
-            aria-label="Start with Paris, France">
-            <div class="postcard-map" id="minimap-paris"></div>
-            <div class="postcard-body">
-              <span class="postcard-city">Paris</span>
-              <span class="postcard-country">France</span>
-            </div>
-            <div class="postcard-pin">
-              <ion-icon name="location" aria-hidden="true"></ion-icon>
-            </div>
-          </button>
-          <button class="intro-city-btn postcard" data-city="Tokyo" data-lat="35.6769" data-lon="139.7639"
-            aria-label="Start with Tokyo, Japan">
-            <div class="postcard-map" id="minimap-tokyo"></div>
-            <div class="postcard-body">
-              <span class="postcard-city">Tokyo</span>
-              <span class="postcard-country">Japan</span>
-            </div>
-            <div class="postcard-pin">
-              <ion-icon name="location" aria-hidden="true"></ion-icon>
-            </div>
-          </button>
+        <!-- Export Sizes -->
+        <p class="section-title">Export Sizes</p>
+        <div class="sizes">
+            <span class="size-tag">24 x 36"</span>
+            <span class="size-tag">18 x 24"</span>
+            <span class="size-tag">A1</span>
+            <span class="size-tag">A2</span>
+            <span class="size-tag">A3</span>
+            <span class="size-tag">IG Story</span>
+            <span class="size-tag">IG Post</span>
+            <span class="size-tag">Pinterest</span>
+            <span class="size-tag">Twitter</span>
+            <span class="size-tag">Phone</span>
+            <span class="size-tag">Desktop</span>
         </div>
 
-        <button id="skipIntro"
-          class="group cursor-pointer bg-[#440edf] text-white font-semibold px-7 py-2.5 rounded-full text-sm transition-all duration-300 hover:bg-[#3308b8] hover:shadow-lg hover:shadow-purple-500/30 hover:scale-105 active:scale-95">
-          Explore
-          <span class="inline-block transition-transform duration-300 group-hover:translate-x-1">&rarr;</span>
-        </button>
-      </div>
+        <!-- Footer CTA -->
+        <div class="footer-cta">
+            <p>Free. No account needed. Works in your browser.</p>
+            <a href="/designer.html" class="cta">
+                Start Designing
+                <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+        </div>
+
+        <!-- Other Apps -->
+        <footer>
+            <div class="apps">
+                <a href="https://mapi-flight.pages.dev" class="app-link">Flight Simulator</a>
+                <a href="https://mapi-frame.pages.dev" class="app-link">3D Frame Viewer</a>
+            </div>
+            <p>&copy; 2026 MAPI</p>
+        </footer>
+
     </div>
-  </div>
-
-  <header class="px-4 py-1 bg-[#440edf] text-[#d2e823]">
-    <div class="flex items-center justify-between mx-auto w-full">
-      <a href="#" aria-label="MAPI - StreetMap Designer home"
-        class="flex items-center gap-2 font-bold text-lg text-[#d2e823]">
-        <ion-icon name="map-outline" class="text-2xl" aria-hidden="true"></ion-icon>
-        <span class="text-xl">MAPI</span>
-        <span class="rounded bg-red-600 px-2 py-0 text-[9px] font-semibold text-white align-middle inline-block ml-1"
-          style="line-height:1.8;">Beta</span>
-      </a>
-      <p class="m-0 text-md tracking-wide opacity-90 hidden md:block">Posters, Wallpapers &amp; Map Art</p>
-      <div class="flex items-center gap-2">
-        <a href="es/index.html" title="Español" aria-label="Cambiar a Español"
-          class="cursor-pointer rounded-xl border border-[#d2e823] px-3 py-2.5 text-[13px] font-semibold transition-all duration-200 bg-[#440edf] text-[#d2e823] hover:bg-[#d2e823] hover:text-[#000] hover:shadow-lg flex items-center justify-center">
-          ES
-        </a>
-        <button id="panelToggleBtn" type="button" title="Controls" aria-label="Toggle controls panel"
-          aria-expanded="false"
-          class="cursor-pointer rounded-xl border border-[#d2e823] px-3 py-2.5 text-[13px] font-semibold transition-all duration-200 bg-[#440edf] text-[#d2e823] hover:bg-[#d2e823] hover:text-[#000] hover:shadow-lg flex items-center justify-center">
-          <ion-icon name="options-outline" aria-hidden="true"></ion-icon>
-        </button>
-        <button id="previewBtn" type="button" title="Preview" aria-label="Preview poster"
-          class="cursor-pointer rounded-xl border border-[#d2e823] px-3 py-2.5 text-[13px] font-semibold transition-all duration-200 bg-[#440edf] text-[#d2e823] hover:bg-[#d2e823] hover:text-[#000] hover:shadow-lg flex items-center justify-center">
-          <ion-icon name="eye-outline" aria-hidden="true"></ion-icon>
-        </button>
-        <button id="downloadBtn" type="button" title="Download poster" aria-label="Download poster"
-          class="cursor-pointer rounded-xl border border-[#d2e823] px-5 py-2.5 text-[13px] font-semibold transition-all duration-200 bg-[#440edf] text-[#d2e823] hover:bg-[#d2e823] hover:text-[#000] hover:shadow-lg flex items-center gap-2">
-          <ion-icon name="download-outline" aria-hidden="true"></ion-icon>
-          <span class="btn-text">Download</span>
-        </button>
-      </div>
-    </div>
-  </header>
-
-  <div id="container"
-    class="flex h-[calc(100vh-68px)] rounded-xl m-2 ml-4 mr-4 overflow-hidden max-[900px]:flex-col max-[900px]:h-auto">
-    <section id="controls"
-      class="w-[320px] bg-[#fafafa] p-4 h-full overflow-y-auto shrink-0 max-[900px]:w-full max-[900px]:h-auto">
-      <div class="mobile-panel-header">
-        <button id="panelCloseBtn" type="button" aria-label="Close controls panel">
-          <ion-icon name="close-outline" aria-hidden="true"></ion-icon>
-        </button>
-      </div>
-      <div class="controls-body">
-
-        <!-- Location Section -->
-        <div class="mb-5">
-          <div class="ctrl-section-header collapsible" data-collapse="locationBody">
-            <div class="ctrl-section-dot"></div>
-            <span class="ctrl-section-label">Location</span>
-            <span class="ctrl-section-chevron"><ion-icon name="chevron-down-outline"
-                aria-hidden="true"></ion-icon></span>
-          </div>
-          <div id="locationBody" class="ctrl-section-body">
-            <div class="ctrl-section-body-inner">
-              <div class="space-y-2">
-                <div>
-                  <label for="cityInput" class="block text-[11px] font-medium text-[#666] mb-1">City / Place</label>
-                  <div class="relative">
-                    <input id="cityInput" type="text" placeholder="Search for a city..." autocomplete="off"
-                      class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20"
-                      style="padding-right: 5rem;" />
-                    <div class="absolute flex items-center gap-0.5"
-                      style="right: 0.25rem; top: 50%; transform: translateY(-50%);">
-                      <button id="surpriseMeBtn" type="button" aria-label="Surprise me — random city and theme"
-                        title="Surprise me"
-                        class="rounded-lg text-[#666] text-base transition-colors duration-200 hover:text-[#440edf] cursor-pointer"
-                        style="width: 2rem; height: 2rem; display: flex; align-items: center; justify-content: center;">
-                        <ion-icon name="dice-outline" aria-hidden="true"></ion-icon>
-                      </button>
-                      <button id="citySearchBtn" type="button" aria-label="Search city"
-                        class="rounded-lg text-[#666] text-base transition-colors duration-200 hover:text-[#440edf] cursor-pointer"
-                        style="width: 2rem; height: 2rem; display: flex; align-items: center; justify-content: center;">
-                        <ion-icon name="search-outline" aria-hidden="true"></ion-icon>
-                      </button>
-                    </div>
-                    <ul id="cityAutocomplete" class="city-autocomplete" role="listbox" aria-label="City suggestions">
-                    </ul>
-                  </div>
-                </div>
-
-                <div>
-                  <div class="flex items-center justify-between mb-1">
-                    <label for="zoomInput" class="text-[11px] font-medium text-[#666]">Zoom</label>
-                    <span id="zoomValue" class="text-[11px] font-semibold text-[#440edf]">13.0</span>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <button type="button" id="zoomDecrement" aria-label="Decrease zoom"
-                      class="flex items-center justify-center w-8 h-8 rounded-lg bg-white shadow-sm text-[#666] text-base transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95">
-                      <ion-icon name="remove-outline" aria-hidden="true"></ion-icon>
-                    </button>
-                    <div class="flex-1" role="presentation">
-                      <input id="zoomInput" type="range" min="1" max="20" step="0.1" value="13"
-                        class="w-full h-1.5 appearance-none bg-[#e5e5e5] rounded-full cursor-pointer
-                        [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#440edf] [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb]:duration-200 [&::-webkit-slider-thumb]:hover:scale-110 [&::-webkit-slider-thumb]:shadow-md
-                        [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-[#440edf] [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:transition-transform [&::-moz-range-thumb]:duration-200 [&::-moz-range-thumb]:hover:scale-110 [&::-moz-range-thumb]:shadow-md" />
-                    </div>
-                    <button type="button" id="zoomIncrement" aria-label="Increase zoom"
-                      class="flex items-center justify-center w-8 h-8 rounded-lg bg-white shadow-sm text-[#666] text-base transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95">
-                      <ion-icon name="add-outline" aria-hidden="true"></ion-icon>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Poster Style Section -->
-        <div class="mb-5">
-          <div class="ctrl-section-header collapsible" data-collapse="posterStyleBody">
-            <div class="ctrl-section-dot"></div>
-            <span class="ctrl-section-label">Poster Style</span>
-            <span class="ctrl-section-chevron"><ion-icon name="chevron-down-outline"
-                aria-hidden="true"></ion-icon></span>
-          </div>
-          <div id="posterStyleBody" class="ctrl-section-body">
-            <div class="ctrl-section-body-inner">
-              <div class="space-y-2">
-                <div>
-                  <label for="posterStyleSelect" class="block text-[11px] font-medium text-[#666] mb-1">Layout</label>
-                  <select id="posterStyleSelect"
-                    class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20 cursor-pointer">
-                    <option value="minimal" selected>Minimal Luxury</option>
-                    <option value="vertical">Vertical Edge</option>
-                    <option value="corner">Corner Grid</option>
-                    <option value="oversized">Oversized Drama</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label for="sizeSelect" class="block text-[11px] font-medium text-[#666] mb-1">Export Size</label>
-                  <select id="sizeSelect"
-                    class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20 cursor-pointer">
-                    <optgroup label="Print Sizes">
-                      <option value="a1">A1 — 23.4 × 33.1 in / 59.4 × 84.1 cm</option>
-                      <option value="a2">A2 — 16.5 × 23.4 in / 42 × 59.4 cm</option>
-                      <option value="a3">A3 — 11.7 × 16.5 in / 29.7 × 42 cm</option>
-                      <option value="24x36">24 × 36 in / 61 × 91.4 cm</option>
-                      <option value="18x24">18 × 24 in / 45.7 × 61 cm</option>
-                      <option value="16x20">16 × 20 in / 40.6 × 50.8 cm</option>
-                      <option value="11x14" selected>11 × 14 in / 27.9 × 35.6 cm</option>
-                    </optgroup>
-                    <optgroup label="Social Media & Wallpapers">
-                      <option value="ig-story">IG Story / Reel — 1080 × 1920 px</option>
-                      <option value="ig-post">IG Post — 1080 × 1080 px</option>
-                      <option value="pinterest">Pinterest Pin — 1000 × 1500 px</option>
-                      <option value="twitter-header">Twitter Header — 1500 × 500 px</option>
-                      <option value="phone-wallpaper">Phone Wallpaper — 1170 × 2532 px</option>
-                      <option value="desktop-wallpaper">Desktop Wallpaper — 2560 × 1440 px</option>
-                    </optgroup>
-                  </select>
-                  <span id="canvasSizeDisplay" class="block text-[10px] text-[#999] mt-1"></span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Color Theme Section -->
-        <div class="mb-5">
-          <div class="ctrl-section-header collapsible" data-collapse="colorThemeBody">
-            <div class="ctrl-section-dot"></div>
-            <span class="ctrl-section-label">Color Theme</span>
-            <span class="ctrl-section-chevron"><ion-icon name="chevron-down-outline"
-                aria-hidden="true"></ion-icon></span>
-          </div>
-          <div id="colorThemeBody" class="ctrl-section-body">
-            <div class="ctrl-section-body-inner">
-              <!-- Selected Theme Hero Card -->
-              <div id="selectedThemePreview" class="theme-hero-card">
-                <div class="theme-hero-bands">
-                  <div class="theme-hero-band" id="selectedBgColor" data-label="BG"></div>
-                  <div class="theme-hero-band" id="selectedRoadsColor" data-label="Roads"></div>
-                  <div class="theme-hero-band" id="selectedWaterColor" data-label="Water"></div>
-                </div>
-                <div class="theme-hero-label">
-                  <span id="selectedThemeName">Pure Black & White</span>
-                </div>
-              </div>
-
-              <!-- Theme Cards List -->
-              <div id="themesGrid" class="theme-cards-list"></div>
-
-              <select id="styleSelect" class="hidden">
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <!-- Custom Palette Section -->
-        <div class="mb-5">
-          <div class="ctrl-section-header collapsible collapsed" data-collapse="customPaletteBody">
-            <div class="ctrl-section-dot"></div>
-            <span class="ctrl-section-label">Custom Palette</span>
-            <span class="ctrl-section-chevron"><ion-icon name="chevron-down-outline"
-                aria-hidden="true"></ion-icon></span>
-          </div>
-          <div id="customPaletteBody" class="ctrl-section-body collapsed">
-            <div class="ctrl-section-body-inner">
-              <div class="theme-custom-controls">
-                <div class="theme-custom-row">
-                  <label for="customBgColor">Background</label>
-                  <div class="theme-custom-input-wrap">
-                    <input type="color" id="customBgColor" value="#111111" />
-                    <span class="theme-custom-hex" id="customBgHex">#111111</span>
-                  </div>
-                </div>
-                <div class="theme-custom-row">
-                  <label for="customRoadsColor">Roads</label>
-                  <div class="theme-custom-input-wrap">
-                    <input type="color" id="customRoadsColor" value="#EEEEEE" />
-                    <span class="theme-custom-hex" id="customRoadsHex">#EEEEEE</span>
-                  </div>
-                </div>
-                <div class="theme-custom-row">
-                  <label for="customWaterColor">Water</label>
-                  <div class="theme-custom-input-wrap">
-                    <input type="color" id="customWaterColor" value="#111111" />
-                    <span class="theme-custom-hex" id="customWaterHex">#111111</span>
-                  </div>
-                </div>
-                <div class="theme-custom-row">
-                  <label for="customBuildingsColor">Buildings</label>
-                  <div class="theme-custom-input-wrap">
-                    <input type="color" id="customBuildingsColor" value="#222222" />
-                    <span class="theme-custom-hex" id="customBuildingsHex">#222222</span>
-                  </div>
-                </div>
-                <div class="theme-custom-row">
-                  <label for="customParksColor">Parks</label>
-                  <div class="theme-custom-input-wrap">
-                    <input type="color" id="customParksColor" value="#1a3a1a" />
-                    <span class="theme-custom-hex" id="customParksHex">#1A3A1A</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Options Section -->
-        <div class="mb-5">
-          <div class="ctrl-section-header collapsible" data-collapse="optionsBody">
-            <div class="ctrl-section-dot"></div>
-            <span class="ctrl-section-label">Options</span>
-            <span class="ctrl-section-chevron"><ion-icon name="chevron-down-outline"
-                aria-hidden="true"></ion-icon></span>
-          </div>
-          <div id="optionsBody" class="ctrl-section-body">
-            <div class="ctrl-section-body-inner">
-              <div class="flex items-center gap-3 p-2 bg-white rounded-lg shadow-sm">
-                <div class="flex items-center gap-2">
-                  <span class="text-[12px] font-medium text-[#555]" id="orientationLabel">Landscape</span>
-                  <div
-                    class="toggle-switch relative w-11 h-6 bg-[#e0e0e0] rounded-full cursor-pointer transition-colors duration-300 after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:w-[18px] after:h-[18px] after:bg-white after:rounded-full after:transition-transform after:duration-300 after:shadow-sm [&.active]:bg-[#440edf] [&.active]:after:translate-x-5"
-                    id="orientationToggle" role="switch" aria-checked="false" aria-labelledby="orientationLabel"
-                    tabindex="0"></div>
-                </div>
-
-                <div class="w-px h-6 bg-[#e0e0e0]"></div>
-
-                <div class="flex items-center gap-2">
-                  <span class="text-[12px] font-medium text-[#555]" id="labelsLabel">Labels</span>
-                  <div
-                    class="toggle-switch active relative w-11 h-6 bg-[#e0e0e0] rounded-full cursor-pointer transition-colors duration-300 after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:w-[18px] after:h-[18px] after:bg-white after:rounded-full after:transition-transform after:duration-300 after:shadow-sm [&.active]:bg-[#440edf] [&.active]:after:translate-x-5"
-                    id="labelsToggle" role="switch" aria-checked="true" aria-labelledby="labelsLabel" tabindex="0">
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Labels Section -->
-        <div id="labelFields" class="mb-5">
-          <div class="ctrl-section-header collapsible" data-collapse="labelsBody">
-            <div class="ctrl-section-dot"></div>
-            <span class="ctrl-section-label">Labels</span>
-            <span class="ctrl-section-chevron"><ion-icon name="chevron-down-outline"
-                aria-hidden="true"></ion-icon></span>
-          </div>
-          <div id="labelsBody" class="ctrl-section-body">
-            <div class="ctrl-section-body-inner">
-              <div class="space-y-2">
-                <div>
-                  <label for="titleInput" class="block text-[11px] font-medium text-[#666] mb-1">Title</label>
-                  <input id="titleInput" type="text" placeholder="City name" value="HAVANA"
-                    class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20" />
-                </div>
-
-                <div>
-                  <label for="subtitleInput" class="block text-[11px] font-medium text-[#666] mb-1">Subtitle</label>
-                  <input id="subtitleInput" type="text" placeholder="Optional tagline" value="The Pearl of the Antilles"
-                    class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20" />
-                </div>
-
-                <div>
-                  <label for="taglineInput" class="block text-[11px] font-medium text-[#666] mb-1">Tagline</label>
-                  <input id="taglineInput" type="text" placeholder="40.712° N — 74.006° W" value=""
-                    class="w-full px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20" />
-                </div>
-
-                <div>
-                  <label for="labelColorInput" class="block text-[11px] font-medium text-[#666] mb-1">Label
-                    Color</label>
-                  <div class="flex items-center gap-2">
-                    <input id="labelColorInput" type="color" value="#000000"
-                      class="w-10 h-10 rounded-lg border-0 bg-white shadow-sm cursor-pointer p-0.5 transition-all duration-200 hover:shadow-md" />
-                    <input id="labelColorHex" type="text" value="#000000" placeholder="#000000"
-                      class="flex-1 px-3 py-2 text-[13px] rounded-lg border-0 bg-white shadow-sm outline-none transition-all duration-200 focus:shadow-md focus:ring-2 focus:ring-[#440edf]/20 font-mono" />
-                    <button id="labelColorAuto" type="button" title="Auto (based on background)"
-                      aria-label="Auto-detect label color based on background"
-                      class="flex items-center justify-center w-10 h-10 rounded-lg bg-white shadow-sm text-[#666] text-base transition-all duration-200 hover:shadow-md hover:text-[#440edf] active:scale-95">
-                      <ion-icon name="color-wand-outline" aria-hidden="true"></ion-icon>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Status & Attribution -->
-        <div class="mt-auto">
-          <div id="status" class="text-[11px] min-h-[16px] text-center text-[#888]">&nbsp;</div>
-
-          <div id="attribution" class="mt-4 pt-2 border-t border-[#e5e5e5] text-[9px] text-center text-[#aaa]">
-            © OpenStreetMap contributors · Tiles © MapTiler
-          </div>
-        </div>
-      </div><!-- /.controls-body -->
-    </section>
-
-    <section id="posterWrapper" class="flex-1 flex justify-center items-start p-4 bg-[#fff] overflow-auto">
-      <div id="poster" class="poster-style-minimal">
-        <div id="mapContainer"></div>
-        <div id="posterFooter">
-          <div id="cityTitle">HAVANA</div>
-          <div id="citySubtitle">The Pearl of the Antilles</div>
-          <div id="coordinates">23.114° N — 82.367° W</div>
-        </div>
-      </div>
-    </section>
-  </div>
-
-  <!-- Preview Modal -->
-  <div id="previewModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm"
-    role="dialog" aria-label="Poster preview">
-    <button id="previewClose" type="button" aria-label="Close preview"
-      class="absolute top-4 right-4 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white text-2xl transition-colors cursor-pointer">
-      <ion-icon name="close-outline" aria-hidden="true"></ion-icon>
-    </button>
-    <img id="previewImg" alt="Poster preview" class="max-w-[90vw] max-h-[90vh] object-contain rounded-lg shadow-2xl" />
-  </div>
-
-  <!-- Download Notification Toast -->
-  <div id="downloadToast" role="alert" aria-live="polite">
-    <span class="download-toast-icon"><ion-icon id="downloadToastIcon" name="checkmark-circle-outline"
-        aria-hidden="true"></ion-icon></span>
-    <span id="downloadToastMsg"></span>
-    <button id="downloadToastDismiss" type="button" aria-label="Dismiss notification">
-      <ion-icon name="close-outline" aria-hidden="true"></ion-icon>
-    </button>
-  </div>
-
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-P2YZSW5Z51"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag() { dataLayer.push(arguments); }
-    gtag('js', new Date());
-
-    gtag('config', 'G-P2YZSW5Z51');
-  </script>
 </body>
-
 </html>

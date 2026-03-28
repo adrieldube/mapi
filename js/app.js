@@ -207,283 +207,183 @@ const PALETTE_CATEGORIES = [
 // === TOP 150 CITIES WITH SUBTITLES ===
 const WORLD_CITIES = {
     // Asia
-    'Tokyo': { en: 'The Land of the Rising Sun', es: 'La Tierra del Sol Naciente', lat: 35.6769, lon: 139.7639 },
-    'Delhi': { en: 'The Heart of India', es: 'El Corazón de la India', lat: 28.6328, lon: 77.2198 },
-    'Shanghai': { en: 'The Pearl of the Orient', es: 'La Perla de Oriente', lat: 31.2313, lon: 121.47 },
-    'Beijing': { en: 'The Forbidden City', es: 'La Ciudad Prohibida', lat: 39.9057, lon: 116.3913 },
-    'Mumbai': { en: 'The City of Dreams', es: 'La Ciudad de los Sueños', lat: 19.055, lon: 72.8692 },
-    'Osaka': { en: 'The Nation\'s Kitchen', es: 'La Cocina de la Nación', lat: 34.6938, lon: 135.5015 },
-    'Dhaka': { en: 'The City of Mosques', es: 'La Ciudad de las Mezquitas', lat: 23.7644, lon: 90.389 },
-    'Karachi': { en: 'The City of Lights', es: 'La Ciudad de las Luces', lat: 24.8547, lon: 67.0207 },
-    'Kolkata': { en: 'The City of Joy', es: 'La Ciudad de la Alegría', lat: 22.5726, lon: 88.3639 },
-    'Chengdu': { en: 'The Land of Abundance', es: 'La Tierra de la Abundancia', lat: 30.6599, lon: 104.0633 },
-    'Guangzhou': { en: 'The City of Flowers', es: 'La Ciudad de las Flores', lat: 23.1288, lon: 113.259 },
-    'Shenzhen': { en: 'China\'s Silicon Valley', es: 'El Silicon Valley de China', lat: 22.5446, lon: 114.0545 },
-    'Jakarta': { en: 'The Big Durian', es: 'El Gran Durián', lat: -6.1754, lon: 106.8272 },
-    'Bangkok': { en: 'The City of Angels', es: 'La Ciudad de los Ángeles', lat: 13.7525, lon: 100.4935 },
-    'Seoul': { en: 'The Soul of Asia', es: 'El Alma de Asia', lat: 37.5667, lon: 126.9783 },
-    'Ho Chi Minh City': { en: 'The Pearl of the Far East', es: 'La Perla del Lejano Oriente', lat: 10.7755, lon: 106.7021 },
-    'Singapore': { en: 'The Lion City', es: 'La Ciudad del León', lat: 1.3571, lon: 103.8195 },
-    'Hong Kong': { en: 'The Pearl of the Orient', es: 'La Perla de Oriente', lat: 22.2793, lon: 114.1629 },
-    'Taipei': { en: 'The Beautiful Island Capital', es: 'La Capital de la Bella Isla', lat: 25.0375, lon: 121.5637 },
-    'Manila': { en: 'The Pearl of the Orient Seas', es: 'La Perla de los Mares de Oriente', lat: 14.5904, lon: 120.9804 },
-    'Kuala Lumpur': { en: 'The Garden City of Lights', es: 'La Ciudad Jardín de las Luces', lat: 3.1517, lon: 101.6942 },
-    'Hanoi': { en: 'The City of the Rising Dragon', es: 'La Ciudad del Dragón Naciente', lat: 21.0283, lon: 105.854 },
-    'Riyadh': { en: 'The Gardens of the Desert', es: 'Los Jardines del Desierto', lat: 24.6389, lon: 46.716 },
-    'Dubai': { en: 'The City of Gold', es: 'La Ciudad del Oro', lat: 25.2296, lon: 55.2896 },
-    'Abu Dhabi': { en: 'The Garden City', es: 'La Ciudad Jardín', lat: 24.4538, lon: 54.3774 },
-    'Doha': { en: 'The Pearl of the Gulf', es: 'La Perla del Golfo', lat: 25.2856, lon: 51.5264 },
-    'Tel Aviv': { en: 'The White City', es: 'La Ciudad Blanca', lat: 32.0853, lon: 34.7818 },
-    'Jerusalem': { en: 'The Holy City', es: 'La Ciudad Santa', lat: 31.7788, lon: 35.2258 },
-    'Amman': { en: 'The White City', es: 'La Ciudad Blanca', lat: 31.9516, lon: 35.924 },
-    'Beirut': { en: 'The Paris of the Middle East', es: 'El París de Oriente Medio', lat: 33.8959, lon: 35.4784 },
-    'Chennai': { en: 'The Gateway to South India', es: 'La Puerta al Sur de la India', lat: 13.0837, lon: 80.2702 },
-    'Bangalore': { en: 'The Silicon Valley of India', es: 'El Silicon Valley de la India', lat: 12.9768, lon: 77.5901 },
-    'Hyderabad': { en: 'The City of Pearls', es: 'La Ciudad de las Perlas', lat: 17.3606, lon: 78.4741 },
-    'Pune': { en: 'The Oxford of the East', es: 'El Oxford de Oriente', lat: 18.5214, lon: 73.8545 },
-    'Jaipur': { en: 'The Pink City', es: 'La Ciudad Rosa', lat: 26.9155, lon: 75.819 },
-    'Ahmedabad': { en: 'The Manchester of India', es: 'El Mánchester de la India', lat: 23.0215, lon: 72.5801 },
-    'Kyoto': { en: 'The Cultural Heart of Japan', es: 'El Corazón Cultural de Japón', lat: 35.0116, lon: 135.7681 },
-    'Nagoya': { en: 'The Heart of Japan', es: 'El Corazón de Japón', lat: 35.1851, lon: 136.8998 },
-    'Fukuoka': { en: 'The Gateway to Asia', es: 'La Puerta a Asia', lat: 33.5899, lon: 130.4018 },
-    'Busan': { en: 'The Maritime Capital', es: 'La Capital Marítima', lat: 35.18, lon: 129.0752 },
-    'Yangon': { en: 'The Garden City of the East', es: 'La Ciudad Jardín de Oriente', lat: 16.7967, lon: 96.161 },
+    'Tokyo': { en: 'The Land of the Rising Sun', lat: 35.6769, lon: 139.7639 },
+    'Delhi': { en: 'The Heart of India', lat: 28.6328, lon: 77.2198 },
+    'Shanghai': { en: 'The Pearl of the Orient', lat: 31.2313, lon: 121.47 },
+    'Beijing': { en: 'The Forbidden City', lat: 39.9057, lon: 116.3913 },
+    'Mumbai': { en: 'The City of Dreams', lat: 19.055, lon: 72.8692 },
+    'Osaka': { en: 'The Nation\'s Kitchen', lat: 34.6938, lon: 135.5015 },
+    'Dhaka': { en: 'The City of Mosques', lat: 23.7644, lon: 90.389 },
+    'Karachi': { en: 'The City of Lights', lat: 24.8547, lon: 67.0207 },
+    'Kolkata': { en: 'The City of Joy', lat: 22.5726, lon: 88.3639 },
+    'Chengdu': { en: 'The Land of Abundance', lat: 30.6599, lon: 104.0633 },
+    'Guangzhou': { en: 'The City of Flowers', lat: 23.1288, lon: 113.259 },
+    'Shenzhen': { en: 'China\'s Silicon Valley', lat: 22.5446, lon: 114.0545 },
+    'Jakarta': { en: 'The Big Durian', lat: -6.1754, lon: 106.8272 },
+    'Bangkok': { en: 'The City of Angels', lat: 13.7525, lon: 100.4935 },
+    'Seoul': { en: 'The Soul of Asia', lat: 37.5667, lon: 126.9783 },
+    'Ho Chi Minh City': { en: 'The Pearl of the Far East', lat: 10.7755, lon: 106.7021 },
+    'Singapore': { en: 'The Lion City', lat: 1.3571, lon: 103.8195 },
+    'Hong Kong': { en: 'The Pearl of the Orient', lat: 22.2793, lon: 114.1629 },
+    'Taipei': { en: 'The Beautiful Island Capital', lat: 25.0375, lon: 121.5637 },
+    'Manila': { en: 'The Pearl of the Orient Seas', lat: 14.5904, lon: 120.9804 },
+    'Kuala Lumpur': { en: 'The Garden City of Lights', lat: 3.1517, lon: 101.6942 },
+    'Hanoi': { en: 'The City of the Rising Dragon', lat: 21.0283, lon: 105.854 },
+    'Riyadh': { en: 'The Gardens of the Desert', lat: 24.6389, lon: 46.716 },
+    'Dubai': { en: 'The City of Gold', lat: 25.2296, lon: 55.2896 },
+    'Abu Dhabi': { en: 'The Garden City', lat: 24.4538, lon: 54.3774 },
+    'Doha': { en: 'The Pearl of the Gulf', lat: 25.2856, lon: 51.5264 },
+    'Tel Aviv': { en: 'The White City', lat: 32.0853, lon: 34.7818 },
+    'Jerusalem': { en: 'The Holy City', lat: 31.7788, lon: 35.2258 },
+    'Amman': { en: 'The White City', lat: 31.9516, lon: 35.924 },
+    'Beirut': { en: 'The Paris of the Middle East', lat: 33.8959, lon: 35.4784 },
+    'Chennai': { en: 'The Gateway to South India', lat: 13.0837, lon: 80.2702 },
+    'Bangalore': { en: 'The Silicon Valley of India', lat: 12.9768, lon: 77.5901 },
+    'Hyderabad': { en: 'The City of Pearls', lat: 17.3606, lon: 78.4741 },
+    'Pune': { en: 'The Oxford of the East', lat: 18.5214, lon: 73.8545 },
+    'Jaipur': { en: 'The Pink City', lat: 26.9155, lon: 75.819 },
+    'Ahmedabad': { en: 'The Manchester of India', lat: 23.0215, lon: 72.5801 },
+    'Kyoto': { en: 'The Cultural Heart of Japan', lat: 35.0116, lon: 135.7681 },
+    'Nagoya': { en: 'The Heart of Japan', lat: 35.1851, lon: 136.8998 },
+    'Fukuoka': { en: 'The Gateway to Asia', lat: 33.5899, lon: 130.4018 },
+    'Busan': { en: 'The Maritime Capital', lat: 35.18, lon: 129.0752 },
+    'Yangon': { en: 'The Garden City of the East', lat: 16.7967, lon: 96.161 },
 
     // Europe
-    'London': { en: 'The Big Smoke', es: 'La Gran Nube', lat: 51.5074, lon: -0.1278 },
-    'Paris': { en: 'The City of Light', es: 'La Ciudad de la Luz', lat: 48.8535, lon: 2.3484 },
-    'Berlin': { en: 'The City of Freedom', es: 'La Ciudad de la Libertad', lat: 52.5174, lon: 13.3951 },
-    'Madrid': { en: 'The City That Never Sleeps', es: 'La Ciudad que Nunca Duerme', lat: 40.4168, lon: -3.7035 },
-    'Rome': { en: 'The Eternal City', es: 'La Ciudad Eterna', lat: 41.8933, lon: 12.4829 },
-    'Barcelona': { en: 'The City of Counts', es: 'La Ciudad de los Condes', lat: 41.3826, lon: 2.1771 },
-    'Vienna': { en: 'The City of Music', es: 'La Ciudad de la Música', lat: 48.2084, lon: 16.3725 },
-    'Amsterdam': { en: 'The Venice of the North', es: 'La Venecia del Norte', lat: 52.3731, lon: 4.8925 },
-    'Prague': { en: 'The City of a Hundred Spires', es: 'La Ciudad de las Cien Torres', lat: 50.0875, lon: 14.4213 },
-    'Brussels': { en: 'The Capital of Europe', es: 'La Capital de Europa', lat: 50.8467, lon: 4.3525 },
-    'Munich': { en: 'The Heart of Bavaria', es: 'El Corazón de Baviera', lat: 48.1371, lon: 11.5754 },
-    'Milan': { en: 'The Fashion Capital', es: 'La Capital de la Moda', lat: 45.4642, lon: 9.1896 },
-    'Dublin': { en: 'The Fair City', es: 'La Ciudad Justa', lat: 53.3494, lon: -6.2606 },
-    'Lisbon': { en: 'The City of Seven Hills', es: 'La Ciudad de las Siete Colinas', lat: 38.7078, lon: -9.1366 },
-    'Athens': { en: 'The Cradle of Civilization', es: 'La Cuna de la Civilización', lat: 37.9756, lon: 23.7348 },
-    'Stockholm': { en: 'The Venice of the North', es: 'La Venecia del Norte', lat: 59.3251, lon: 18.0711 },
-    'Copenhagen': { en: 'The City of Spires', es: 'La Ciudad de las Torres', lat: 55.6867, lon: 12.5701 },
-    'Oslo': { en: 'The Tiger City', es: 'La Ciudad del Tigre', lat: 59.9133, lon: 10.739 },
-    'Helsinki': { en: 'The Daughter of the Baltic', es: 'La Hija del Báltico', lat: 60.1666, lon: 24.9435 },
-    'Zurich': { en: 'The Little Big City', es: 'La Pequeña Gran Ciudad', lat: 47.3744, lon: 8.541 },
-    'Geneva': { en: 'The Peace Capital', es: 'La Capital de la Paz', lat: 46.2018, lon: 6.1466 },
-    'Budapest': { en: 'The Pearl of the Danube', es: 'La Perla del Danubio', lat: 47.4979, lon: 19.0402 },
-    'Warsaw': { en: 'The Phoenix City', es: 'La Ciudad Fénix', lat: 52.232, lon: 21.0067 },
-    'Krakow': { en: 'The Cultural Capital', es: 'La Capital Cultural', lat: 50.0619, lon: 19.9369 },
-    'Venice': { en: 'The Floating City', es: 'La Ciudad Flotante', lat: 45.4372, lon: 12.3346 },
-    'Florence': { en: 'The Cradle of the Renaissance', es: 'La Cuna del Renacimiento', lat: 43.7698, lon: 11.2556 },
-    'Naples': { en: 'The City of the Sun', es: 'La Ciudad del Sol', lat: 40.8359, lon: 14.2488 },
-    'Edinburgh': { en: 'The Athens of the North', es: 'La Atenas del Norte', lat: 55.9533, lon: -3.1884 },
-    'Manchester': { en: 'The Rainy City', es: 'La Ciudad Lluviosa', lat: 53.4795, lon: -2.2451 },
-    'Liverpool': { en: 'The Pool of Life', es: 'El Charco de la Vida', lat: 53.4072, lon: -2.9917 },
-    'Glasgow': { en: 'The Dear Green Place', es: 'El Querido Lugar Verde', lat: 55.8612, lon: -4.2502 },
-    'Marseille': { en: 'The Gateway to the South', es: 'La Puerta al Sur', lat: 43.2962, lon: 5.37 },
-    'Lyon': { en: 'The Capital of Gastronomy', es: 'La Capital de la Gastronomía', lat: 45.7578, lon: 4.832 },
-    'Nice': { en: 'The Queen of the Riviera', es: 'La Reina de la Riviera', lat: 43.7009, lon: 7.2684 },
-    'Seville': { en: 'The Pearl of Andalusia', es: 'La Perla de Andalucía', lat: 37.3886, lon: -5.9953 },
-    'Valencia': { en: 'The City of Arts and Sciences', es: 'La Ciudad de las Artes y las Ciencias', lat: 39.4697, lon: -0.3763 },
-    'Bilbao': { en: 'The Botxo', es: 'El Botxo', lat: 43.2630, lon: -2.9350 },
-    'Porto': { en: 'The Unvanquished City', es: 'La Ciudad Invicta', lat: 41.1502, lon: -8.6103 },
-    'Hamburg': { en: 'The Gateway to the World', es: 'La Puerta al Mundo', lat: 53.5503, lon: 10.0007 },
-    'Frankfurt': { en: 'The Mainhattan', es: 'El Mainhattan', lat: 50.1106, lon: 8.6821 },
-    'Cologne': { en: 'The Cathedral City', es: 'La Ciudad de la Catedral', lat: 50.9384, lon: 6.96 },
-    'Düsseldorf': { en: 'The Little Paris', es: 'El Pequeño París', lat: 51.2254, lon: 6.7763 },
-    'Rotterdam': { en: 'The Gateway to Europe', es: 'La Puerta a Europa', lat: 51.9244, lon: 4.4777 },
-    'Antwerp': { en: 'The Diamond City', es: 'La Ciudad del Diamante', lat: 51.2211, lon: 4.3997 },
-    'Moscow': { en: 'The Third Rome', es: 'La Tercera Roma', lat: 55.6256, lon: 37.6064 },
-    'St. Petersburg': { en: 'The Venice of the North', es: 'La Venecia del Norte', lat: 59.9607, lon: 30.1587 },
-    'Istanbul': { en: 'Where East Meets West', es: 'Donde el Este se Encuentra con el Oeste', lat: 41.0064, lon: 28.9759 },
+    'London': { en: 'The Big Smoke', lat: 51.5074, lon: -0.1278 },
+    'Paris': { en: 'The City of Light', lat: 48.8535, lon: 2.3484 },
+    'Berlin': { en: 'The City of Freedom', lat: 52.5174, lon: 13.3951 },
+    'Madrid': { en: 'The City That Never Sleeps', lat: 40.4168, lon: -3.7035 },
+    'Rome': { en: 'The Eternal City', lat: 41.8933, lon: 12.4829 },
+    'Barcelona': { en: 'The City of Counts', lat: 41.3826, lon: 2.1771 },
+    'Vienna': { en: 'The City of Music', lat: 48.2084, lon: 16.3725 },
+    'Amsterdam': { en: 'The Venice of the North', lat: 52.3731, lon: 4.8925 },
+    'Prague': { en: 'The City of a Hundred Spires', lat: 50.0875, lon: 14.4213 },
+    'Brussels': { en: 'The Capital of Europe', lat: 50.8467, lon: 4.3525 },
+    'Munich': { en: 'The Heart of Bavaria', lat: 48.1371, lon: 11.5754 },
+    'Milan': { en: 'The Fashion Capital', lat: 45.4642, lon: 9.1896 },
+    'Dublin': { en: 'The Fair City', lat: 53.3494, lon: -6.2606 },
+    'Lisbon': { en: 'The City of Seven Hills', lat: 38.7078, lon: -9.1366 },
+    'Athens': { en: 'The Cradle of Civilization', lat: 37.9756, lon: 23.7348 },
+    'Stockholm': { en: 'The Venice of the North', lat: 59.3251, lon: 18.0711 },
+    'Copenhagen': { en: 'The City of Spires', lat: 55.6867, lon: 12.5701 },
+    'Oslo': { en: 'The Tiger City', lat: 59.9133, lon: 10.739 },
+    'Helsinki': { en: 'The Daughter of the Baltic', lat: 60.1666, lon: 24.9435 },
+    'Zurich': { en: 'The Little Big City', lat: 47.3744, lon: 8.541 },
+    'Geneva': { en: 'The Peace Capital', lat: 46.2018, lon: 6.1466 },
+    'Budapest': { en: 'The Pearl of the Danube', lat: 47.4979, lon: 19.0402 },
+    'Warsaw': { en: 'The Phoenix City', lat: 52.232, lon: 21.0067 },
+    'Krakow': { en: 'The Cultural Capital', lat: 50.0619, lon: 19.9369 },
+    'Venice': { en: 'The Floating City', lat: 45.4372, lon: 12.3346 },
+    'Florence': { en: 'The Cradle of the Renaissance', lat: 43.7698, lon: 11.2556 },
+    'Naples': { en: 'The City of the Sun', lat: 40.8359, lon: 14.2488 },
+    'Edinburgh': { en: 'The Athens of the North', lat: 55.9533, lon: -3.1884 },
+    'Manchester': { en: 'The Rainy City', lat: 53.4795, lon: -2.2451 },
+    'Liverpool': { en: 'The Pool of Life', lat: 53.4072, lon: -2.9917 },
+    'Glasgow': { en: 'The Dear Green Place', lat: 55.8612, lon: -4.2502 },
+    'Marseille': { en: 'The Gateway to the South', lat: 43.2962, lon: 5.37 },
+    'Lyon': { en: 'The Capital of Gastronomy', lat: 45.7578, lon: 4.832 },
+    'Nice': { en: 'The Queen of the Riviera', lat: 43.7009, lon: 7.2684 },
+    'Seville': { en: 'The Pearl of Andalusia', lat: 37.3886, lon: -5.9953 },
+    'Valencia': { en: 'The City of Arts and Sciences', lat: 39.4697, lon: -0.3763 },
+    'Bilbao': { en: 'The Botxo', lat: 43.2630, lon: -2.9350 },
+    'Porto': { en: 'The Unvanquished City', lat: 41.1502, lon: -8.6103 },
+    'Hamburg': { en: 'The Gateway to the World', lat: 53.5503, lon: 10.0007 },
+    'Frankfurt': { en: 'The Mainhattan', lat: 50.1106, lon: 8.6821 },
+    'Cologne': { en: 'The Cathedral City', lat: 50.9384, lon: 6.96 },
+    'Düsseldorf': { en: 'The Little Paris', lat: 51.2254, lon: 6.7763 },
+    'Rotterdam': { en: 'The Gateway to Europe', lat: 51.9244, lon: 4.4777 },
+    'Antwerp': { en: 'The Diamond City', lat: 51.2211, lon: 4.3997 },
+    'Moscow': { en: 'The Third Rome', lat: 55.6256, lon: 37.6064 },
+    'St. Petersburg': { en: 'The Venice of the North', lat: 59.9607, lon: 30.1587 },
+    'Istanbul': { en: 'Where East Meets West', lat: 41.0064, lon: 28.9759 },
 
     // North America
-    'New York': { en: 'The Big Apple', es: 'La Gran Manzana', lat: 40.7127, lon: -74.006 },
-    'Los Angeles': { en: 'The City of Angels', es: 'La Ciudad de los Ángeles', lat: 34.0537, lon: -118.2428 },
-    'Chicago': { en: 'The Windy City', es: 'La Ciudad del Viento', lat: 41.8756, lon: -87.6244 },
-    'Houston': { en: 'Space City', es: 'La Ciudad del Espacio', lat: 29.7589, lon: -95.3677 },
-    'Phoenix': { en: 'The Valley of the Sun', es: 'El Valle del Sol', lat: 33.4484, lon: -112.0741 },
-    'Philadelphia': { en: 'The City of Brotherly Love', es: 'La Ciudad del Amor Fraternal', lat: 39.9527, lon: -75.1635 },
-    'San Antonio': { en: 'The Alamo City', es: 'La Ciudad del Álamo', lat: 29.4246, lon: -98.4951 },
-    'San Diego': { en: 'America\'s Finest City', es: 'La Ciudad más Fina de América', lat: 32.7174, lon: -117.1628 },
-    'Dallas': { en: 'The Big D', es: 'La Gran D', lat: 32.7763, lon: -96.7969 },
-    'San Francisco': { en: 'The Golden Gate City', es: 'La Ciudad del Golden Gate', lat: 37.7879, lon: -122.4075 },
-    'Seattle': { en: 'The Emerald City', es: 'La Ciudad Esmeralda', lat: 47.6038, lon: -122.3301 },
-    'Denver': { en: 'The Mile High City', es: 'La Ciudad a una Milla de Altura', lat: 39.7392, lon: -104.9849 },
-    'Boston': { en: 'The Cradle of Liberty', es: 'La Cuna de la Libertad', lat: 42.3588, lon: -71.0578 },
-    'Austin': { en: 'The Live Music Capital', es: 'La Capital Mundial de la Música en Vivo', lat: 30.2711, lon: -97.7437 },
-    'Nashville': { en: 'Music City', es: 'La Ciudad de la Música', lat: 36.1623, lon: -86.7743 },
-    'Portland': { en: 'The City of Roses', es: 'La Ciudad de las Rosas', lat: 45.5202, lon: -122.6742 },
-    'Las Vegas': { en: 'Sin City', es: 'La Ciudad del Pecado', lat: 36.1674, lon: -115.1484 },
-    'Miami': { en: 'The Magic City', es: 'La Ciudad Mágica', lat: 25.7742, lon: -80.1936 },
-    'Atlanta': { en: 'The City Too Busy to Hate', es: 'La Ciudad Demasiado Ocupada para Odiar', lat: 33.7545, lon: -84.3898 },
-    'New Orleans': { en: 'The Big Easy', es: 'La Gran Facilidad', lat: 29.9561, lon: -90.0734 },
-    'Washington': { en: 'The Nation\'s Capital', es: 'La Capital de la Nación', lat: 38.895, lon: -77.0365 },
-    'Detroit': { en: 'The Motor City', es: 'La Ciudad del Motor', lat: 42.3316, lon: -83.0466 },
-    'Minneapolis': { en: 'The City of Lakes', es: 'La Ciudad de los Lagos', lat: 44.9773, lon: -93.2655 },
-    'San Jose': { en: 'The Capital of Silicon Valley', es: 'La Capital del Silicon Valley', lat: 37.3362, lon: -121.8906 },
-    'Baltimore': { en: 'Charm City', es: 'La Ciudad con Encanto', lat: 39.2909, lon: -76.6108 },
-    'Toronto': { en: 'The Six', es: 'El Seis', lat: 43.6535, lon: -79.3839 },
-    'Montreal': { en: 'The City of Saints', es: 'La Ciudad de los Santos', lat: 45.5032, lon: -73.5698 },
-    'Vancouver': { en: 'The Hollywood of the North', es: 'El Hollywood del Norte', lat: 49.2609, lon: -123.114 },
-    'Calgary': { en: 'The Stampede City', es: 'La Ciudad del Rodeo', lat: 51.0456, lon: -114.0575 },
-    'Ottawa': { en: 'The Capital of Canada', es: 'La Capital de Canadá', lat: 45.4209, lon: -75.6901 },
-    'Quebec City': { en: 'The Gibraltar of America', es: 'El Gibraltar de América', lat: 46.8137, lon: -71.2084 },
-    'Mexico City': { en: 'The City of Palaces', es: 'La Ciudad de los Palacios', lat: 19.4326, lon: -99.1332 },
-    'Guadalajara': { en: 'The Pearl of the West', es: 'La Perla del Occidente', lat: 20.672, lon: -103.3384 },
-    'Monterrey': { en: 'The Sultana del Norte', es: 'La Sultana del Norte', lat: 25.6802, lon: -100.3153 },
-    'Tijuana': { en: 'The Gateway to Mexico', es: 'La Puerta a México', lat: 32.5317, lon: -117.0195 },
-    'Cancun': { en: 'The Mexican Caribbean', es: 'El Caribe Mexicano', lat: 21.1527, lon: -86.8426 },
+    'New York': { en: 'The Big Apple', lat: 40.7127, lon: -74.006 },
+    'Los Angeles': { en: 'The City of Angels', lat: 34.0537, lon: -118.2428 },
+    'Chicago': { en: 'The Windy City', lat: 41.8756, lon: -87.6244 },
+    'Houston': { en: 'Space City', lat: 29.7589, lon: -95.3677 },
+    'Phoenix': { en: 'The Valley of the Sun', lat: 33.4484, lon: -112.0741 },
+    'Philadelphia': { en: 'The City of Brotherly Love', lat: 39.9527, lon: -75.1635 },
+    'San Antonio': { en: 'The Alamo City', lat: 29.4246, lon: -98.4951 },
+    'San Diego': { en: 'America\'s Finest City', lat: 32.7174, lon: -117.1628 },
+    'Dallas': { en: 'The Big D', lat: 32.7763, lon: -96.7969 },
+    'San Francisco': { en: 'The Golden Gate City', lat: 37.7879, lon: -122.4075 },
+    'Seattle': { en: 'The Emerald City', lat: 47.6038, lon: -122.3301 },
+    'Denver': { en: 'The Mile High City', lat: 39.7392, lon: -104.9849 },
+    'Boston': { en: 'The Cradle of Liberty', lat: 42.3588, lon: -71.0578 },
+    'Austin': { en: 'The Live Music Capital', lat: 30.2711, lon: -97.7437 },
+    'Nashville': { en: 'Music City', lat: 36.1623, lon: -86.7743 },
+    'Portland': { en: 'The City of Roses', lat: 45.5202, lon: -122.6742 },
+    'Las Vegas': { en: 'Sin City', lat: 36.1674, lon: -115.1484 },
+    'Miami': { en: 'The Magic City', lat: 25.7742, lon: -80.1936 },
+    'Atlanta': { en: 'The City Too Busy to Hate', lat: 33.7545, lon: -84.3898 },
+    'New Orleans': { en: 'The Big Easy', lat: 29.9561, lon: -90.0734 },
+    'Washington': { en: 'The Nation\'s Capital', lat: 38.895, lon: -77.0365 },
+    'Detroit': { en: 'The Motor City', lat: 42.3316, lon: -83.0466 },
+    'Minneapolis': { en: 'The City of Lakes', lat: 44.9773, lon: -93.2655 },
+    'San Jose': { en: 'The Capital of Silicon Valley', lat: 37.3362, lon: -121.8906 },
+    'Baltimore': { en: 'Charm City', lat: 39.2909, lon: -76.6108 },
+    'Toronto': { en: 'The Six', lat: 43.6535, lon: -79.3839 },
+    'Montreal': { en: 'The City of Saints', lat: 45.5032, lon: -73.5698 },
+    'Vancouver': { en: 'The Hollywood of the North', lat: 49.2609, lon: -123.114 },
+    'Calgary': { en: 'The Stampede City', lat: 51.0456, lon: -114.0575 },
+    'Ottawa': { en: 'The Capital of Canada', lat: 45.4209, lon: -75.6901 },
+    'Quebec City': { en: 'The Gibraltar of America', lat: 46.8137, lon: -71.2084 },
+    'Mexico City': { en: 'The City of Palaces', lat: 19.4326, lon: -99.1332 },
+    'Guadalajara': { en: 'The Pearl of the West', lat: 20.672, lon: -103.3384 },
+    'Monterrey': { en: 'The Sultana del Norte', lat: 25.6802, lon: -100.3153 },
+    'Tijuana': { en: 'The Gateway to Mexico', lat: 32.5317, lon: -117.0195 },
+    'Cancun': { en: 'The Mexican Caribbean', lat: 21.1527, lon: -86.8426 },
 
     // South America
-    'São Paulo': { en: 'The Concrete Jungle', es: 'La Jungla de Concreto', lat: -23.5507, lon: -46.6334 },
-    'Rio de Janeiro': { en: 'The Marvelous City', es: 'La Ciudad Maravillosa', lat: -22.911, lon: -43.2094 },
-    'Buenos Aires': { en: 'The Paris of South America', es: 'El París de Sudamérica', lat: -34.6096, lon: -58.3888 },
-    'Lima': { en: 'The City of Kings', es: 'La Ciudad de los Reyes', lat: -12.046, lon: -77.0306 },
-    'Bogotá': { en: 'The Athens of South America', es: 'La Atenas de Sudamérica', lat: 4.6534, lon: -74.0836 },
-    'Santiago': { en: 'The Jewel of the Andes', es: 'La Joya de los Andes', lat: -33.4378, lon: -70.6505 },
-    'Caracas': { en: 'The Sultana of the Avila', es: 'La Sultana del Ávila', lat: 10.5061, lon: -66.9146 },
-    'Medellín': { en: 'The City of Eternal Spring', es: 'La Ciudad de la Eterna Primavera', lat: 6.2443, lon: -75.5736 },
-    'Quito': { en: 'The Light of America', es: 'La Luz de América', lat: -0.2202, lon: -78.5123 },
-    'Montevideo': { en: 'The Switzerland of America', es: 'La Suiza de América', lat: -34.9059, lon: -56.1913 },
-    'Cartagena': { en: 'The Heroic City', es: 'La Ciudad Heroica', lat: 10.4266, lon: -75.5442 },
-    'Cusco': { en: 'The Navel of the World', es: 'El Ombligo del Mundo', lat: -12.5, lon: -72.5 },
-    'Havana': { en: 'The Pearl of the Antilles', es: 'La Perla de las Antillas', lat: 23.1353, lon: -82.359 },
-    'San Juan': { en: 'The Walled City', es: 'La Ciudad Amurallada', lat: 18.4653, lon: -66.1167 },
+    'São Paulo': { en: 'The Concrete Jungle', lat: -23.5507, lon: -46.6334 },
+    'Rio de Janeiro': { en: 'The Marvelous City', lat: -22.911, lon: -43.2094 },
+    'Buenos Aires': { en: 'The Paris of South America', lat: -34.6096, lon: -58.3888 },
+    'Lima': { en: 'The City of Kings', lat: -12.046, lon: -77.0306 },
+    'Bogotá': { en: 'The Athens of South America', lat: 4.6534, lon: -74.0836 },
+    'Santiago': { en: 'The Jewel of the Andes', lat: -33.4378, lon: -70.6505 },
+    'Caracas': { en: 'The Sultana of the Avila', lat: 10.5061, lon: -66.9146 },
+    'Medellín': { en: 'The City of Eternal Spring', lat: 6.2443, lon: -75.5736 },
+    'Quito': { en: 'The Light of America', lat: -0.2202, lon: -78.5123 },
+    'Montevideo': { en: 'The Switzerland of America', lat: -34.9059, lon: -56.1913 },
+    'Cartagena': { en: 'The Heroic City', lat: 10.4266, lon: -75.5442 },
+    'Cusco': { en: 'The Navel of the World', lat: -12.5, lon: -72.5 },
+    'Havana': { en: 'The Pearl of the Antilles', lat: 23.1353, lon: -82.359 },
+    'San Juan': { en: 'The Walled City', lat: 18.4653, lon: -66.1167 },
 
     // Africa
-    'Cairo': { en: 'The City of a Thousand Minarets', es: 'La Ciudad de los Mil Minaretes', lat: 29.9839, lon: 31.6015 },
-    'Lagos': { en: 'The Giant of Africa', es: 'El Gigante de África', lat: 6.4551, lon: 3.3942 },
-    'Johannesburg': { en: 'The City of Gold', es: 'La Ciudad del Oro', lat: -26.205, lon: 28.0497 },
-    'Cape Town': { en: 'The Mother City', es: 'La Ciudad Madre', lat: -33.9288, lon: 18.4172 },
-    'Nairobi': { en: 'The Green City in the Sun', es: 'La Ciudad Verde bajo el Sol', lat: -1.289, lon: 36.8173 },
-    'Casablanca': { en: 'The White City', es: 'La Ciudad Blanca', lat: 33.5945, lon: -7.62 },
-    'Marrakech': { en: 'The Red City', es: 'La Ciudad Roja', lat: 31.6258, lon: -7.9892 },
-    'Addis Ababa': { en: 'The New Flower', es: 'La Flor Nueva', lat: 9, lon: 38.75 },
-    'Accra': { en: 'The Gateway to West Africa', es: 'La Puerta a África Occidental', lat: 5.5571, lon: -0.2012 },
-    'Dar es Salaam': { en: 'The Haven of Peace', es: 'El Puerto de la Paz', lat: -6.8161, lon: 39.2804 },
-    'Tunis': { en: 'The Olive Tree Capital', es: 'La Capital del Olivo', lat: 33.8439, lon: 9.4001 },
-    'Algiers': { en: 'The White City', es: 'La Ciudad Blanca', lat: 36.7729, lon: 3.0588 },
-    'Kigali': { en: 'The Land of a Thousand Hills', es: 'La Tierra de las Mil Colinas', lat: -1.9534, lon: 30.114 },
-    'Dakar': { en: 'The Gateway to Africa', es: 'La Puerta a África', lat: 14.6934, lon: -17.4479 },
-    'Abuja': { en: 'The Centre of Unity', es: 'El Centro de la Unidad', lat: 9.0643, lon: 7.4893 },
+    'Cairo': { en: 'The City of a Thousand Minarets', lat: 29.9839, lon: 31.6015 },
+    'Lagos': { en: 'The Giant of Africa', lat: 6.4551, lon: 3.3942 },
+    'Johannesburg': { en: 'The City of Gold', lat: -26.205, lon: 28.0497 },
+    'Cape Town': { en: 'The Mother City', lat: -33.9288, lon: 18.4172 },
+    'Nairobi': { en: 'The Green City in the Sun', lat: -1.289, lon: 36.8173 },
+    'Casablanca': { en: 'The White City', lat: 33.5945, lon: -7.62 },
+    'Marrakech': { en: 'The Red City', lat: 31.6258, lon: -7.9892 },
+    'Addis Ababa': { en: 'The New Flower', lat: 9, lon: 38.75 },
+    'Accra': { en: 'The Gateway to West Africa', lat: 5.5571, lon: -0.2012 },
+    'Dar es Salaam': { en: 'The Haven of Peace', lat: -6.8161, lon: 39.2804 },
+    'Tunis': { en: 'The Olive Tree Capital', lat: 33.8439, lon: 9.4001 },
+    'Algiers': { en: 'The White City', lat: 36.7729, lon: 3.0588 },
+    'Kigali': { en: 'The Land of a Thousand Hills', lat: -1.9534, lon: 30.114 },
+    'Dakar': { en: 'The Gateway to Africa', lat: 14.6934, lon: -17.4479 },
+    'Abuja': { en: 'The Centre of Unity', lat: 9.0643, lon: 7.4893 },
 
     // Oceania
-    'Sydney': { en: 'The Harbour City', es: 'La Ciudad del Puerto', lat: -33.8698, lon: 151.2083 },
-    'Melbourne': { en: 'The Garden City', es: 'La Ciudad Jardín', lat: -37.8142, lon: 144.9632 },
-    'Brisbane': { en: 'The River City', es: 'La Ciudad del Río', lat: -27.469, lon: 153.0235 },
-    'Perth': { en: 'The City of Light', es: 'La Ciudad de la Luz', lat: -31.9559, lon: 115.8606 },
-    'Auckland': { en: 'The City of Sails', es: 'La Ciudad de las Velas', lat: -36.8521, lon: 174.7632 },
-    'Wellington': { en: 'The Windy City', es: 'La Ciudad Ventosa', lat: -41.2888, lon: 174.7772 },
-    'Adelaide': { en: 'The City of Churches', es: 'La Ciudad de las Iglesias', lat: -34.9282, lon: 138.5999 },
-    'Gold Coast': { en: 'The Surfers Paradise', es: 'El Paraíso de los Surfistas', lat: -28.0024, lon: 153.4146 },
-    'Canberra': { en: 'The Bush Capital', es: 'La Capital del Monte', lat: -35.2976, lon: 149.1013 },
-    'Christchurch': { en: 'The Garden City', es: 'La Ciudad Jardín', lat: -43.531, lon: 172.6364 }
+    'Sydney': { en: 'The Harbour City', lat: -33.8698, lon: 151.2083 },
+    'Melbourne': { en: 'The Garden City', lat: -37.8142, lon: 144.9632 },
+    'Brisbane': { en: 'The River City', lat: -27.469, lon: 153.0235 },
+    'Perth': { en: 'The City of Light', lat: -31.9559, lon: 115.8606 },
+    'Auckland': { en: 'The City of Sails', lat: -36.8521, lon: 174.7632 },
+    'Wellington': { en: 'The Windy City', lat: -41.2888, lon: 174.7772 },
+    'Adelaide': { en: 'The City of Churches', lat: -34.9282, lon: 138.5999 },
+    'Gold Coast': { en: 'The Surfers Paradise', lat: -28.0024, lon: 153.4146 },
+    'Canberra': { en: 'The Bush Capital', lat: -35.2976, lon: 149.1013 },
+    'Christchurch': { en: 'The Garden City', lat: -43.531, lon: 172.6364 }
 };
 
-// Maps lowercase Spanish city names → WORLD_CITIES key (for cities whose Spanish name differs from English)
-const CITY_ALIASES_ES = {
-    // Asia
-    'tokio': 'Tokyo',
-    'pekín': 'Beijing', 'pekin': 'Beijing',
-    'seúl': 'Seoul', 'seul': 'Seoul',
-    'singapur': 'Singapore',
-    'taipéi': 'Taipei',
-    'hanói': 'Hanoi',
-    'rangún': 'Yangon', 'rangun': 'Yangon',
-    'ciudad ho chi minh': 'Ho Chi Minh City',
-    'doha': 'Doha',
-    'jerusalén': 'Jerusalem', 'jerusalen': 'Jerusalem',
-    // Europe
-    'roma': 'Rome',
-    'florencia': 'Florence',
-    'venecia': 'Venice',
-    'viena': 'Vienna',
-    'lisboa': 'Lisbon',
-    'atenas': 'Athens',
-    'praga': 'Prague',
-    'bruselas': 'Brussels',
-    'ginebra': 'Geneva',
-    'copenhague': 'Copenhagen',
-    'varsovia': 'Warsaw',
-    'cracovia': 'Krakow',
-    'moscú': 'Moscow', 'moscu': 'Moscow',
-    'san petersburgo': 'St. Petersburg',
-    'estambul': 'Istanbul',
-    'nápoles': 'Naples', 'napoles': 'Naples',
-    'edimburgo': 'Edinburgh',
-    'colonia': 'Cologne',
-    'hamburgo': 'Hamburg',
-    'múnich': 'Munich',
-    'el cairo': 'Cairo',
-    // North America
-    'nueva york': 'New York',
-    'nueva orleans': 'New Orleans',
-    'ciudad de méxico': 'Mexico City', 'ciudad de mexico': 'Mexico City',
-    'ciudad de quebec': 'Quebec City',
-    'la habana': 'Havana', 'habana': 'Havana',
-    // South America
-    'río de janeiro': 'Rio de Janeiro', 'rio de janeiro': 'Rio de Janeiro',
-    // Africa
-    'ciudad del cabo': 'Cape Town',
-};
 
-const APP_LANG = document.documentElement.lang?.toLowerCase().startsWith('es') ? 'es' : 'en';
-const I18N = {
-    en: {
-        defaultSubtitle: 'A Beautiful Place to Explore',
-        statusUpdatingMapStyle: 'Updating map style…',
-        statusMapStyleUpdated: 'Map style updated.',
-        statusSearchingCity: 'Searching city…',
-        statusNoResults: 'No results found for that place.',
-        statusLocationUpdated: 'Location updated.',
-        statusSearchCityError: 'Error searching city.',
-        statusRenderingPoster: 'Rendering high-resolution poster… this may take a moment.',
-        statusPosterDownloaded: 'Poster downloaded ({width} × {height} px @ ~{dpi} DPI, {sizeMB}MB).',
-        statusDownloadError: 'Error: {message}. Try a smaller size or refresh.',
-        statusLoadingCity: 'Loading city location…',
-        statusCityLoaded: 'City loaded.',
-        statusLoadCityError: 'Error loading city, using default location.',
-        toggleShowAll: 'Show all',
-        toggleShowLess: 'Show less',
-        statusRenderingPreview: 'Rendering preview…',
-        statusPreviewReady: 'Preview ready.',
-        errGeocodingFailed: 'Geocoding failed',
-        errCanvasRenderingFailed: 'Canvas rendering failed',
-        errCreateImageFailed: 'Failed to create image'
-    },
-    es: {
-        defaultSubtitle: 'Un lugar hermoso para explorar',
-        statusUpdatingMapStyle: 'Actualizando estilo del mapa…',
-        statusMapStyleUpdated: 'Estilo del mapa actualizado.',
-        statusSearchingCity: 'Buscando ciudad…',
-        statusNoResults: 'No se encontraron resultados para ese lugar.',
-        statusLocationUpdated: 'Ubicación actualizada.',
-        statusSearchCityError: 'Error al buscar la ciudad.',
-        statusRenderingPoster: 'Renderizando póster en alta resolución… esto puede tardar un momento.',
-        statusPosterDownloaded: 'Póster descargado ({width} × {height} px a ~{dpi} DPI, {sizeMB}MB).',
-        statusDownloadError: 'Error: {message}. Prueba un tamaño menor o recarga la página.',
-        statusLoadingCity: 'Cargando ubicación de la ciudad…',
-        statusCityLoaded: 'Ciudad cargada.',
-        statusLoadCityError: 'Error al cargar la ciudad; se usará la ubicación predeterminada.',
-        toggleShowAll: 'Mostrar todos',
-        toggleShowLess: 'Mostrar menos',
-        statusRenderingPreview: 'Generando vista previa…',
-        statusPreviewReady: 'Vista previa lista.',
-        errGeocodingFailed: 'Falló la geocodificación',
-        errCanvasRenderingFailed: 'Falló el renderizado del lienzo',
-        errCreateImageFailed: 'No se pudo crear la imagen'
-    }
-};
-
-function t(key, vars = {}) {
-    const dict = I18N[APP_LANG] || I18N.en;
-    const template = dict[key] || I18N.en[key] || key;
-    return template.replace(/\{(\w+)\}/g, (_, name) => String(vars[name] ?? `{${name}}`));
-}
-
-const DEFAULT_SUBTITLE = t('defaultSubtitle');
+const DEFAULT_SUBTITLE = 'A Beautiful Place to Explore';
 
 // Print sizes in inches for DPI calculation
 const PRINT_SIZES = {
@@ -538,7 +438,7 @@ function writeGlobeCityCoordsCache(cache) {
 
 async function geocodeCityCoordinate(cityName) {
     try {
-        const url = `https://api.maptiler.com/geocoding/${encodeURIComponent(cityName)}.json?key=${MAPTILER_KEY}&limit=1&language=${APP_LANG}`;
+        const url = `https://api.maptiler.com/geocoding/${encodeURIComponent(cityName)}.json?key=${MAPTILER_KEY}&limit=1&language=en`;
         const res = await fetch(url);
         if (!res.ok) return null;
         const data = await res.json();
@@ -765,7 +665,7 @@ function generateThemesGrid() {
         card.addEventListener('click', () => {
             elements.styleSelect.value = name;
             localStorage.setItem('mapi_color_theme', name);
-            setStatus(t('statusUpdatingMapStyle'));
+            setStatus('Updating map style\u2026');
             changeMapStyle(name);
             updateSelectedThemePreview(name);
         });
@@ -1319,7 +1219,7 @@ function changeMapStyle(styleKey) {
     currentStyle = styleKey;
     map = initMap([lng, lat], zoom, styleKey);
     setupMapEvents();
-    map.once("load", () => setStatus(t('statusMapStyleUpdated')));
+    map.once("load", () => setStatus('Map style updated.'));
 }
 
 // === GEOCODING ===
@@ -1330,30 +1230,16 @@ function normalize(str) {
 function getCitySubtitle(cityName) {
     const normName = normalize(cityName);
 
-    const getSubtitle = (entry) => entry[APP_LANG] || entry.en;
-
-    // Spanish alias check: resolve Spanish name → English WORLD_CITIES key
-    // Uses normalized comparison so accented inputs (e.g. "París", "Múnich") match too
-    if (APP_LANG === 'es') {
-        const sortedAliases = Object.keys(CITY_ALIASES_ES).sort((a, b) => b.length - a.length);
-        for (const alias of sortedAliases) {
-            if (normName === normalize(alias) || normName.includes(normalize(alias))) {
-                const key = CITY_ALIASES_ES[alias];
-                if (WORLD_CITIES[key]) return getSubtitle(WORLD_CITIES[key]);
-            }
-        }
-    }
-
     // First pass: exact match (accent-insensitive)
-    for (const [city, subtitle] of Object.entries(WORLD_CITIES)) {
-        if (normalize(city) === normName) return getSubtitle(subtitle);
+    for (const [city, data] of Object.entries(WORLD_CITIES)) {
+        if (normalize(city) === normName) return data.en;
     }
 
     // Second pass: input contains a full city name (e.g. "New York City" → "New York")
     // Sort by name length descending so longer (more specific) names match first
     const sortedEntries = Object.entries(WORLD_CITIES).sort((a, b) => b[0].length - a[0].length);
-    for (const [city, subtitle] of sortedEntries) {
-        if (normName.includes(normalize(city))) return getSubtitle(subtitle);
+    for (const [city, data] of sortedEntries) {
+        if (normName.includes(normalize(city))) return data.en;
     }
 
     return DEFAULT_SUBTITLE;
@@ -1370,24 +1256,14 @@ function getLocalCityMatches(query) {
     const results = [];
     for (const [city, data] of Object.entries(WORLD_CITIES)) {
         if (normalize(city).startsWith(norm)) {
-            results.push({ name: city, subtitle: data[APP_LANG] || data.en, lat: data.lat, lon: data.lon, source: 'local' });
+            results.push({ name: city, subtitle: data.en, lat: data.lat, lon: data.lon, source: 'local' });
         }
     }
     // Also check contains (but prioritize startsWith)
     if (results.length < 5) {
         for (const [city, data] of Object.entries(WORLD_CITIES)) {
             if (!normalize(city).startsWith(norm) && normalize(city).includes(norm)) {
-                results.push({ name: city, subtitle: data[APP_LANG] || data.en, lat: data.lat, lon: data.lon, source: 'local' });
-            }
-            if (results.length >= 5) break;
-        }
-    }
-    // Also check Spanish aliases
-    if (APP_LANG === 'es') {
-        for (const [alias, key] of Object.entries(CITY_ALIASES_ES)) {
-            if (normalize(alias).includes(norm) && WORLD_CITIES[key] && !results.some(r => r.name === key)) {
-                const data = WORLD_CITIES[key];
-                results.push({ name: key, subtitle: data.es || data.en, lat: data.lat, lon: data.lon, source: 'local' });
+                results.push({ name: city, subtitle: data.en, lat: data.lat, lon: data.lon, source: 'local' });
             }
             if (results.length >= 5) break;
         }
@@ -1399,7 +1275,7 @@ async function getApiCityMatches(query) {
     if (acAbortController) acAbortController.abort();
     acAbortController = new AbortController();
     try {
-        const url = `https://api.maptiler.com/geocoding/${encodeURIComponent(query)}.json?key=${MAPTILER_KEY}&language=${APP_LANG}&limit=5`;
+        const url = `https://api.maptiler.com/geocoding/${encodeURIComponent(query)}.json?key=${MAPTILER_KEY}&language=en&limit=5`;
         const res = await fetch(url, { signal: acAbortController.signal });
         if (!res.ok) return [];
         const data = await res.json();
@@ -1456,7 +1332,7 @@ function selectAutocompleteItem(li) {
     saveStateToStorage(name, [lon, lat]);
     updateLabels();
     updateFooter(lat, lon);
-    setStatus(t('statusLocationUpdated'));
+    setStatus('Location updated.');
 }
 
 function closeAutocomplete() {
@@ -1530,15 +1406,15 @@ async function searchCity(name) {
     if (!name) return;
 
     try {
-        setStatus(t('statusSearchingCity'));
-        const url = `https://api.maptiler.com/geocoding/${encodeURIComponent(name)}.json?key=${MAPTILER_KEY}&language=${APP_LANG}`;
+        setStatus('Searching city\u2026');
+        const url = `https://api.maptiler.com/geocoding/${encodeURIComponent(name)}.json?key=${MAPTILER_KEY}&language=en`;
         const res = await fetch(url);
 
-        if (!res.ok) throw new Error(t('errGeocodingFailed'));
+        if (!res.ok) throw new Error('Geocoding failed');
 
         const data = await res.json();
         if (!data.features?.length) {
-            setStatus(t('statusNoResults'), true);
+            setStatus('No results found for that place.', true);
             return;
         }
 
@@ -1553,10 +1429,10 @@ async function searchCity(name) {
         saveStateToStorage(cityName, [lon, lat]);
         updateLabels();
         updateFooter(lat, lon);
-        setStatus(t('statusLocationUpdated'));
+        setStatus('Location updated.');
     } catch (err) {
         console.error(err);
-        setStatus(t('statusSearchCityError'), true);
+        setStatus('Error searching city.', true);
     }
 }
 
@@ -1565,14 +1441,14 @@ async function downloadPoster() {
     if (isDownloading) return;
     isDownloading = true;
 
-    setStatus(t('statusRenderingPoster'));
+    setStatus('Rendering high-resolution poster\u2026 this may take a moment.');
 
     try {
         const canvas = await renderPosterImage();
         const selectedSize = elements.sizeSelect.value;
         const printSize = PRINT_SIZES[selectedSize];
 
-        const blob = await new Promise((res, rej) => canvas.toBlob(b => b ? res(b) : rej(new Error(t('errCreateImageFailed'))), "image/png", 1.0));
+        const blob = await new Promise((res, rej) => canvas.toBlob(b => b ? res(b) : rej(new Error('Failed to create image')), "image/png", 1.0));
         const url = URL.createObjectURL(blob);
         const cityName = elements.cityTitle?.textContent?.replace(/\s+/g, "_").toLowerCase() || "city";
 
@@ -1588,9 +1464,7 @@ async function downloadPoster() {
         const socialSize = SOCIAL_SIZES[selectedSize];
         const effectiveWidth = isLandscape ? (printSize?.height || 36) : (printSize?.width || 24);
         const dpi = socialSize ? 0 : Math.round(canvas.width / effectiveWidth);
-        const successMsg = socialSize
-            ? t('statusPosterDownloaded', { width: canvas.width, height: canvas.height, dpi: 'N/A', sizeMB })
-            : t('statusPosterDownloaded', { width: canvas.width, height: canvas.height, dpi, sizeMB });
+        const successMsg = `Poster downloaded (${canvas.width} \u00d7 ${canvas.height} px @ ~${socialSize ? 'N/A' : dpi} DPI, ${sizeMB}MB).`;
         setStatus(successMsg);
         showToast(successMsg);
 
@@ -1608,7 +1482,7 @@ async function downloadPoster() {
         }
     } catch (err) {
         console.error("Download error:", err);
-        const errorMsg = t('statusDownloadError', { message: err.message });
+        const errorMsg = `Error: ${err.message}. Try a smaller size or refresh.`;
         setStatus(errorMsg, true);
         showToast(errorMsg, true);
     } finally {
@@ -1677,7 +1551,7 @@ async function renderPosterImage() {
         mapCanvas.style.visibility = "visible";
     }
 
-    if (!canvas?.width || !canvas?.height) throw new Error(t('errCanvasRenderingFailed'));
+    if (!canvas?.width || !canvas?.height) throw new Error('Canvas rendering failed');
 
     // Add watermark
     const ctx = canvas.getContext('2d');
@@ -1696,15 +1570,15 @@ async function renderPosterImage() {
 async function previewPoster() {
     if (isDownloading) return;
     isDownloading = true;
-    setStatus(t('statusRenderingPreview'));
+    setStatus('Rendering preview\u2026');
     try {
         const canvas = await renderPosterImage();
         const url = canvas.toDataURL('image/png');
         showPreview(url);
-        setStatus(t('statusPreviewReady'));
+        setStatus('Preview ready.');
     } catch (err) {
         console.error("Preview error:", err);
-        const errorMsg = t('statusDownloadError', { message: err.message });
+        const errorMsg = `Error: ${err.message}. Try a smaller size or refresh.`;
         setStatus(errorMsg, true);
         showToast(errorMsg, true);
     } finally {
@@ -1726,7 +1600,7 @@ function setupEventListeners() {
     elements.zoomDecrement.addEventListener("click", () => setZoom(parseFloat(elements.zoomInput.value) - 0.5));
 
     elements.styleSelect.addEventListener("change", () => {
-        setStatus(t('statusUpdatingMapStyle'));
+        setStatus('Updating map style\u2026');
         const style = elements.styleSelect.value;
         localStorage.setItem('mapi_color_theme', style);
         changeMapStyle(style);
@@ -2347,7 +2221,7 @@ function setupIntroModal() {
                 saveStateToStorage(cityName, [lon, lat]);
                 updateLabels();
                 updateFooter(lat, lon);
-                setStatus(t('statusLocationUpdated'));
+                setStatus('Location updated.');
             }
         }, { once: true });
     }
@@ -2445,12 +2319,12 @@ function surpriseMe() {
 
     elements.cityInput.value = randomCity;
     elements.titleInput.value = randomCity.toUpperCase();
-    elements.subtitleInput.value = cityData[APP_LANG] || cityData.en;
+    elements.subtitleInput.value = cityData.en;
     saveStateToStorage(randomCity, [lon, lat]);
     updateLabels();
     updateFooter(lat, lon);
 
-    setStatus(APP_LANG === 'es' ? `${randomCity} con tema ${randomPalette}` : `${randomCity} with ${randomPalette} theme`);
+    setStatus(`${randomCity} with ${randomPalette} theme`);
 }
 
 // === INITIALIZATION ===
@@ -2534,21 +2408,21 @@ async function init() {
 
     if (cityParam) {
         try {
-            setStatus(t('statusLoadingCity'));
-            const res = await fetch(`https://api.maptiler.com/geocoding/${encodeURIComponent(cityParam)}.json?key=${MAPTILER_KEY}&language=${APP_LANG}`);
+            setStatus('Loading city location\u2026');
+            const res = await fetch(`https://api.maptiler.com/geocoding/${encodeURIComponent(cityParam)}.json?key=${MAPTILER_KEY}&language=en`);
             if (res.ok) {
                 const data = await res.json();
                 if (data.features?.length) {
                     initializeApp(data.features[0].center, 12, cityParam);
                     if (hasURLParams) map.once('load', () => applyURLParams());
-                    map.once('load', () => setStatus(t('statusCityLoaded')));
+                    map.once('load', () => setStatus('City loaded.'));
                     setupExtraButtons();
                     return;
                 }
             }
         } catch (err) {
             console.error("Error loading city:", err);
-            setStatus(t('statusLoadCityError'), true);
+            setStatus('Error loading city, using default location.', true);
         }
     }
 
@@ -2570,7 +2444,7 @@ async function init() {
         }
     }
 
-    const defaultCity = APP_LANG === 'es' ? 'Tokio' : 'Tokyo';
+    const defaultCity = 'Tokyo';
 
     initializeApp(INITIAL_CENTER, INITIAL_ZOOM, defaultCity);
     if (hasURLParams) map.once('load', () => applyURLParams());
